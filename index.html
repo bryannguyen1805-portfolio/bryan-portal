@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full bg-slate-50 font-sans antialiased text-slate-800">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bryan Portal | Personal B2B CRM & PM Ops Hub</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              200: '#99f6e4',
+              300: '#5eead4',
+              400: '#2dd4bf',
+              500: '#14b8a6', // Bitrix24 / Ocean Teal
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+              900: '#134e4a',
+            },
+            coral: {
+              500: '#f97316',
+              600: '#ea580c',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .pulse-badge {
+      animation: pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col overflow-hidden bg-slate-100 text-slate-800">
+
+  <!-- ================= TOP HEADER NAVIGATION ================= -->
+  <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between z-30 shrink-0 shadow-sm">
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-700 via-brand-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+          <i data-lucide="layers" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-lg text-slate-900 tracking-tight">BRYAN PORTAL</span>
+            <span class="px-2 py-0.5 text-[11px] font-bold bg-teal-50 text-brand-700 border border-brand-200 rounded-full">OPS HUB 2.0</span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium">B2B CRM Pipeline & PM Workspace</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="hidden md:flex items-center space-x-1 ml-6 bg-slate-100/80 p-1 rounded-xl border border-slate-200">
+        <button onclick="navigateTo('DASHBOARD')" id="nav-DASHBOARD" class="nav-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all text-brand-700 bg-white shadow-sm flex items-center space-x-1.5">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>Dashboard</span>
+        </button>
+        <button onclick="navigateTo('PROJECTS')" id="nav-PROJECTS" class="nav-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center space-x-1.5">
+          <i data-lucide="briefcase" class="w-4 h-4"></i>
+          <span>Workspace Đối Tác</span>
+        </button>
+        <button onclick="navigateTo('TASKS')" id="nav-TASKS" class="nav-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center space-x-1.5">
+          <i data-lucide="check-square" class="w-4 h-4"></i>
+          <span>Nhiệm Vụ (Tasks)</span>
+        </button>
+        <button onclick="navigateTo('CALENDAR')" id="nav-CALENDAR" class="nav-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center space-x-1.5">
+          <i data-lucide="calendar" class="w-4 h-4"></i>
+          <span>Lịch Release</span>
+        </button>
+        <button onclick="navigateTo('NOTIFICATIONS')" id="nav-NOTIFICATIONS" class="nav-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center space-x-1.5 relative">
+          <i data-lucide="bell" class="w-4 h-4"></i>
+          <span>SLA Alerts</span>
+          <span id="badge-alert-count" class="w-2 h-2 rounded-full bg-rose-500 absolute top-1.5 right-1.5"></span>
+        </button>
+        <button onclick="navigateTo('AUTOMATION')" id="nav-AUTOMATION" class="nav-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center space-x-1.5">
+          <i data-lucide="zap" class="w-4 h-4"></i>
+          <span>Automation</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center space-x-3">
+      <!-- Sync Status Pill -->
+      <button onclick="openApiConfigModal()" class="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 text-xs font-medium text-slate-700 transition">
+        <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-amber-500"></span>
+        <span id="sync-status-text">Chế độ Mock Offline</span>
+        <i data-lucide="settings" class="w-3.5 h-3.5 text-slate-400"></i>
+      </button>
+
+      <button onclick="syncDataFromGoogleSheets()" title="Đồng bộ ngay với Google Sheets" class="p-2 rounded-lg bg-teal-50 hover:bg-teal-100 text-brand-700 border border-brand-200 transition">
+        <i data-lucide="refresh-cw" class="w-4 h-4" id="sync-icon"></i>
+      </button>
+
+      <!-- User Profile -->
+      <div class="flex items-center space-x-2 pl-2 border-l border-slate-200">
+        <div class="w-8 h-8 rounded-full bg-brand-800 text-white flex items-center justify-center font-bold text-xs ring-2 ring-brand-500/30">
+          BN
+        </div>
+        <div class="hidden lg:block text-left">
+          <div class="text-xs font-bold text-slate-800 leading-none">Bryan Nguyen</div>
+          <div class="text-[10px] text-brand-600 font-semibold leading-tight">Lead PM / Tech Sales</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT VIEWS ================= -->
+  <main class="flex-1 overflow-y-auto p-4 md:p-6 pb-28">
+
+    <!-- 1. VIEW: DASHBOARD -->
+    <div id="view-DASHBOARD" class="space-y-6 max-w-7xl mx-auto">
+      <!-- KPI Stats -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+          <div>
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Merchant Đang Phối Hợp</div>
+            <div class="text-2xl font-black text-slate-900 mt-1" id="kpi-merchant-count">3</div>
+            <div class="text-xs text-brand-600 font-medium mt-1 flex items-center">
+              <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 mr-0.5"></i> 100% Ký kết chính thức
+            </div>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-teal-50 text-brand-600 flex items-center justify-center">
+            <i data-lucide="store" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+          <div>
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Dự Án Kỹ Thuật Active</div>
+            <div class="text-2xl font-black text-slate-900 mt-1" id="kpi-project-count">3</div>
+            <div class="text-xs text-blue-600 font-medium mt-1">Đang triển khai thực tế</div>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <i data-lucide="git-branch" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-rose-200 shadow-sm flex items-center justify-between ring-2 ring-rose-500/10">
+          <div>
+            <div class="text-xs font-bold text-rose-500 uppercase tracking-wider">Blocker SLA Khẩn Cấp</div>
+            <div class="text-2xl font-black text-rose-600 mt-1" id="kpi-blocker-count">1</div>
+            <div class="text-xs text-rose-600 font-bold mt-1 flex items-center">
+              <i data-lucide="alert-octagon" class="w-3.5 h-3.5 mr-0.5"></i> Cần Ping PIC xử lý
+            </div>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center pulse-badge">
+            <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+          <div>
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nhiệm Vụ Cần Xử Lý</div>
+            <div class="text-2xl font-black text-slate-900 mt-1" id="kpi-task-count">4</div>
+            <div class="text-xs text-amber-600 font-medium mt-1">1 task chạm hạn chót</div>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <i data-lucide="check-circle" class="w-6 h-6"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">Tốc Độ Vận Hành 7 Ngày Qua (Velocity)</h3>
+              <p class="text-xs text-slate-400">Số lượng task hoàn thành và xử lý theo từng ngày</p>
+            </div>
+            <span class="px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-600 rounded-lg">Tuần Này</span>
+          </div>
+          <div class="h-64">
+            <canvas id="velocityChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">Trạng Thái Dự Án Kỹ Thuật</h3>
+              <p class="text-xs text-slate-400">Phân bổ theo giai đoạn triển khai</p>
+            </div>
+          </div>
+          <div class="flex-1 flex items-center justify-center">
+            <div class="w-48 h-48 relative">
+              <canvas id="statusChart"></canvas>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-4 text-xs">
+            <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span><span>UAT / Pilot: 2</span></div>
+            <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span><span>SIT / Dev: 1</span></div>
+            <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span>Blocked: 1</span></div>
+            <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span>Live Production: 0</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CRM Deals Kanban (Approach to Signed) -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-sm font-bold text-slate-800 flex items-center space-x-2">
+              <span>CRM B2B Pipeline: Tiếp Cận & Đàm Phán Hợp Đồng</span>
+              <span class="px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded-full">Bitrix24 Style</span>
+            </h3>
+            <p class="text-xs text-slate-400">Theo dõi tiến trình các chuỗi doanh nghiệp đang deal trước khi sang Dedicated Workspace</p>
+          </div>
+          <button onclick="openNewMerchantModal()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition shadow-sm">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Thêm Deal / Đối Tác</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="crm-deals-kanban">
+          <!-- Cột 1: Tiếp Cận (Approach) -->
+          <div class="bg-slate-50/80 rounded-xl p-3 border border-slate-200">
+            <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-200 text-xs font-bold text-slate-600">
+              <span>1. TIẾP CẬN & KHẢO SÁT</span>
+              <span class="bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded-full text-[10px]">1</span>
+            </div>
+            <div class="space-y-2">
+              <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-xs">
+                <div class="text-xs font-bold text-slate-800">Katinat Saigon Kafe</div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Nhu cầu: Tích hợp Loyalty CRM & VietQR</div>
+                <div class="mt-2 flex items-center justify-between text-[10px]">
+                  <span class="text-brand-600 font-semibold">Quy mô: 80+ quán</span>
+                  <span class="text-slate-400">PIC: Bryan</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cột 2: Demo & Thử Nghiệm -->
+          <div class="bg-slate-50/80 rounded-xl p-3 border border-slate-200">
+            <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-200 text-xs font-bold text-blue-600">
+              <span>2. DEMO KỸ THUẬT</span>
+              <span class="bg-blue-100 text-blue-700 px-1.5 py-0.2 rounded-full text-[10px]">1</span>
+            </div>
+            <div class="space-y-2">
+              <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-xs">
+                <div class="text-xs font-bold text-slate-800">GS25 Vietnam</div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Nhu cầu: SmartPOS All-in-one quầy thu ngân</div>
+                <div class="mt-2 flex items-center justify-between text-[10px]">
+                  <span class="text-blue-600 font-semibold">250+ Cửa hàng</span>
+                  <span class="text-slate-400">Đã gửi tài liệu API</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cột 3: Thương Thảo Hợp Đồng -->
+          <div class="bg-slate-50/80 rounded-xl p-3 border border-slate-200">
+            <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-200 text-xs font-bold text-amber-600">
+              <span>3. ĐÀM PHÁN HỢP ĐỒNG</span>
+              <span class="bg-amber-100 text-amber-700 px-1.5 py-0.2 rounded-full text-[10px]">1</span>
+            </div>
+            <div class="space-y-2">
+              <div class="bg-white p-3 rounded-lg border border-slate-200 shadow-xs">
+                <div class="text-xs font-bold text-slate-800">Golden Gate Group</div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Rà soát biểu phí MDR & Điều khoản SLA 99.9%</div>
+                <div class="mt-2 flex items-center justify-between text-[10px]">
+                  <span class="text-amber-600 font-semibold">400+ Nhà hàng</span>
+                  <span class="text-slate-400">Legal Review</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cột 4: Đã Ký -> Dedicated Workspace -->
+          <div class="bg-teal-50/50 rounded-xl p-3 border border-brand-200">
+            <div class="flex items-center justify-between mb-2 pb-2 border-b border-brand-200 text-xs font-bold text-brand-700">
+              <span>4. ĐÃ KÝ & TRIỂN KHAI</span>
+              <span class="bg-brand-100 text-brand-800 px-1.5 py-0.2 rounded-full text-[10px]">3</span>
+            </div>
+            <div class="space-y-2">
+              <div onclick="selectSpecificMerchant('m-highlands'); navigateTo('PROJECTS');" class="bg-white p-3 rounded-lg border border-brand-200 shadow-xs hover:border-brand-500 cursor-pointer transition">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-800">Highlands Coffee</span>
+                  <span class="w-2 h-2 rounded-full bg-rose-500" title="Đang có blocker"></span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-0.5">2 Dự án kỹ thuật đang phối hợp</div>
+              </div>
+              <div onclick="selectSpecificMerchant('m-thiso'); navigateTo('PROJECTS');" class="bg-white p-3 rounded-lg border border-slate-200 shadow-xs hover:border-brand-500 cursor-pointer transition">
+                <div class="text-xs font-bold text-slate-800">Thiso Retail</div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Hạ tầng thanh toán Mall & Park</div>
+              </div>
+              <div onclick="selectSpecificMerchant('m-pharmacity'); navigateTo('PROJECTS');" class="bg-white p-3 rounded-lg border border-slate-200 shadow-xs hover:border-brand-500 cursor-pointer transition">
+                <div class="text-xs font-bold text-slate-800">Pharmacity</div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Triển khai Pay-by-link & VietQR</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. VIEW: DEDICATED MERCHANT WORKSPACE (PROJECTS) -->
+    <div id="view-PROJECTS" class="hidden space-y-6 max-w-7xl mx-auto">
+      <!-- Merchant Selection Pills -->
+      <div class="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between overflow-x-auto">
+        <div class="flex items-center space-x-2" id="merchant-pills-container">
+          <!-- Rendered dynamically -->
+        </div>
+        <button onclick="openNewMerchantModal()" class="shrink-0 ml-3 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center space-x-1 transition">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Thêm Đối Tác</span>
+        </button>
+      </div>
+
+      <!-- Active Merchant Dedicated Workspace Card -->
+      <div id="active-merchant-workspace" class="space-y-6">
+        <!-- Rendered by renderActiveMerchantWorkspace() -->
+      </div>
+    </div>
+
+    <!-- 3. VIEW: TASKS MANAGEMENT -->
+    <div id="view-TASKS" class="hidden space-y-6 max-w-7xl mx-auto">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-lg font-black text-slate-900 tracking-tight">Hệ Thống Nhiệm Vụ & SLA</h2>
+            <p class="text-xs text-slate-400">Giám sát toàn bộ đầu việc của các dự án kỹ thuật B2B</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="openNewTaskModal()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold flex items-center space-x-2 shadow-sm transition">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              <span>Tạo Task Mới</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters Bar -->
+        <div class="flex flex-wrap items-center gap-2 mb-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="text-xs font-bold text-slate-500 mr-2">Bộ lọc:</span>
+          <select id="filter-merchant" onchange="filterTasksTable()" class="text-xs bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-brand-500">
+            <option value="ALL">Tất cả Đối tác</option>
+          </select>
+          <select id="filter-stage" onchange="filterTasksTable()" class="text-xs bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-brand-500">
+            <option value="ALL">Tất cả Trạng thái</option>
+            <option value="STAGE_TODO">Cần làm (Todo)</option>
+            <option value="STAGE_IN_PROGRESS">Đang làm</option>
+            <option value="STAGE_DONE">Hoàn tất</option>
+          </select>
+          <select id="filter-priority" onchange="filterTasksTable()" class="text-xs bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-brand-500">
+            <option value="ALL">Mọi độ ưu tiên</option>
+            <option value="KHẨN CẤP">Khẩn cấp (SLA)</option>
+            <option value="CAO">Cao</option>
+            <option value="TRUNG BÌNH">Trung bình</option>
+          </select>
+        </div>
+
+        <!-- Tasks Table -->
+        <div class="overflow-x-auto rounded-xl border border-slate-200">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100/80 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
+              <tr>
+                <th class="py-3 px-4">Mã Task</th>
+                <th class="py-3 px-4">Tên Nhiệm Vụ</th>
+                <th class="py-3 px-4">Dự Án / Đối Tác</th>
+                <th class="py-3 px-4">Phụ Trách (PIC)</th>
+                <th class="py-3 px-4">Độ Ưu Tiên</th>
+                <th class="py-3 px-4">Hạn Chót (Due Date)</th>
+                <th class="py-3 px-4">Trạng Thái</th>
+                <th class="py-3 px-4 text-right">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody id="tasks-table-body" class="divide-y divide-slate-200 bg-white">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. VIEW: CALENDAR RELEASE GATES -->
+    <div id="view-CALENDAR" class="hidden space-y-6 max-w-7xl mx-auto">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-lg font-black text-slate-900 tracking-tight">Lịch Mốc Cổng Kỹ Thuật & Release</h2>
+            <p class="text-xs text-slate-400">Giám sát các ngày nghiệm thu SIT, UAT và Pilot thực tế</p>
+          </div>
+          <span class="text-xs font-bold text-brand-700 bg-teal-50 border border-brand-200 px-3 py-1 rounded-lg">Tháng 11 - 12 / 2026</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-4 rounded-xl border border-rose-200 bg-rose-50/40">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-rose-700">22 Tháng 11, 2026</span>
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-200 text-rose-800">SLA KHẨN</span>
+            </div>
+            <div class="font-bold text-sm text-slate-900 mt-2">Mở IP Whitelist Callback Webhook</div>
+            <div class="text-xs text-slate-600 mt-1">Đối tác: Highlands Coffee | PIC: Anh Tuấn (IT)</div>
+            <div class="mt-3 text-xs text-rose-600 font-semibold flex items-center">
+              <i data-lucide="alert-circle" class="w-3.5 h-3.5 mr-1"></i> Đang là blocker chính của dự án Recurring
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl border border-blue-200 bg-blue-50/40">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-blue-700">28 Tháng 11, 2026</span>
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-200 text-blue-800">UAT GATE</span>
+            </div>
+            <div class="font-bold text-sm text-slate-900 mt-2">Nghiệm thu Test Thẻ & Tokenization App</div>
+            <div class="text-xs text-slate-600 mt-1">Đối tác: Highlands Coffee | PIC: Bryan Nguyen</div>
+            <div class="mt-3 text-xs text-slate-500">Mục tiêu: Đạt 100% test case lỗi thẻ ngân hàng</div>
+          </div>
+
+          <div class="p-4 rounded-xl border border-teal-200 bg-teal-50/40">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-brand-700">05 Tháng 12, 2026</span>
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-teal-200 text-teal-800">SIT GATE</span>
+            </div>
+            <div class="font-bold text-sm text-slate-900 mt-2">Nghiệm thu Kết Nối Core ERP Thiso Mall</div>
+            <div class="text-xs text-slate-600 mt-1">Đối tác: Thiso Retail | PIC: Anh Khoa & Bryan</div>
+            <div class="mt-3 text-xs text-slate-500">Mục tiêu: Hoàn tất đối soát giao dịch tự động</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. VIEW: NOTIFICATIONS & SLA -->
+    <div id="view-NOTIFICATIONS" class="hidden space-y-6 max-w-7xl mx-auto">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+        <h2 class="text-lg font-black text-slate-900 tracking-tight mb-1">Nhật Ký Cảnh Báo SLA & Ping PIC</h2>
+        <p class="text-xs text-slate-400 mb-6">Lưu lại các thông báo khẩn cấp và lịch sử bắn nhắc hẹn</p>
+
+        <div class="space-y-3" id="notifications-list">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. VIEW: AUTOMATION -->
+    <div id="view-AUTOMATION" class="hidden space-y-6 max-w-7xl mx-auto">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+        <h2 class="text-lg font-black text-slate-900 tracking-tight mb-1">Cấu Hình Quy Tắc Tự Động Hóa (Automation)</h2>
+        <p class="text-xs text-slate-400 mb-6">Tự động kích hoạt khi có Blocker, quá hạn Due Date hoặc có lệnh Antigravity NLP</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-start justify-between">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="text-xs font-bold text-slate-800">Tự động Soạn Tin Nhắn Ping PIC</span>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">Khi cờ Blocker = TRUE, tự động chuẩn bị sẵn mẫu tin nhắc Zalo/Email cho Stakeholder chịu trách nhiệm.</p>
+            </div>
+            <input type="checkbox" checked class="w-4 h-4 text-brand-600 rounded">
+          </div>
+
+          <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-start justify-between">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="text-xs font-bold text-slate-800">Cảnh Báo Quá Hạn Due Date</span>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">Tự động đánh dấu Task thành Overdue khi thời gian máy tính vượt qua hạn chót.</p>
+            </div>
+            <input type="checkbox" checked class="w-4 h-4 text-brand-600 rounded">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= FIXED BOTTOM ANTIGRAVITY NLP BAR ================= -->
+  <div class="fixed bottom-0 left-0 right-0 p-3 md:p-4 bg-white/95 backdrop-blur-md border-t border-slate-200 z-40 shadow-lg">
+    <div class="max-w-4xl mx-auto">
+      <!-- Quick Prompt Chips -->
+      <div class="flex items-center space-x-2 mb-2 overflow-x-auto text-[11px] pb-1">
+        <span class="font-bold text-slate-400 shrink-0 flex items-center">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-brand-500 mr-1"></i> Mẫu lệnh nhanh:
+        </span>
+        <button onclick="setNlpCommand('Tạo task Highlands test kịch bản thẻ lỗi due date 25/11')" class="shrink-0 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition font-medium border border-slate-200">
+          + Tạo Task Highlands thẻ lỗi
+        </button>
+        <button onclick="setNlpCommand('@highlands khẩn cấp lỗi IP webhook Sandbox trễ 2 ngày')" class="shrink-0 px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg transition font-medium border border-rose-200">
+          ! Bật Blocker Webhook Highlands
+        </button>
+        <button onclick="setNlpCommand('Tạo đối tác Katinat @katinat chuỗi F&B 80 quán PIC Anh Nam 0912345678')" class="shrink-0 px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-brand-700 rounded-lg transition font-medium border border-brand-200">
+          + Tạo Merchant Katinat
+        </button>
+        <button onclick="setNlpCommand('@thiso')" class="shrink-0 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition font-medium border border-slate-200">
+          → Chuyển đến @thiso
+        </button>
+      </div>
+
+      <!-- Input Form -->
+      <form onsubmit="handleCommandSubmit(event)" class="relative flex items-center">
+        <div class="absolute left-3.5 text-brand-600">
+          <i data-lucide="terminal" class="w-4 h-4"></i>
+        </div>
+        <input 
+          id="nlp-command-input" 
+          type="text" 
+          placeholder="Nhập lệnh tự nhiên tiếng Việt (VD: 'Tạo task Highlands test thẻ lỗi due date 25/11' hoặc '@highlands')..." 
+          class="w-full pl-10 pr-24 py-2.5 bg-slate-100/90 hover:bg-slate-100 focus:bg-white text-slate-800 text-xs md:text-sm rounded-xl border border-slate-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition font-medium"
+        />
+        <button 
+          type="submit" 
+          class="absolute right-1.5 px-3.5 py-1.5 bg-gradient-to-r from-brand-700 to-brand-600 hover:from-brand-800 hover:to-brand-700 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1 shadow-sm">
+          <span>Thực Thi</span>
+          <i data-lucide="send" class="w-3.5 h-3.5"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- Modal: Cấu hình API Google Apps Script -->
+  <div id="modal-api-config" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-teal-50 text-brand-600 flex items-center justify-center">
+            <i data-lucide="database" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-800">Cấu Hình Kết Nối Google Sheets API</h3>
+        </div>
+        <button onclick="closeApiConfigModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Google Apps Script Web App URL:</label>
+          <input 
+            type="text" 
+            id="cfg-api-endpoint" 
+            placeholder="https://script.google.com/macros/s/AKfycb.../exec" 
+            class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"
+          />
+          <p class="text-[11px] text-slate-400 mt-1">Lấy từ nút Triển khai (Deploy) -> Web App trong file Code.gs của Google Sheets.</p>
+        </div>
+
+        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-800 space-y-1">
+          <div class="font-bold flex items-center">
+            <i data-lucide="info" class="w-3.5 h-3.5 mr-1"></i> Trạng thái hiện tại:
+          </div>
+          <p>Nếu để trống URL, Bryan Portal sẽ chạy hoàn toàn độc lập ở chế độ **Mock Data Offline** và lưu trên trình duyệt.</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-2 mt-6 pt-3 border-t border-slate-100">
+        <button onclick="closeApiConfigModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold">Đóng</button>
+        <button onclick="saveApiConfig()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-sm">Lưu & Đồng Bộ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Thêm Task Mới -->
+  <div id="modal-new-task" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+        <h3 class="text-base font-bold text-slate-800">Tạo Nhiệm Vụ Mới</h3>
+        <button onclick="closeNewTaskModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form onsubmit="handleSaveNewTask(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Tiêu Đề Task *</label>
+          <input type="text" id="task-title" required placeholder="VD: Test kịch bản thẻ lỗi due date..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-brand-500 outline-none">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Dự Án Trực Thuộc *</label>
+          <select id="task-project-id" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-brand-500 outline-none font-medium">
+            <!-- Rendered dynamically -->
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Người Phụ Trách (PIC)</label>
+            <input type="text" id="task-pic" value="Bryan" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Độ Ưu Tiên</label>
+            <select id="task-priority" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white outline-none">
+              <option value="TRUNG BÌNH">Trung Bình</option>
+              <option value="CAO">Cao</option>
+              <option value="KHẨN CẤP">Khẩn Cấp</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Hạn Chót (Due Date)</label>
+          <input type="date" id="task-due-date" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white outline-none">
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeNewTaskModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-sm">Lưu Nhiệm Vụ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Thêm Merchant Mới -->
+  <div id="modal-new-merchant" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+        <h3 class="text-base font-bold text-slate-800">Thêm Đối Tác Merchant Mới</h3>
+        <button onclick="closeNewMerchantModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form onsubmit="handleSaveNewMerchant(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tên Đối Tác *</label>
+            <input type="text" id="merchant-name" required placeholder="VD: Katinat Saigon Kafe" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-brand-500 outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Alias Tag (@) *</label>
+            <input type="text" id="merchant-alias" required placeholder="@katinat" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-brand-500 outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Ngành Nghề / Quy Mô</label>
+          <input type="text" id="merchant-industry" placeholder="VD: Chuỗi F&B / 80+ Cửa hàng" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-brand-500 outline-none">
+        </div>
+        
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+          <div class="font-bold text-slate-700">Đại diện Stakeholder ban đầu:</div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-slate-600 mb-1">Tên Người Đại Diện</label>
+              <input type="text" id="merchant-stk-name" placeholder="VD: Anh Nam" class="w-full p-2 bg-white border border-slate-300 rounded-lg outline-none">
+            </div>
+            <div>
+              <label class="block text-slate-600 mb-1">Vai Trò</label>
+              <input type="text" id="merchant-stk-role" placeholder="Tech Lead / Project Owner" class="w-full p-2 bg-white border border-slate-300 rounded-lg outline-none">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-slate-600 mb-1">Số Điện Thoại</label>
+              <input type="text" id="merchant-stk-phone" placeholder="0912345678" class="w-full p-2 bg-white border border-slate-300 rounded-lg outline-none">
+            </div>
+            <div>
+              <label class="block text-slate-600 mb-1">Email</label>
+              <input type="email" id="merchant-stk-email" placeholder="nam.tech@katinat.vn" class="w-full p-2 bg-white border border-slate-300 rounded-lg outline-none">
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeNewMerchantModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-sm">Khởi Tạo Đối Tác</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast" class="fixed top-20 right-6 bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-xl flex items-center space-x-2 transition-all duration-300 opacity-0 pointer-events-none z-50 max-w-sm">
+    <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0" id="toast-icon"></i>
+    <span id="toast-message">Nội dung thông báo</span>
+  </div>
+
+  <!-- ================= CORE JAVASCRIPT ENGINE ================= -->
+  <script>
+    // -------------------------------------------------------------
+    // 1. DATA STATE & CONFIGURATION
+    // -------------------------------------------------------------
+    let API_ENDPOINT = localStorage.getItem("bryan_portal_api") || "";
+
+    // Mock initial data if offline or first load
+    let state = {
+      merchants: [
+        { id: "m-highlands", name: "Highlands Coffee", alias: "@highlands", industry: "Chuỗi F&B Toàn Quốc", avatar_letter: "H", color: "bg-red-700" },
+        { id: "m-thiso", name: "Thiso Retail", alias: "@thiso", industry: "Trung tâm Thương mại Mall & Park", avatar_letter: "T", color: "bg-blue-700" },
+        { id: "m-pharmacity", name: "Pharmacity", alias: "@pharmacity", industry: "Chuỗi Bán lẻ Dược phẩm", avatar_letter: "P", color: "bg-emerald-700" }
+      ],
+      stakeholders: [
+        { id: "s-1", merchant_id: "m-highlands", name: "Anh Tuấn", role: "Head of IT & Digital", phone: "0908123456", email: "tuan.it@highlandscoffee.com.vn", group: "Tech Merchant" },
+        { id: "s-2", merchant_id: "m-highlands", name: "Chị Mai", role: "Phụ trách Đối tác - VietinBank", phone: "0912334455", email: "mai.bank@vietinbank.vn", group: "Ngân Hàng Đối Tác" },
+        { id: "s-3", merchant_id: "m-highlands", name: "Bryan Nguyen", role: "Lead PM / Tech Sales Ops", phone: "0934000111", email: "bryan.nguyen@hub.internal", group: "Nội Bộ Bryan" },
+        { id: "s-4", merchant_id: "m-thiso", name: "Anh Khoa", role: "Lead POS Architecture", phone: "0988776655", email: "khoa.arch@thiso.vn", group: "Tech Merchant" },
+        { id: "s-5", merchant_id: "m-thiso", name: "Chị Hương", role: "Relationship Manager - BIDV", phone: "0977221100", email: "huong.bidv@bidv.com.vn", group: "Ngân Hàng Đối Tác" },
+        { id: "s-6", merchant_id: "m-thiso", name: "Bryan Nguyen", role: "Lead PM / Tech Sales Ops", phone: "0934000111", email: "bryan.nguyen@hub.internal", group: "Nội Bộ Bryan" }
+      ],
+      projects: [
+        { 
+          id: "p-hl-1", 
+          merchant_id: "m-highlands", 
+          title: "Recurring Tokenization & Auto-Debit App", 
+          stage: "UAT", 
+          due_date: "2026-11-28", 
+          progress: 75, 
+          tech_gate: "UAT Sandbox & Test Thẻ", 
+          is_blocked: true, 
+          blocker_reason: "Chờ Merchant mở IP whitelist Webhook Callback", 
+          blocker_owner: "Tech Merchant" 
+        },
+        { 
+          id: "p-hl-2", 
+          merchant_id: "m-highlands", 
+          title: "Smart POS Tích hợp VietQR Động", 
+          stage: "PILOT", 
+          due_date: "2026-12-15", 
+          progress: 40, 
+          tech_gate: "Đang nạp firmware 20 máy demo", 
+          is_blocked: false, 
+          blocker_reason: "", 
+          blocker_owner: "" 
+        },
+        { 
+          id: "p-th-1", 
+          merchant_id: "m-thiso", 
+          title: "Hệ thống Thanh toán Tập trung Mall & Park", 
+          stage: "SIT", 
+          due_date: "2026-12-05", 
+          progress: 55, 
+          tech_gate: "Kiểm thử kết nối Core ERP", 
+          is_blocked: false, 
+          blocker_reason: "", 
+          blocker_owner: "" 
+        }
+      ],
+      tasks: [
+        { id: "t-1", project_id: "p-hl-1", title: "Kiểm thử kịch bản trừ tiền định kỳ lỗi thẻ", pic: "Bryan", stage: "STAGE_IN_PROGRESS", priority: "CAO", due_date: "2026-11-25", is_overdue: false },
+        { id: "t-2", project_id: "p-hl-1", title: "Follow up IP Whitelist cho cổng Webhook", pic: "Anh Tuấn", stage: "STAGE_TODO", priority: "KHẨN CẤP", due_date: "2026-11-22", is_overdue: true },
+        { id: "t-3", project_id: "p-hl-2", title: "Bàn giao 20 máy SmartPOS demo cho cửa hàng mẫu", pic: "Bryan", stage: "STAGE_TODO", priority: "TRUNG BÌNH", due_date: "2026-11-30", is_overdue: false },
+        { id: "t-4", project_id: "p-th-1", title: "Rà soát tài liệu tích hợp API v2 với anh Khoa", pic: "Bryan", stage: "STAGE_DONE", priority: "TRUNG BÌNH", due_date: "2026-11-19", is_overdue: false }
+      ]
+    };
+
+    let activeMerchantId = "m-highlands";
+    let velocityChartInstance = null;
+    let statusChartInstance = null;
+
+    // -------------------------------------------------------------
+    // 2. NAVIGATION & TABS
+    // -------------------------------------------------------------
+    function navigateTo(screenId) {
+      const views = ['DASHBOARD', 'PROJECTS', 'TASKS', 'CALENDAR', 'NOTIFICATIONS', 'AUTOMATION'];
+      views.forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        const btn = document.getElementById(`nav-${v}`);
+        if (el) el.classList.add('hidden');
+        if (btn) {
+          btn.classList.remove('text-brand-700', 'bg-white', 'shadow-sm');
+          btn.classList.add('text-slate-600');
+        }
+      });
+
+      const targetView = document.getElementById(`view-${screenId}`);
+      const targetBtn = document.getElementById(`nav-${screenId}`);
+      if (targetView) targetView.classList.remove('hidden');
+      if (targetBtn) {
+        targetBtn.classList.remove('text-slate-600');
+        targetBtn.classList.add('text-brand-700', 'bg-white', 'shadow-sm');
+      }
+
+      if (screenId === 'DASHBOARD') {
+        renderCharts();
+      } else if (screenId === 'PROJECTS') {
+        renderMerchantPills();
+        renderActiveMerchantWorkspace();
+      } else if (screenId === 'TASKS') {
+        renderTasksGrid();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 3. MERCHANT WORKSPACE LOGIC
+    // -------------------------------------------------------------
+    function selectSpecificMerchant(mId) {
+      activeMerchantId = mId;
+      renderMerchantPills();
+      renderActiveMerchantWorkspace();
+    }
+
+    function renderMerchantPills() {
+      const container = document.getElementById("merchant-pills-container");
+      if (!container) return;
+
+      container.innerHTML = state.merchants.map(m => {
+        const isActive = m.id === activeMerchantId;
+        // Check if has blocked project
+        const hasBlocked = state.projects.some(p => p.merchant_id === m.id && (p.is_blocked === true || p.is_blocked === "TRUE"));
+
+        return `
+          <button onclick="selectSpecificMerchant('${m.id}')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 shrink-0 ${
+            isActive 
+              ? 'bg-brand-700 text-white shadow-sm' 
+              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          }">
+            <span class="w-5 h-5 rounded-lg ${m.color || 'bg-brand-800'} text-white text-[10px] flex items-center justify-center font-black">
+              ${m.avatar_letter || m.name.charAt(0)}
+            </span>
+            <span>${m.name}</span>
+            <span class="text-[10px] ${isActive ? 'text-teal-200' : 'text-slate-400'} font-normal">${m.alias}</span>
+            ${hasBlocked ? `<span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>` : ''}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderActiveMerchantWorkspace() {
+      const container = document.getElementById("active-merchant-workspace");
+      if (!container) return;
+
+      const merchant = state.merchants.find(m => m.id === activeMerchantId) || state.merchants[0];
+      if (!merchant) return;
+
+      const merchantProjects = state.projects.filter(p => p.merchant_id === merchant.id);
+      const merchantStakeholders = state.stakeholders.filter(s => s.merchant_id === merchant.id);
+
+      container.innerHTML = `
+        <!-- Merchant Info Card -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+            <div class="flex items-center space-x-4">
+              <div class="w-14 h-14 rounded-2xl ${merchant.color || 'bg-brand-700'} text-white font-black text-2xl flex items-center justify-center shadow-md">
+                ${merchant.avatar_letter || merchant.name.charAt(0)}
+              </div>
+              <div>
+                <div class="flex items-center space-x-2">
+                  <h2 class="text-xl font-black text-slate-900 tracking-tight">${merchant.name}</h2>
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-brand-700 border border-brand-200">${merchant.alias}</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">${merchant.industry} • Trạng thái hợp đồng: <strong class="text-brand-700">Đã Ký Kết & Đang Triển Khai</strong></p>
+              </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <button onclick="openNewTaskModalForMerchant('${merchant.id}')" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-sm">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Thêm Task Kỹ Thuật</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Stakeholders 3 bên -->
+          <div class="mt-6">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Danh Bạ Stakeholders 3 Bên Cố Định</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              ${merchantStakeholders.map(s => `
+                <div class="p-3 rounded-xl border border-slate-200 bg-slate-50/70 flex items-start justify-between">
+                  <div>
+                    <div class="text-[10px] font-extrabold px-2 py-0.5 rounded-md inline-block mb-1 ${
+                      s.group === 'Tech Merchant' ? 'bg-purple-100 text-purple-700' :
+                      s.group === 'Ngân Hàng Đối Tác' ? 'bg-blue-100 text-blue-700' : 'bg-teal-100 text-brand-800'
+                    }">
+                      ${s.group}
+                    </div>
+                    <div class="text-xs font-bold text-slate-800">${s.name}</div>
+                    <div class="text-[11px] text-slate-500">${s.role}</div>
+                    <div class="text-[11px] text-slate-600 font-medium mt-1">${s.phone}</div>
+                  </div>
+                  <div class="flex flex-col space-y-1">
+                    <a href="tel:${s.phone}" title="Gọi điện" class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-brand-600 transition">
+                      <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+                    </a>
+                    <a href="mailto:${s.email}" title="Gửi mail" class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-brand-600 transition">
+                      <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+                    </a>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- Projects List & Blocker SLA -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-bold text-slate-900">Các Dự Án Phối Hợp Kỹ Thuật (${merchantProjects.length})</h3>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4">
+            ${merchantProjects.map(p => {
+              const isBlocked = p.is_blocked === true || p.is_blocked === "TRUE";
+              return `
+                <div class="bg-white p-5 rounded-2xl border ${isBlocked ? 'border-rose-300 ring-2 ring-rose-500/10' : 'border-slate-200/80'} shadow-sm space-y-4">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <div class="flex items-center space-x-2">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${
+                          p.stage === 'UAT' ? 'bg-amber-100 text-amber-800' :
+                          p.stage === 'PILOT' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
+                        }">GIAI ĐOẠN ${p.stage}</span>
+                        <h4 class="font-bold text-sm text-slate-900">${p.title}</h4>
+                      </div>
+                      <p class="text-xs text-slate-500 mt-1">Cổng kỹ thuật: <strong class="text-slate-700">${p.tech_gate}</strong> • Hạn chót: <strong>${p.due_date}</strong></p>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                      <div class="text-right">
+                        <div class="text-xs font-bold text-slate-700">${p.progress}%</div>
+                        <div class="w-24 bg-slate-100 rounded-full h-2 mt-1">
+                          <div class="bg-brand-600 h-2 rounded-full" style="width: ${p.progress}%"></div>
+                        </div>
+                      </div>
+                      <button onclick="toggleBlocker('${p.id}')" class="px-2.5 py-1 rounded-lg text-xs font-bold border transition ${
+                        isBlocked ? 'bg-rose-100 text-rose-700 border-rose-300' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+                      }">
+                        ${isBlocked ? 'Bật Cờ Blocker' : 'Gắn Cờ Blocker'}
+                      </button>
+                    </div>
+                  </div>
+
+                  ${isBlocked ? `
+                    <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div class="flex items-start space-x-2.5">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-600 shrink-0 mt-0.5"></i>
+                        <div>
+                          <div class="text-xs font-bold text-rose-800">BLOCKER SLA: ${p.blocker_reason}</div>
+                          <div class="text-[11px] text-rose-600 mt-0.5">Đơn vị chịu trách nhiệm: <strong>${p.blocker_owner}</strong></div>
+                        </div>
+                      </div>
+
+                      <button onclick="handlePingPIC('${merchant.name}', '${p.title}', '${p.blocker_reason}')" class="shrink-0 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1.5 shadow-sm">
+                        <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                        <span>Bắn Nhắc Hẹn (Ping PIC)</span>
+                      </button>
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+
+      lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------
+    // 4. PING PIC (SLA COPY TEMPLATE)
+    // -------------------------------------------------------------
+    function handlePingPIC(merchantName, projectTitle, reason) {
+      const template = `[BRYAN PORTAL - SLA ALERT] 
+Kính gửi PIC dự án ${merchantName},
+Dự án "${projectTitle}" hiện đang gặp Blocker kỹ thuật:
+- Lý do: ${reason}
+- Cần giải quyết để tránh trễ hạn Release Gate đã cam kết.
+Bryan xin nhờ team hỗ trợ cập nhật tiến độ sớm nhất. Cảm ơn team!`;
+
+      navigator.clipboard.writeText(template).then(() => {
+        showToast("✓ Đã copy mẫu tin nhắn nhắc hẹn SLA vào Clipboard! Hãy dán vào Zalo/Email để gửi PIC.");
+        
+        // Ghi nhận vào Notifications
+        addNotification(`Đã bắn Ping PIC tới đối tác ${merchantName}: ${reason}`);
+      }).catch(err => {
+        console.error("Lỗi copy clipboard:", err);
+        showToast("Không thể tự động copy, vui lòng kiểm tra quyền clipboard!");
+      });
+    }
+
+    // -------------------------------------------------------------
+    // 5. TASKS GRID & MANAGEMENT
+    // -------------------------------------------------------------
+    function renderTasksGrid() {
+      const tbody = document.getElementById("tasks-table-body");
+      if (!tbody) return;
+
+      const merchantFilter = document.getElementById("filter-merchant")?.value || "ALL";
+      const stageFilter = document.getElementById("filter-stage")?.value || "ALL";
+      const priorityFilter = document.getElementById("filter-priority")?.value || "ALL";
+
+      // Cập nhật merchant filter select options
+      const sel = document.getElementById("filter-merchant");
+      if (sel && sel.options.length <= 1) {
+        state.merchants.forEach(m => {
+          const opt = document.createElement("option");
+          opt.value = m.id;
+          opt.textContent = m.name;
+          sel.appendChild(opt);
+        });
+      }
+
+      const filteredTasks = state.tasks.filter(t => {
+        const proj = state.projects.find(p => p.id === t.project_id);
+        const mId = proj ? proj.merchant_id : "internal";
+
+        if (merchantFilter !== "ALL" && mId !== merchantFilter) return false;
+        if (stageFilter !== "ALL" && t.stage !== stageFilter) return false;
+        if (priorityFilter !== "ALL" && t.priority !== priorityFilter) return false;
+        return true;
+      });
+
+      tbody.innerHTML = filteredTasks.map(t => {
+        const proj = state.projects.find(p => p.id === t.project_id);
+        const merchant = proj ? state.merchants.find(m => m.id === proj.merchant_id) : null;
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="py-3 px-4 font-mono font-bold text-slate-500">${t.id}</td>
+            <td class="py-3 px-4">
+              <div class="font-bold text-slate-800 text-xs">${t.title}</div>
+            </td>
+            <td class="py-3 px-4">
+              <span class="font-semibold text-slate-700">${merchant ? merchant.name : 'Nội bộ Bryan'}</span>
+              <div class="text-[10px] text-slate-400">${proj ? proj.title : ''}</div>
+            </td>
+            <td class="py-3 px-4">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
+                ${t.pic || 'Bryan'}
+              </span>
+            </td>
+            <td class="py-3 px-4">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                t.priority === 'KHẨN CẤP' ? 'bg-rose-100 text-rose-700' :
+                t.priority === 'CAO' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
+              }">${t.priority}</span>
+            </td>
+            <td class="py-3 px-4">
+              <span class="${t.is_overdue ? 'text-rose-600 font-bold' : 'text-slate-600'}">${t.due_date || 'N/A'}</span>
+            </td>
+            <td class="py-3 px-4">
+              <select onchange="updateTaskStage('${t.id}', this.value)" class="text-[11px] bg-slate-50 border border-slate-300 rounded px-2 py-1 font-semibold text-slate-700">
+                <option value="STAGE_TODO" ${t.stage === 'STAGE_TODO' ? 'selected' : ''}>Cần làm</option>
+                <option value="STAGE_IN_PROGRESS" ${t.stage === 'STAGE_IN_PROGRESS' ? 'selected' : ''}>Đang làm</option>
+                <option value="STAGE_DONE" ${t.stage === 'STAGE_DONE' ? 'selected' : ''}>Hoàn tất</option>
+              </select>
+            </td>
+            <td class="py-3 px-4 text-right">
+              <button onclick="deleteTask('${t.id}')" class="text-slate-400 hover:text-rose-600 transition p-1">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function filterTasksTable() {
+      renderTasksGrid();
+    }
+
+    function updateTaskStage(taskId, newStage) {
+      const task = state.tasks.find(t => t.id === taskId);
+      if (task) {
+        task.stage = newStage;
+        showToast(`✓ Đã cập nhật trạng thái Task ${taskId}`);
+        updateKpis();
+      }
+    }
+
+    function deleteTask(taskId) {
+      if (confirm(`Bạn có chắc muốn xóa nhiệm vụ ${taskId}?`)) {
+        state.tasks = state.tasks.filter(t => t.id !== taskId);
+        renderTasksGrid();
+        updateKpis();
+        showToast(`✓ Đã xóa task ${taskId}`);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 6. ANTIGRAVITY NLP ENGINE (TIẾNG VIỆT)
+    // -------------------------------------------------------------
+    function setNlpCommand(cmd) {
+      const input = document.getElementById("nlp-command-input");
+      if (input) {
+        input.value = cmd;
+        input.focus();
+      }
+    }
+
+    async function handleCommandSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById("nlp-command-input");
+      const cmd = input.value.trim();
+      if (!cmd) return;
+
+      input.value = "";
+      const lower = cmd.toLowerCase();
+
+      // Case 1: Lệnh chuyển nhanh workspace @merchant
+      if (lower.startsWith("@")) {
+        const aliasTag = lower.split(" ")[0];
+        const merchant = state.merchants.find(m => m.alias.toLowerCase() === aliasTag);
+        if (merchant) {
+          selectSpecificMerchant(merchant.id);
+          navigateTo("PROJECTS");
+          showToast(`✓ Đã chuyển sang không gian đối tác ${merchant.name}`);
+          return;
+        }
+      }
+
+      // Case 2: Kích hoạt Blocker khẩn cấp
+      // Ví dụ: "@highlands khẩn cấp lỗi IP webhook Sandbox trễ 2 ngày"
+      if (lower.includes("khẩn cấp") || lower.includes("blocker") || lower.includes("lỗi ip")) {
+        let matchedProj = null;
+        if (lower.includes("highlands") || lower.includes("@highlands")) {
+          matchedProj = state.projects.find(p => p.merchant_id === "m-highlands");
+        } else if (lower.includes("thiso") || lower.includes("@thiso")) {
+          matchedProj = state.projects.find(p => p.merchant_id === "m-thiso");
+        } else {
+          matchedProj = state.projects[0];
+        }
+
+        if (matchedProj) {
+          matchedProj.is_blocked = true;
+          matchedProj.blocker_reason = cmd.replace(/@\w+/g, '').replace(/khẩn cấp/gi, '').trim() || "Phát sinh blocker khẩn cấp";
+          matchedProj.blocker_owner = "Tech Merchant";
+
+          // Gửi lên backend
+          postDataToGoogleSheets({
+            action: "UPDATE_BLOCKER",
+            project_id: matchedProj.id,
+            is_blocked: true,
+            blocker_reason: matchedProj.blocker_reason,
+            blocker_owner: matchedProj.blocker_owner
+          });
+
+          renderActiveMerchantWorkspace();
+          updateKpis();
+          showToast(`✓ Đã kích hoạt cờ Blocker cho dự án: ${matchedProj.title}`);
+          return;
+        }
+      }
+
+      // Case 3: Tạo Task mới
+      // Ví dụ: "Tạo task Highlands test kịch bản thẻ lỗi due date 25/11"
+      if (lower.includes("tạo task") || lower.includes("task") || lower.includes("thêm task")) {
+        let matchedProj = state.projects.find(p => p.merchant_id === activeMerchantId) || state.projects[0];
+        if (lower.includes("highlands")) matchedProj = state.projects.find(p => p.merchant_id === "m-highlands");
+        if (lower.includes("thiso")) matchedProj = state.projects.find(p => p.merchant_id === "m-thiso");
+
+        let title = cmd.replace(/tạo task|thêm task/gi, '').trim();
+        let dueDate = "2026-11-25";
+        if (lower.includes("due date")) {
+          const parts = title.split(/due date/i);
+          title = parts[0].trim();
+          const rawDate = parts[1].trim();
+          dueDate = rawDate.includes("/") ? `2026-${rawDate.split('/')[1]}-${rawDate.split('/')[0]}` : rawDate;
+        }
+
+        const newTask = {
+          id: "t-" + Date.now().toString().slice(-4),
+          project_id: matchedProj ? matchedProj.id : "internal",
+          title: title || "Nhiệm vụ mới từ NLP",
+          pic: "Bryan",
+          stage: "STAGE_TODO",
+          priority: lower.includes("khẩn") ? "KHẨN CẤP" : (lower.includes("cao") ? "CAO" : "TRUNG BÌNH"),
+          due_date: dueDate,
+          is_overdue: false
+        };
+
+        state.tasks.unshift(newTask);
+        postDataToGoogleSheets({
+          action: "CREATE_TASK",
+          ...newTask
+        });
+
+        renderTasksGrid();
+        updateKpis();
+        showToast(`✓ Antigravity NLP đã tạo Task: "${newTask.title}"`);
+        return;
+      }
+
+      // Case 4: Tạo Merchant mới
+      // Ví dụ: "Tạo đối tác Katinat @katinat chuỗi F&B 80 quán PIC Anh Nam 0912345678"
+      if (lower.includes("tạo đối tác") || lower.includes("tạo merchant")) {
+        const nameMatch = cmd.match(/tạo đối tác\s+([^\s@]+)/i) || ["", "Katinat"];
+        const name = nameMatch[1];
+        const alias = "@" + name.toLowerCase();
+        const newM = {
+          id: "m-" + Date.now().toString().slice(-4),
+          name: name,
+          alias: alias,
+          industry: "B2B Enterprise Merchant",
+          avatar_letter: name.charAt(0).toUpperCase(),
+          color: "bg-emerald-700"
+        };
+        state.merchants.push(newM);
+        postDataToGoogleSheets({
+          action: "CREATE_MERCHANT",
+          name: newM.name,
+          alias: newM.alias,
+          industry: newM.industry
+        });
+
+        renderMerchantPills();
+        selectSpecificMerchant(newM.id);
+        navigateTo("PROJECTS");
+        showToast(`✓ Antigravity NLP đã khởi tạo Merchant mới: ${newM.name}`);
+        return;
+      }
+
+      // Default feedback
+      showToast(`ℹ Đã ghi nhận lệnh: "${cmd}". Bạn có thể thử các mẫu lệnh nhanh ở trên.`);
+    }
+
+    // -------------------------------------------------------------
+    // 7. MODALS & SUBMITS
+    // -------------------------------------------------------------
+    function openNewTaskModal() {
+      const select = document.getElementById("task-project-id");
+      if (select) {
+        select.innerHTML = state.projects.map(p => {
+          const m = state.merchants.find(merchant => merchant.id === p.merchant_id);
+          return `<option value="${p.id}">[${m ? m.name : 'Nội bộ'}] ${p.title}</option>`;
+        }).join('');
+      }
+      document.getElementById("modal-new-task")?.classList.remove("hidden");
+    }
+
+    function openNewTaskModalForMerchant(mId) {
+      openNewTaskModal();
+      const proj = state.projects.find(p => p.merchant_id === mId);
+      if (proj) {
+        document.getElementById("task-project-id").value = proj.id;
+      }
+    }
+
+    function closeNewTaskModal() {
+      document.getElementById("modal-new-task")?.classList.add("hidden");
+    }
+
+    function handleSaveNewTask(e) {
+      e.preventDefault();
+      const title = document.getElementById("task-title").value.trim();
+      const projId = document.getElementById("task-project-id").value;
+      const pic = document.getElementById("task-pic").value.trim() || "Bryan";
+      const priority = document.getElementById("task-priority").value;
+      const dueDate = document.getElementById("task-due-date").value || "2026-11-30";
+
+      const newTask = {
+        id: "t-" + Date.now().toString().slice(-4),
+        project_id: projId,
+        title: title,
+        pic: pic,
+        stage: "STAGE_TODO",
+        priority: priority,
+        due_date: dueDate,
+        is_overdue: false
+      };
+
+      state.tasks.unshift(newTask);
+      postDataToGoogleSheets({ action: "CREATE_TASK", ...newTask });
+      
+      closeNewTaskModal();
+      renderTasksGrid();
+      updateKpis();
+      showToast("✓ Đã tạo nhiệm vụ mới thành công!");
+    }
+
+    function openNewMerchantModal() {
+      document.getElementById("modal-new-merchant")?.classList.remove("hidden");
+    }
+
+    function closeNewMerchantModal() {
+      document.getElementById("modal-new-merchant")?.classList.add("hidden");
+    }
+
+    function handleSaveNewMerchant(e) {
+      e.preventDefault();
+      const name = document.getElementById("merchant-name").value.trim();
+      const alias = document.getElementById("merchant-alias").value.trim();
+      const industry = document.getElementById("merchant-industry").value.trim() || "Doanh nghiệp B2B";
+      const stkName = document.getElementById("merchant-stk-name").value.trim();
+      const stkRole = document.getElementById("merchant-stk-role").value.trim() || "Tech Lead";
+      const stkPhone = document.getElementById("merchant-stk-phone").value.trim();
+      const stkEmail = document.getElementById("merchant-stk-email").value.trim();
+
+      const newMId = "m-" + Date.now().toString().slice(-4);
+      const newM = {
+        id: newMId,
+        name: name,
+        alias: alias.startsWith("@") ? alias : "@" + alias,
+        industry: industry,
+        avatar_letter: name.charAt(0).toUpperCase(),
+        color: "bg-emerald-700"
+      };
+
+      state.merchants.push(newM);
+
+      if (stkName) {
+        state.stakeholders.push({
+          id: "s-" + Date.now().toString().slice(-4),
+          merchant_id: newMId,
+          name: stkName,
+          role: stkRole,
+          phone: stkPhone,
+          email: stkEmail,
+          group: "Tech Merchant"
+        });
+      }
+
+      // Dự án mẫu mặc định
+      const newProjId = "p-" + Date.now().toString().slice(-4);
+      state.projects.push({
+        id: newProjId,
+        merchant_id: newMId,
+        title: "Tích hợp Hạ Tầng Thanh Toán Đa Kênh",
+        stage: "KICKOFF",
+        due_date: "2026-12-20",
+        progress: 10,
+        tech_gate: "Khảo sát kiến trúc kỹ thuật",
+        is_blocked: false,
+        blocker_reason: "",
+        blocker_owner: ""
+      });
+
+      postDataToGoogleSheets({
+        action: "CREATE_MERCHANT",
+        name: newM.name,
+        alias: newM.alias,
+        industry: newM.industry,
+        stakeholder: stkName ? { name: stkName, role: stkRole, phone: stkPhone, email: stkEmail } : null
+      });
+
+      closeNewMerchantModal();
+      renderMerchantPills();
+      selectSpecificMerchant(newMId);
+      navigateTo("PROJECTS");
+      updateKpis();
+      showToast(`✓ Đã thêm đối tác ${name} và mở Workspace riêng!`);
+    }
+
+    function toggleBlocker(projId) {
+      const proj = state.projects.find(p => p.id === projId);
+      if (!proj) return;
+
+      const current = proj.is_blocked === true || proj.is_blocked === "TRUE";
+      if (!current) {
+        const reason = prompt("Nhập lý do Blocker kỹ thuật:", "Chờ mở IP whitelist Webhook Callback");
+        if (reason) {
+          proj.is_blocked = true;
+          proj.blocker_reason = reason;
+          proj.blocker_owner = "Tech Merchant";
+        }
+      } else {
+        proj.is_blocked = false;
+        proj.blocker_reason = "";
+        proj.blocker_owner = "";
+      }
+
+      postDataToGoogleSheets({
+        action: "UPDATE_BLOCKER",
+        project_id: proj.id,
+        is_blocked: proj.is_blocked,
+        blocker_reason: proj.blocker_reason,
+        blocker_owner: proj.blocker_owner
+      });
+
+      renderActiveMerchantWorkspace();
+      updateKpis();
+    }
+
+    // -------------------------------------------------------------
+    // 8. GOOGLE APPS SCRIPT API INTEGRATION
+    // -------------------------------------------------------------
+    function openApiConfigModal() {
+      const input = document.getElementById("cfg-api-endpoint");
+      if (input) input.value = API_ENDPOINT;
+      document.getElementById("modal-api-config")?.classList.remove("hidden");
+    }
+
+    function closeApiConfigModal() {
+      document.getElementById("modal-api-config")?.classList.add("hidden");
+    }
+
+    function saveApiConfig() {
+      const input = document.getElementById("cfg-api-endpoint");
+      API_ENDPOINT = input.value.trim();
+      localStorage.setItem("bryan_portal_api", API_ENDPOINT);
+      closeApiConfigModal();
+      updateSyncStatusUI();
+      if (API_ENDPOINT) {
+        syncDataFromGoogleSheets();
+      } else {
+        showToast("Đã chuyển về chế độ Mock Data Offline.");
+      }
+    }
+
+    function updateSyncStatusUI() {
+      const dot = document.getElementById("sync-status-dot");
+      const text = document.getElementById("sync-status-text");
+      if (API_ENDPOINT) {
+        dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+        text.textContent = "Google Sheets Online";
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-amber-500";
+        text.textContent = "Mock Data Offline";
+      }
+    }
+
+    async function syncDataFromGoogleSheets() {
+      if (!API_ENDPOINT) {
+        showToast("Chưa cấu hình URL Google Apps Script. Bấm nút cài đặt để dán URL!");
+        openApiConfigModal();
+        return;
+      }
+
+      const syncIcon = document.getElementById("sync-icon");
+      if (syncIcon) syncIcon.classList.add("animate-spin");
+
+      try {
+        const res = await fetch(API_ENDPOINT);
+        const data = await res.json();
+
+        if (data.merchants && data.merchants.length > 0) state.merchants = data.merchants;
+        if (data.stakeholders && data.stakeholders.length > 0) state.stakeholders = data.stakeholders;
+        if (data.projects && data.projects.length > 0) state.projects = data.projects;
+        if (data.tasks && data.tasks.length > 0) state.tasks = data.tasks;
+
+        renderMerchantPills();
+        renderActiveMerchantWorkspace();
+        renderTasksGrid();
+        updateKpis();
+        showToast("✓ Đã đồng bộ dữ liệu mới nhất từ Google Sheets!");
+      } catch (err) {
+        console.warn("Lỗi fetch Google Sheets API, duy trì dữ liệu hiện tại:", err);
+        showToast("Không thể kết nối Google Sheets, đang chạy Offline Data.");
+      } finally {
+        if (syncIcon) syncIcon.classList.remove("animate-spin");
+      }
+    }
+
+    async function postDataToGoogleSheets(payload) {
+      if (!API_ENDPOINT) return;
+      try {
+        await fetch(API_ENDPOINT, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        setTimeout(syncDataFromGoogleSheets, 1500);
+      } catch (err) {
+        console.error("Lỗi POST Google Sheets:", err);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 9. CHARTS & KPIS
+    // -------------------------------------------------------------
+    function updateKpis() {
+      const mCount = document.getElementById("kpi-merchant-count");
+      const pCount = document.getElementById("kpi-project-count");
+      const bCount = document.getElementById("kpi-blocker-count");
+      const tCount = document.getElementById("kpi-task-count");
+
+      if (mCount) mCount.textContent = state.merchants.length;
+      if (pCount) pCount.textContent = state.projects.length;
+
+      const blockedCount = state.projects.filter(p => p.is_blocked === true || p.is_blocked === "TRUE").length;
+      if (bCount) bCount.textContent = blockedCount;
+
+      if (tCount) tCount.textContent = state.tasks.length;
+    }
+
+    function renderCharts() {
+      // Velocity Chart
+      const vCtx = document.getElementById('velocityChart')?.getContext('2d');
+      if (vCtx) {
+        if (velocityChartInstance) velocityChartInstance.destroy();
+        velocityChartInstance = new Chart(vCtx, {
+          type: 'line',
+          data: {
+            labels: ['T2 (16/11)', 'T3 (17/11)', 'T4 (18/11)', 'T5 (19/11)', 'T6 (20/11)', 'T7 (21/11)', 'CN (22/11)'],
+            datasets: [
+              {
+                label: 'Tasks Hoàn Thành',
+                data: [3, 5, 4, 7, 6, 8, 5],
+                borderColor: '#0d9488',
+                backgroundColor: 'rgba(13, 148, 136, 0.1)',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.35,
+                pointBackgroundColor: '#0d9488'
+              },
+              {
+                label: 'Blocker Phát Sinh',
+                data: [1, 0, 2, 0, 1, 0, 1],
+                borderColor: '#e11d48',
+                borderWidth: 1.5,
+                borderDash: [4, 4],
+                fill: false,
+                tension: 0.2,
+                pointBackgroundColor: '#e11d48'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11, weight: 'bold' } } }
+            },
+            scales: {
+              y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10 } } },
+              x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+            }
+          }
+        });
+      }
+
+      // Status Chart
+      const sCtx = document.getElementById('statusChart')?.getContext('2d');
+      if (sCtx) {
+        if (statusChartInstance) statusChartInstance.destroy();
+        statusChartInstance = new Chart(sCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['UAT / Pilot', 'SIT / Core', 'Blocked SLA'],
+            datasets: [{
+              data: [2, 1, 1],
+              backgroundColor: ['#14b8a6', '#3b82f6', '#f43f5e'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '72%',
+            plugins: { legend: { display: false } }
+          }
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 10. NOTIFICATIONS & TOAST UTILITY
+    // -------------------------------------------------------------
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      const msg = document.getElementById("toast-message");
+      if (!toast || !msg) return;
+
+      msg.textContent = message;
+      toast.classList.remove("opacity-0", "pointer-events-none");
+      toast.classList.add("opacity-100");
+
+      setTimeout(() => {
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0", "pointer-events-none");
+      }, 3500);
+    }
+
+    function addNotification(text) {
+      const list = document.getElementById("notifications-list");
+      if (!list) return;
+
+      const item = document.createElement("div");
+      item.className = "p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between text-xs";
+      item.innerHTML = `
+        <div class="flex items-center space-x-2">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+          <span class="font-medium text-slate-800">${text}</span>
+        </div>
+        <span class="text-slate-400 text-[10px]">${new Date().toLocaleTimeString()}</span>
+      `;
+      list.prepend(item);
+    }
+
+    // -------------------------------------------------------------
+    // INITIALIZATION
+    // -------------------------------------------------------------
+    window.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      updateSyncStatusUI();
+      renderMerchantPills();
+      renderActiveMerchantWorkspace();
+      renderTasksGrid();
+      updateKpis();
+      renderCharts();
+
+      // Nếu có sẵn API_ENDPOINT thì tự động kéo dữ liệu lần đầu
+      if (API_ENDPOINT) {
+        syncDataFromGoogleSheets();
+      }
+
+      // Add default notification
+      addNotification("Chào mừng Bryan đến với Ops Hub! Hệ thống đã sẵn sàng.");
+    });
+  </script>
+</body>
+</html>
