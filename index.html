@@ -77,16 +77,15 @@
   <aside class="w-64 bg-navy-900 text-slate-300 flex flex-col justify-between shrink-0 border-r border-slate-800 z-30 select-none">
     <div>
       <!-- Brand & Header -->
-      <div class="h-16 px-5 flex items-center space-x-3 border-b border-slate-800/80 bg-navy-950/60">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-600 via-teal-500 to-emerald-400 flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
-          <i data-lucide="briefcase" class="w-5 h-5"></i>
+      <div class="h-16 px-4 flex items-center space-x-3 border-b border-slate-800/80 bg-navy-950/60 shrink-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-teal-600 via-teal-500 to-emerald-400 flex items-center justify-center text-white shadow-lg shadow-teal-500/20 shrink-0">
+          <i data-lucide="briefcase" class="w-4.5 h-4.5"></i>
         </div>
-        <div>
+        <div class="min-w-0 flex-1">
           <div class="flex items-center space-x-1.5">
-            <span class="font-black text-white text-base tracking-tight">BRYAN PORTAL</span>
-            <span class="px-1.5 py-0.5 text-[9px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 rounded">ĐIỀU HÀNH</span>
+            <span class="font-black text-white text-sm tracking-tight whitespace-nowrap">BRYAN PORTAL</span>
           </div>
-          <p class="text-[10px] text-slate-400 font-medium">Quản Lý Công Việc & Dự Án Đối Tác</p>
+          <p class="text-[10px] text-slate-400 font-medium truncate">Quản Lý Dự Án B2B</p>
         </div>
       </div>
 
@@ -107,58 +106,58 @@
       <!-- Navigation Menu Items -->
       <nav class="px-3 space-y-1 mt-2 text-xs font-semibold">
         <button onclick="navigateTo('DASHBOARD')" id="nav-DASHBOARD" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-white bg-teal-600/90 shadow-sm shadow-teal-700/30">
-          <i data-lucide="layout-dashboard" class="w-4 h-4 text-teal-200"></i>
-          <span>Tổng Quan Điều Hành</span>
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-teal-200 shrink-0"></i>
+          <span class="whitespace-nowrap truncate">Tổng Quan Điều Hành</span>
         </button>
 
-        <button onclick="navigateTo('PROJECTS')" id="nav-PROJECTS" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
-          <div class="flex items-center space-x-3">
-            <i data-lucide="layers" class="w-4 h-4 text-slate-400"></i>
-            <span>Dự Án Chuỗi Đối Tác</span>
+        <button onclick="navigateTo('PROJECTS')" id="nav-PROJECTS" class="nav-item w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center space-x-3 min-w-0">
+            <i data-lucide="layers" class="w-4 h-4 text-slate-400 shrink-0"></i>
+            <span class="whitespace-nowrap truncate">Dự Án Chuỗi Đối Tác</span>
           </div>
-          <span class="px-1.5 py-0.5 text-[10px] bg-teal-500/20 text-teal-300 rounded font-bold" id="badge-merchant-count">3 Chuỗi</span>
+          <span class="px-1.5 py-0.5 text-[10px] bg-teal-500/20 text-teal-300 rounded font-bold whitespace-nowrap shrink-0" id="badge-merchant-count">3 Chuỗi</span>
         </button>
 
-        <button onclick="navigateTo('ONBOARDING')" id="nav-ONBOARDING" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
-          <div class="flex items-center space-x-3">
-            <i data-lucide="list-checks" class="w-4 h-4 text-slate-400"></i>
-            <span>Quy Trình Triển Khai</span>
+        <button onclick="navigateTo('ONBOARDING')" id="nav-ONBOARDING" class="nav-item w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center space-x-3 min-w-0">
+            <i data-lucide="list-checks" class="w-4 h-4 text-slate-400 shrink-0"></i>
+            <span class="whitespace-nowrap truncate">Quy Trình Triển Khai</span>
           </div>
-          <span class="px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-bold" id="badge-onboarding-count">2 Chuỗi</span>
+          <span class="px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-bold whitespace-nowrap shrink-0" id="badge-onboarding-count">2 Chuỗi</span>
         </button>
 
-        <button onclick="navigateTo('PIPELINE')" id="nav-PIPELINE" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
-          <div class="flex items-center space-x-3">
-            <i data-lucide="trending-up" class="w-4 h-4 text-slate-400"></i>
-            <span>Phễu Thương Mại</span>
+        <button onclick="navigateTo('PIPELINE')" id="nav-PIPELINE" class="nav-item w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center space-x-3 min-w-0">
+            <i data-lucide="trending-up" class="w-4 h-4 text-slate-400 shrink-0"></i>
+            <span class="whitespace-nowrap truncate">Phễu Thương Mại</span>
           </div>
-          <span class="px-1.5 py-0.5 text-[10px] bg-amber-500/20 text-amber-300 rounded font-bold">3 Thương vụ</span>
+          <span class="px-1.5 py-0.5 text-[10px] bg-amber-500/20 text-amber-300 rounded font-bold whitespace-nowrap shrink-0">3</span>
         </button>
 
-        <button onclick="navigateTo('TASKS')" id="nav-TASKS" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
-          <div class="flex items-center space-x-3">
-            <i data-lucide="check-square" class="w-4 h-4 text-slate-400"></i>
-            <span>Nhiệm Vụ & Tiến Độ</span>
+        <button onclick="navigateTo('TASKS')" id="nav-TASKS" class="nav-item w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center space-x-3 min-w-0">
+            <i data-lucide="check-square" class="w-4 h-4 text-slate-400 shrink-0"></i>
+            <span class="whitespace-nowrap truncate">Nhiệm Vụ & Tiến Độ</span>
           </div>
-          <span class="px-1.5 py-0.5 text-[10px] bg-slate-700 text-slate-300 rounded font-bold" id="badge-task-count">6</span>
+          <span class="px-1.5 py-0.5 text-[10px] bg-slate-700 text-slate-300 rounded font-bold whitespace-nowrap shrink-0" id="badge-task-count">6</span>
         </button>
 
         <button onclick="navigateTo('CALENDAR')" id="nav-CALENDAR" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
-          <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
-          <span>Lịch Họp & Cột Mốc</span>
+          <i data-lucide="calendar" class="w-4 h-4 text-slate-400 shrink-0"></i>
+          <span class="whitespace-nowrap truncate">Lịch Họp & Cột Mốc</span>
         </button>
 
-        <button onclick="navigateTo('NOTIFICATIONS')" id="nav-NOTIFICATIONS" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
-          <div class="flex items-center space-x-3">
-            <i data-lucide="bell" class="w-4 h-4 text-slate-400"></i>
-            <span>Cảnh Báo & Nhắc Hẹn</span>
+        <button onclick="navigateTo('NOTIFICATIONS')" id="nav-NOTIFICATIONS" class="nav-item w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center space-x-3 min-w-0">
+            <i data-lucide="bell" class="w-4 h-4 text-slate-400 shrink-0"></i>
+            <span class="whitespace-nowrap truncate">Cảnh Báo & Nhắc Hẹn</span>
           </div>
-          <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+          <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping shrink-0"></span>
         </button>
 
         <button onclick="navigateTo('AUTOMATION')" id="nav-AUTOMATION" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
-          <i data-lucide="zap" class="w-4 h-4 text-slate-400"></i>
-          <span>Tự Động Hóa</span>
+          <i data-lucide="zap" class="w-4 h-4 text-slate-400 shrink-0"></i>
+          <span class="whitespace-nowrap truncate">Tự Động Hóa</span>
         </button>
       </nav>
     </div>
