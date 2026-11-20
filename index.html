@@ -152,7 +152,7 @@
             <i data-lucide="bell" class="w-4 h-4 text-slate-400 shrink-0"></i>
             <span class="whitespace-nowrap truncate">Cảnh Báo & Nhắc Hẹn</span>
           </div>
-          <span id="badge-notif-dot" class="w-2 h-2 rounded-full bg-rose-500 animate-ping shrink-0"></span>
+          <span id="badge-notif-count" class="px-1.5 py-0.5 text-[10px] bg-rose-500/20 text-rose-300 rounded font-bold whitespace-nowrap shrink-0">0</span>
         </button>
 
         <button onclick="navigateTo('AUTOMATION')" id="nav-AUTOMATION" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
@@ -682,12 +682,42 @@
         </div>
       </div>
 
-      <!-- ================= SCREEN 6: NOTIFICATIONS & SLA LOGS ================= -->
+      <!-- ================= SCREEN 6: NOTIFICATIONS & REMINDERS ================= -->
       <div id="view-NOTIFICATIONS" class="hidden space-y-6 max-w-7xl mx-auto">
+        <!-- Khối A: Cảnh Báo & Nhắc Hẹn Chủ Động -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h2 class="text-lg font-black text-slate-900 tracking-tight mb-1">Nhật Ký Cảnh Báo SLA & Bắn Nhắc Hẹn (Ping PIC)</h2>
-          <p class="text-xs text-slate-400 mb-6">Lịch sử các lần kích hoạt Blocker và copy tin nhắn nhắc hẹn gửi Zalo cho đối tác</p>
-          <div class="space-y-3" id="notifications-log-list"></div>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+            <div>
+              <h2 class="text-lg font-black text-slate-900 tracking-tight">Trung Tâm Cảnh Báo & Nhắc Hẹn</h2>
+              <p class="text-xs text-slate-500">Tự động tổng hợp đầu việc quá hạn, vướng mắc dự án và lịch họp sắp diễn ra</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="requestBrowserNotificationPermission()" id="btn-enable-browser-notif" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition">
+                <i data-lucide="bell-ring" class="w-3.5 h-3.5"></i>
+                <span>Bật thông báo trình duyệt</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-1.5 mb-5">
+            <button onclick="filterAlertsView('ALL')" id="alert-filter-ALL" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-slate-900 text-white shadow-xs transition">Tất cả <span id="alert-count-ALL" class="ml-1 opacity-80">0</span></button>
+            <button onclick="filterAlertsView('URGENT')" id="alert-filter-URGENT" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-rose-50 transition">Khẩn cấp & Quá hạn <span id="alert-count-URGENT" class="ml-1 text-rose-600">0</span></button>
+            <button onclick="filterAlertsView('UPCOMING')" id="alert-filter-UPCOMING" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-amber-50 transition">Sắp tới hạn & Lịch họp <span id="alert-count-UPCOMING" class="ml-1 text-amber-600">0</span></button>
+          </div>
+
+          <div id="active-alerts-container" class="space-y-3"></div>
+        </div>
+
+        <!-- Khối B: Nhật Ký Hoạt Động & Nhắc Hẹn -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between gap-4 mb-4">
+            <div>
+              <h3 class="text-sm font-black text-slate-900">Nhật Ký Hoạt Động & Nhắc Hẹn</h3>
+              <p class="text-xs text-slate-400">Lưu lại lịch sử sao chép tin nhắn Zalo, gỡ vướng mắc và cập nhật đầu việc</p>
+            </div>
+            <button onclick="clearNotificationLogs()" class="px-3 py-1.5 text-xs font-bold text-slate-500 hover:text-rose-600 bg-slate-50 hover:bg-rose-50 border border-slate-200 rounded-xl transition">Xóa nhật ký</button>
+          </div>
+          <div class="space-y-2.5" id="notifications-log-list"></div>
         </div>
       </div>
 
@@ -695,28 +725,38 @@
       <div id="view-AUTOMATION" class="hidden space-y-6 max-w-7xl mx-auto">
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <h2 class="text-lg font-black text-slate-900 tracking-tight mb-1">Cấu Hình Quy Tắc Tự Động Hóa Vận Hành B2B</h2>
-          <p class="text-xs text-slate-400 mb-6">Tự động hoá các phản hồi khi có điểm nghẽn SLA hoặc vượt hạn chót cam kết hợp đồng</p>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-            <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex items-start justify-between">
+          <p class="text-xs text-slate-400 mb-6">Tự động hóa cảnh báo và nhắc hẹn đồng bộ trực tiếp với Trung Tâm Cảnh Báo</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <label class="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex items-start justify-between gap-3 cursor-pointer hover:border-teal-300 transition">
               <div>
                 <div class="flex items-center space-x-2 font-bold text-slate-800">
                   <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  <span>Tự Động Tạo Mẫu Tin Nhắn Zalo Khi Gắn Blocker</span>
+                  <span>Mẫu Tin Nhắn Zalo Khi Gắn Vướng Mắc</span>
                 </div>
-                <p class="text-slate-500 mt-1">Khi cờ Blocker = TRUE, soạn sẵn mẫu tin hối thúc SLA gửi nhóm Zalo dự án 3 bên.</p>
+                <p class="text-slate-500 mt-1">Khi dự án có vướng mắc, tự động soạn sẵn mẫu tin hối thúc gửi nhóm Zalo đối tác.</p>
               </div>
-              <input type="checkbox" checked class="w-4 h-4 text-teal-600 rounded">
-            </div>
-            <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex items-start justify-between">
+              <input id="auto-rule-zalo-blocker" onchange="toggleAutomationRule('autoZaloBlocker', this.checked)" type="checkbox" checked class="w-4 h-4 text-teal-600 rounded shrink-0 mt-0.5">
+            </label>
+            <label class="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex items-start justify-between gap-3 cursor-pointer hover:border-teal-300 transition">
               <div>
                 <div class="flex items-center space-x-2 font-bold text-slate-800">
                   <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  <span>Cảnh Báo Quá Hạn Cột Mốc Nghiệm Thu (Due Date)</span>
+                  <span>Cảnh Báo Quá Hạn & Sắp Đến Hạn</span>
                 </div>
-                <p class="text-slate-500 mt-1">Hệ thống so sánh Due Date với ngày hiện tại để đếm số ngày trễ mốc Go-Live.</p>
+                <p class="text-slate-500 mt-1">So sánh hạn chót với ngày hiện tại để cảnh báo việc trễ hạn và việc sắp đến hạn trong 48 giờ.</p>
               </div>
-              <input type="checkbox" checked class="w-4 h-4 text-teal-600 rounded">
-            </div>
+              <input id="auto-rule-overdue-alert" onchange="toggleAutomationRule('autoOverdueAlert', this.checked)" type="checkbox" checked class="w-4 h-4 text-teal-600 rounded shrink-0 mt-0.5">
+            </label>
+            <label class="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex items-start justify-between gap-3 cursor-pointer hover:border-teal-300 transition">
+              <div>
+                <div class="flex items-center space-x-2 font-bold text-slate-800">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span>Nhắc Lịch Họp Hôm Nay & Ngày Mai</span>
+                </div>
+                <p class="text-slate-500 mt-1">Tự động đưa các cuộc họp sắp diễn ra lên mục Cảnh Báo & Nhắc Hẹn.</p>
+              </div>
+              <input id="auto-rule-meeting-reminder" onchange="toggleAutomationRule('autoMeetingReminder', this.checked)" type="checkbox" checked class="w-4 h-4 text-teal-600 rounded shrink-0 mt-0.5">
+            </label>
           </div>
         </div>
       </div>
@@ -1463,6 +1503,10 @@
         renderCalendarView();
       } else if (screenId === 'TASKS') {
         renderTasksMainView();
+      } else if (screenId === 'NOTIFICATIONS') {
+        renderNotificationsView();
+      } else if (screenId === 'AUTOMATION') {
+        syncAutomationCheckboxes();
       }
     }
 
@@ -2398,14 +2442,19 @@ Xin cảm ơn sự đồng hành của team!`;
     }
 
     function updateNotificationDot() {
-      const dot = document.getElementById("badge-notif-dot");
-      if (!dot) return;
-      const hasOverdue = state.tasks.some(t => t.stage !== 'STAGE_DONE' && getTaskOverdueDays(t) > 0);
-      const hasBlocked = state.projects.some(p => p.is_blocked);
-      if (hasOverdue || hasBlocked) {
-        dot.classList.remove("hidden");
+      const badge = document.getElementById("badge-notif-count");
+      if (!badge) return;
+      const alerts = typeof getActiveAlerts === "function" ? getActiveAlerts() : [];
+      const count = alerts.length;
+      badge.textContent = count;
+      if (count > 0) {
+        badge.className = "px-1.5 py-0.5 text-[10px] bg-rose-500/20 text-rose-300 rounded font-bold whitespace-nowrap shrink-0";
       } else {
-        dot.classList.add("hidden");
+        badge.className = "px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-bold whitespace-nowrap shrink-0";
+      }
+      const notifView = document.getElementById("view-NOTIFICATIONS");
+      if (notifView && !notifView.classList.contains("hidden") && typeof renderNotificationsView === "function") {
+        renderNotificationsView();
       }
     }
 
@@ -3680,6 +3729,7 @@ Xin cảm ơn sự đồng hành của team!`;
       const bTask = document.getElementById("badge-task-count");
       if (bMerchant) bMerchant.textContent = state.merchants.length + " Chuỗi";
       if (bTask) bTask.textContent = pendingTasks;
+      if (typeof updateNotificationDot === "function") updateNotificationDot();
     }
 
     function renderCharts() {
@@ -3863,20 +3913,292 @@ Xin cảm ơn sự đồng hành của team!`;
       }, 3500);
     }
 
+    // -------------------------------------------------------------
+    // 11B. TRUNG TÂM CẢNH BÁO, NHẮC HẸN & QUY TẮC TỰ ĐỘNG HÓA
+    // -------------------------------------------------------------
+    const NOTIF_LOG_KEY = "bryan_portal_notif_logs_v1";
+    const AUTOMATION_KEY = "bryan_portal_automation_v1";
+    let activeAlertFilter = "ALL";
+
+    let automationSettings = (() => {
+      try {
+        const saved = JSON.parse(localStorage.getItem(AUTOMATION_KEY) || "null");
+        if (saved && typeof saved === "object") return { autoZaloBlocker: true, autoOverdueAlert: true, autoMeetingReminder: true, ...saved };
+      } catch (e) {}
+      return { autoZaloBlocker: true, autoOverdueAlert: true, autoMeetingReminder: true };
+    })();
+
+    let notificationLogs = (() => {
+      try {
+        const saved = JSON.parse(localStorage.getItem(NOTIF_LOG_KEY) || "null");
+        if (Array.isArray(saved)) return saved;
+      } catch (e) {}
+      return [];
+    })();
+
+    function saveAutomationSettings() {
+      localStorage.setItem(AUTOMATION_KEY, JSON.stringify(automationSettings));
+    }
+
+    function syncAutomationCheckboxes() {
+      const c1 = document.getElementById("auto-rule-zalo-blocker");
+      const c2 = document.getElementById("auto-rule-overdue-alert");
+      const c3 = document.getElementById("auto-rule-meeting-reminder");
+      if (c1) c1.checked = !!automationSettings.autoZaloBlocker;
+      if (c2) c2.checked = !!automationSettings.autoOverdueAlert;
+      if (c3) c3.checked = !!automationSettings.autoMeetingReminder;
+    }
+
+    function toggleAutomationRule(key, enabled) {
+      automationSettings[key] = !!enabled;
+      saveAutomationSettings();
+      updateNotificationDot();
+      renderNotificationsView();
+      showToast(enabled ? "✓ Đã bật quy tắc tự động hóa" : "Đã tắt quy tắc tự động hóa");
+    }
+
+    function saveNotificationLogs() {
+      localStorage.setItem(NOTIF_LOG_KEY, JSON.stringify(notificationLogs.slice(0, 50)));
+    }
+
     function addNotificationLog(text) {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' • ' + now.toLocaleDateString('vi-VN');
+      notificationLogs.unshift({ id: 'log-' + Date.now(), text, time: timeStr });
+      if (notificationLogs.length > 50) notificationLogs = notificationLogs.slice(0, 50);
+      saveNotificationLogs();
+      renderNotificationLogs();
+    }
+
+    function clearNotificationLogs() {
+      notificationLogs = [];
+      saveNotificationLogs();
+      renderNotificationLogs();
+      showToast("✓ Đã xóa nhật ký hoạt động");
+    }
+
+    function renderNotificationLogs() {
       const list = document.getElementById("notifications-log-list");
       if (!list) return;
-
-      const item = document.createElement("div");
-      item.className = "p-3.5 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-between text-xs";
-      item.innerHTML = `
-        <div class="flex items-center space-x-2.5">
-          <span class="w-2 h-2 rounded-full bg-teal-500"></span>
-          <span class="font-bold text-slate-800">${text}</span>
+      if (notificationLogs.length === 0) {
+        list.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">Chưa có nhật ký hoạt động nào.</div>`;
+        return;
+      }
+      list.innerHTML = notificationLogs.map(item => `
+        <div class="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-3 text-xs">
+          <div class="flex items-center space-x-2.5 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-teal-500 shrink-0"></span>
+            <span class="font-semibold text-slate-800 truncate">${item.text}</span>
+          </div>
+          <span class="text-slate-400 text-[10px] font-mono whitespace-nowrap shrink-0">${item.time}</span>
         </div>
-        <span class="text-slate-400 text-[10px] font-mono">${new Date().toLocaleTimeString()}</span>
-      `;
-      list.prepend(item);
+      `).join('');
+    }
+
+    function getActiveAlerts() {
+      const alerts = [];
+      const todayStr = getTodayIsoDate();
+      const tomorrowDate = new Date(todayStr + 'T00:00:00');
+      tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+      const tomorrowStr = tomorrowDate.toISOString().slice(0, 10);
+
+      // 1. Dự án đang có vướng mắc
+      state.projects.filter(p => p.is_blocked).forEach(p => {
+        const m = state.merchants.find(item => item.id === p.merchant_id);
+        alerts.push({
+          id: `blk-${p.id}`,
+          category: 'URGENT',
+          kind: 'BLOCKER',
+          title: `${m ? m.name : 'Dự án'} • ${p.title}`,
+          detail: p.blocker_reason || 'Dự án đang bị vướng mắc tiến độ cần xử lý gấp',
+          pic: p.pic || 'Phụ trách dự án',
+          merchantId: m ? m.id : null,
+          projectId: p.id,
+          zaloText: `[Nhắc tiến độ - ${m ? m.name : 'Dự án'}] Chào ${p.pic || 'anh/chị'}, dự án "${p.title}" hiện đang vướng: "${p.blocker_reason || 'cần hỗ trợ xử lý'}". Nhờ team ưu tiên kiểm tra giúp Bryan nhé!`
+        });
+      });
+
+      // 2. Đầu việc quá hạn & sắp đến hạn (trong 48h)
+      if (automationSettings.autoOverdueAlert) {
+        state.tasks.filter(t => t.stage !== 'STAGE_DONE' && t.due_date).forEach(t => {
+          const overdueDays = getTaskOverdueDays(t);
+          const proj = state.projects.find(p => p.id === t.project_id);
+          const m = proj ? state.merchants.find(item => item.id === proj.merchant_id) : null;
+          const mName = m ? m.name : 'Nội bộ Bryan';
+
+          if (overdueDays > 0) {
+            alerts.push({
+              id: `tsk-over-${t.id}`,
+              category: 'URGENT',
+              kind: 'TASK_OVERDUE',
+              title: t.title,
+              detail: `${mName} • Trễ hạn ${overdueDays} ngày (Hạn: ${t.due_date})`,
+              pic: t.pic || 'Bryan',
+              taskId: t.id,
+              merchantId: m ? m.id : null,
+              zaloText: `[Nhắc đầu việc quá hạn] Chào ${t.pic || 'bạn'}, đầu việc "${t.title}" (${mName}) đã trễ ${overdueDays} ngày so với hạn ${t.due_date}. Nhờ cập nhật tiến độ giúp Bryan nhé!`
+            });
+          } else {
+            const diffDays = Math.round((new Date(t.due_date + 'T00:00:00') - new Date(todayStr + 'T00:00:00')) / 86400000);
+            if (diffDays >= 0 && diffDays <= 2) {
+              const dueLabel = diffDays === 0 ? 'Hạn hôm nay' : (diffDays === 1 ? 'Hạn ngày mai' : 'Còn 2 ngày tới hạn');
+              alerts.push({
+                id: `tsk-due-${t.id}`,
+                category: 'UPCOMING',
+                kind: 'TASK_DUE',
+                title: t.title,
+                detail: `${mName} • ${dueLabel} (${t.due_date})`,
+                pic: t.pic || 'Bryan',
+                taskId: t.id,
+                merchantId: m ? m.id : null,
+                zaloText: `[Nhắc hạn chót] Chào ${t.pic || 'bạn'}, đầu việc "${t.title}" (${mName}) ${dueLabel.toLowerCase()} (${t.due_date}). Nhờ kiểm tra hoàn tất đúng hẹn nhé!`
+              });
+            }
+          }
+        });
+      }
+
+      // 3. Lịch họp hôm nay & ngày mai
+      if (automationSettings.autoMeetingReminder && Array.isArray(state.meetings)) {
+        state.meetings.filter(mt => mt.date === todayStr || mt.date === tomorrowStr).forEach(mt => {
+          const isToday = mt.date === todayStr;
+          alerts.push({
+            id: `meet-${mt.id}`,
+            category: 'UPCOMING',
+            kind: 'MEETING',
+            title: `${mt.time || ''} • ${mt.title}`,
+            detail: `${isToday ? 'Họp hôm nay' : 'Họp ngày mai'} (${mt.date}) • ${mt.merchant || 'Nội bộ'} • ${mt.participants || ''}`,
+            pic: mt.participants || 'Bryan',
+            zaloText: `[Nhắc lịch họp] Mời anh/chị tham gia cuộc họp "${mt.title}" vào lúc ${mt.time || ''} ngày ${mt.date}.`
+          });
+        });
+      }
+
+      return alerts;
+    }
+
+    function filterAlertsView(filter) {
+      activeAlertFilter = filter;
+      const activeCls = {
+        ALL: "px-3 py-1.5 text-xs font-bold rounded-xl bg-slate-900 text-white shadow-xs transition",
+        URGENT: "px-3 py-1.5 text-xs font-bold rounded-xl bg-rose-600 text-white shadow-xs transition",
+        UPCOMING: "px-3 py-1.5 text-xs font-bold rounded-xl bg-amber-500 text-white shadow-xs transition"
+      };
+      ['ALL', 'URGENT', 'UPCOMING'].forEach(f => {
+        const btn = document.getElementById(`alert-filter-${f}`);
+        if (!btn) return;
+        btn.className = f === filter
+          ? activeCls[f]
+          : "px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition";
+      });
+      renderNotificationsView();
+    }
+
+    function copyAlertZalo(encodedMsg, title) {
+      const msg = decodeURIComponent(encodedMsg);
+      if (navigator.clipboard) navigator.clipboard.writeText(msg);
+      addNotificationLog(`Đã sao chép tin nhắn nhắc Zalo: "${title}"`);
+      showToast("✓ Đã sao chép mẫu tin nhắn nhắc Zalo!");
+    }
+
+    function resolveProjectBlockerFromAlert(projectId) {
+      const p = state.projects.find(item => item.id === projectId);
+      if (!p) return;
+      p.is_blocked = false;
+      p.blocker_reason = "";
+      saveStateStorage();
+      updateAllKpis();
+      renderDashboardBlockers();
+      renderMerchantWorkspaceBody();
+      updateNotificationDot();
+      renderNotificationsView();
+      addNotificationLog(`Đã gỡ vướng mắc cho dự án "${p.title}"`);
+      showToast("✓ Đã gỡ vướng mắc dự án!");
+    }
+
+    function requestBrowserNotificationPermission() {
+      if (!("Notification" in window)) {
+        showToast("Trình duyệt hiện tại không hỗ trợ thông báo đẩy.");
+        return;
+      }
+      Notification.requestPermission().then(perm => {
+        if (perm === "granted") {
+          const alerts = getActiveAlerts();
+          new Notification("Bryan Portal", {
+            body: alerts.length > 0 ? `Hiện có ${alerts.length} cảnh báo & nhắc hẹn cần chú ý.` : "Hệ thống thông báo đã sẵn sàng!"
+          });
+          showToast("✓ Đã bật thông báo trên trình duyệt!");
+        } else {
+          showToast("Bạn đã từ chối quyền thông báo trên trình duyệt.");
+        }
+      });
+    }
+
+    function renderNotificationsView() {
+      const container = document.getElementById("active-alerts-container");
+      if (!container) return;
+
+      const allAlerts = getActiveAlerts();
+      const urgentCount = allAlerts.filter(a => a.category === 'URGENT').length;
+      const upcomingCount = allAlerts.filter(a => a.category === 'UPCOMING').length;
+
+      const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      setTxt("alert-count-ALL", allAlerts.length);
+      setTxt("alert-count-URGENT", urgentCount);
+      setTxt("alert-count-UPCOMING", upcomingCount);
+
+      const visible = allAlerts.filter(a => activeAlertFilter === 'ALL' || a.category === activeAlertFilter);
+
+      if (visible.length === 0) {
+        container.innerHTML = `
+          <div class="py-10 text-center bg-emerald-50/40 rounded-2xl border border-emerald-200">
+            <i data-lucide="shield-check" class="w-8 h-8 text-emerald-600 mx-auto mb-2"></i>
+            <p class="text-sm font-bold text-emerald-900">Không có cảnh báo hay nhắc hẹn nào đang chờ xử lý!</p>
+            <p class="text-xs text-emerald-700 mt-1">Mọi đầu việc và dự án chuỗi đều đang đúng tiến độ.</p>
+          </div>
+        `;
+      } else {
+        container.innerHTML = visible.map(a => {
+          const isUrgent = a.category === 'URGENT';
+          const badge = a.kind === 'BLOCKER' ? 'VƯỚNG MẮC DỰ ÁN' : (a.kind === 'TASK_OVERDUE' ? 'QUÁ HẠN' : (a.kind === 'MEETING' ? 'LỊCH HỌP' : 'SẮP TỚI HẠN'));
+          return `
+            <div class="p-4 rounded-2xl border ${isUrgent ? 'border-rose-200 bg-rose-50/30' : 'border-amber-200 bg-amber-50/30'} flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+              <div class="space-y-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-[10px] font-extrabold px-2 py-0.5 rounded ${isUrgent ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}">${badge}</span>
+                  <span class="text-xs font-bold text-slate-900">${a.title}</span>
+                </div>
+                <p class="text-xs text-slate-600">${a.detail}</p>
+                <p class="text-[11px] text-slate-500">Phụ trách: <span class="font-semibold text-slate-700">${a.pic}</span></p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 shrink-0">
+                ${(a.kind !== 'BLOCKER' || automationSettings.autoZaloBlocker) ? `
+                  <button onclick="copyAlertZalo('${encodeURIComponent(a.zaloText)}', '${a.title.replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-xl text-xs font-bold flex items-center space-x-1 transition">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>Nhắc Zalo</span>
+                  </button>
+                ` : ''}
+                ${a.taskId ? `
+                  <button onclick="toggleTaskQuickDone('${a.taskId}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1 transition">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                    <span>Hoàn tất</span>
+                  </button>
+                ` : ''}
+                ${a.projectId ? `
+                  <button onclick="resolveProjectBlockerFromAlert('${a.projectId}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition">Gỡ vướng mắc</button>
+                ` : ''}
+                ${a.merchantId ? `
+                  <button onclick="openMerchantWorkspace('${a.merchantId}')" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition">Mở dự án</button>
+                ` : (a.kind === 'MEETING' ? `
+                  <button onclick="navigateTo('CALENDAR')" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition">Mở lịch</button>
+                ` : '')}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+      renderNotificationLogs();
+      lucide.createIcons();
     }
 
     // -------------------------------------------------------------
@@ -4841,12 +5163,17 @@ Xin cảm ơn sự đồng hành của team!`;
       renderTasksCards();
       renderOnboardingView();
       renderCharts();
+      syncAutomationCheckboxes();
+      renderNotificationLogs();
+      updateNotificationDot();
 
       if (API_ENDPOINT) {
         syncDataFromGoogleSheets();
       }
 
-      addNotificationLog("Bryan Portal khởi động thành công. Sẵn sàng điều phối B2B Delivery!");
+      if (notificationLogs.length === 0) {
+        addNotificationLog("Bryan Portal khởi động thành công. Sẵn sàng điều phối B2B Delivery!");
+      }
     });
   </script>
 </body>
