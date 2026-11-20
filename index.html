@@ -723,9 +723,10 @@
 
       <!-- ================= SCREEN 7: AUTOMATION ================= -->
       <div id="view-AUTOMATION" class="hidden space-y-6 max-w-7xl mx-auto">
+        <!-- Phần 1: Quy Tắc Nền Tảng -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h2 class="text-lg font-black text-slate-900 tracking-tight mb-1">Cấu Hình Quy Tắc Tự Động Hóa Vận Hành B2B</h2>
-          <p class="text-xs text-slate-400 mb-6">Tự động hóa cảnh báo và nhắc hẹn đồng bộ trực tiếp với Trung Tâm Cảnh Báo</p>
+          <h2 class="text-lg font-black text-slate-900 tracking-tight mb-1">Tự Động Hóa Vận Hành (Không Cần Code)</h2>
+          <p class="text-xs text-slate-500 mb-5">Tự thiết lập các quy tắc "KHI ... THÌ TỰ ĐỘNG ..." chạy trực tiếp trên Bryan Portal</p>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <label class="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex items-start justify-between gap-3 cursor-pointer hover:border-teal-300 transition">
               <div>
@@ -757,6 +758,65 @@
               </div>
               <input id="auto-rule-meeting-reminder" onchange="toggleAutomationRule('autoMeetingReminder', this.checked)" type="checkbox" checked class="w-4 h-4 text-teal-600 rounded shrink-0 mt-0.5">
             </label>
+          </div>
+        </div>
+
+        <!-- Phần 2: Trình Tạo Quy Tắc Tự Động (No-Code Rule Builder) -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div>
+              <h3 class="text-sm font-black text-slate-900">Tạo Quy Tắc Tự Động Mới</h3>
+              <p class="text-xs text-slate-400">Chọn sự kiện kích hoạt, điều kiện từ khóa và hành động tự động thực thi</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+              <span class="text-slate-400 font-semibold mr-1">Mẫu nhanh:</span>
+              <button type="button" onclick="addPresetAutomationRule('BLOCKER_TASK')" class="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-lg font-bold transition">+ Gắn vướng mắc → Tạo việc gỡ nghẽn</button>
+              <button type="button" onclick="addPresetAutomationRule('HIGHLANDS_URGENT')" class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg font-bold transition">+ Việc Highlands → Khẩn cấp</button>
+              <button type="button" onclick="addPresetAutomationRule('DONE_MEETING')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded-lg font-bold transition">+ Hoàn tất việc → Thêm lịch rà soát</button>
+            </div>
+          </div>
+
+          <form onsubmit="createCustomAutomationRule(event)" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3 items-end text-xs">
+            <div class="lg:col-span-3">
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Tên quy tắc</label>
+              <input id="auto-new-name" required type="text" placeholder="VD: Tự nâng ưu tiên việc UAT" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500" />
+            </div>
+            <div class="lg:col-span-2">
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">KHI (Sự kiện)</label>
+              <select id="auto-new-trigger" class="w-full px-2.5 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500 font-semibold">
+                <option value="TASK_CREATED">Tạo đầu việc mới</option>
+                <option value="TASK_DONE">Hoàn tất đầu việc</option>
+                <option value="PROJECT_BLOCKED">Dự án gắn vướng mắc</option>
+                <option value="MEETING_CREATED">Thêm lịch họp mới</option>
+              </select>
+            </div>
+            <div class="lg:col-span-2">
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">NẾU chứa từ khóa</label>
+              <input id="auto-new-keyword" type="text" placeholder="Để trống = tất cả" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500" />
+            </div>
+            <div class="lg:col-span-2">
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">THÌ TỰ ĐỘNG</label>
+              <select id="auto-new-action" class="w-full px-2.5 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500 font-semibold">
+                <option value="SET_PRIORITY_URGENT">Nâng mức Khẩn cấp</option>
+                <option value="CREATE_FOLLOWUP_TASK">Tạo đầu việc nối tiếp</option>
+                <option value="CREATE_MEETING">Thêm lịch họp (+1 ngày)</option>
+                <option value="LOG_AND_TOAST">Ghi nhật ký & Nhắc nổi</option>
+              </select>
+            </div>
+            <div class="lg:col-span-2">
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Nội dung / Mẫu tạo</label>
+              <input id="auto-new-payload" type="text" placeholder="VD: Kiểm tra lại sau xử lý" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500" />
+            </div>
+            <div class="lg:col-span-1">
+              <button type="submit" class="w-full py-2 px-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-xs transition">+ Lưu</button>
+            </div>
+          </form>
+
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Quy Tắc Đang Chạy (<span id="custom-rules-count">0</span>)</h4>
+            </div>
+            <div id="custom-automation-rules-list" class="space-y-2.5"></div>
           </div>
         </div>
       </div>
@@ -1507,6 +1567,7 @@
         renderNotificationsView();
       } else if (screenId === 'AUTOMATION') {
         syncAutomationCheckboxes();
+        renderCustomAutomationRules();
       }
     }
 
@@ -1735,6 +1796,7 @@
       closeNewMeetingModal();
       renderDashboardMeetings();
       if (typeof renderCalendarView === "function") renderCalendarView();
+      if (typeof runAutomationRules === "function") runAutomationRules("MEETING_CREATED", { title, merchantName: partner, pic: attendees });
       showToast("✓ Đã lưu lịch họp mới!");
     }
 
@@ -2793,6 +2855,9 @@ Xin cảm ơn sự đồng hành của team!`;
         };
         showToast(`✓ Đã chuyển sang: ${labelMap[newStage] || newStage}`);
         syncAllAfterTaskChange(`Đầu việc "${task.title}" → ${labelMap[newStage] || newStage}`);
+        if (newStage === 'STAGE_DONE' && typeof runAutomationRules === "function") {
+          runAutomationRules("TASK_DONE", { title: task.title, project_id: task.project_id, pic: task.pic, taskObj: task });
+        }
       }
     }
 
@@ -2906,6 +2971,9 @@ Xin cảm ơn sự đồng hành của team!`;
           is_overdue: false
         };
         state.tasks.unshift(newTask);
+        if (typeof runAutomationRules === "function") {
+          runAutomationRules("TASK_CREATED", { title: newTask.title, project_id: newTask.project_id, pic: newTask.pic, taskObj: newTask });
+        }
         postDataToGoogleSheets({ action: "CREATE_TASK", ...newTask });
         showToast("✓ Đã tạo đầu việc mới thành công!");
       }
@@ -3262,6 +3330,10 @@ Xin cảm ơn sự đồng hành của team!`;
 
       renderMerchantWorkspaceBody();
       updateAllKpis();
+      if (proj.is_blocked && typeof runAutomationRules === "function") {
+        const m = state.merchants.find(item => item.id === proj.merchant_id);
+        runAutomationRules("PROJECT_BLOCKED", { title: proj.title, reason: proj.blocker_reason, merchantName: m ? m.name : "", project_id: proj.id, pic: proj.pic || "Bryan" });
+      }
     }
 
     // -------------------------------------------------------------
@@ -3624,6 +3696,9 @@ Xin cảm ơn sự đồng hành của team!`;
         };
 
         state.tasks.unshift(newTask);
+        if (typeof runAutomationRules === "function") {
+          runAutomationRules("TASK_CREATED", { title: newTask.title, project_id: newTask.project_id, pic: newTask.pic, taskObj: newTask });
+        }
         postDataToGoogleSheets({ action: "CREATE_TASK", ...newTask });
 
         updateAllKpis();
@@ -3955,6 +4030,238 @@ Xin cảm ơn sự đồng hành của team!`;
       updateNotificationDot();
       renderNotificationsView();
       showToast(enabled ? "✓ Đã bật quy tắc tự động hóa" : "Đã tắt quy tắc tự động hóa");
+    }
+
+    const CUSTOM_RULES_KEY = "bryan_portal_custom_rules_v1";
+    let customAutomationRules = (() => {
+      try {
+        const saved = JSON.parse(localStorage.getItem(CUSTOM_RULES_KEY) || "null");
+        if (Array.isArray(saved)) return saved;
+      } catch (e) {}
+      return [
+        {
+          id: "rule-demo-1",
+          name: "Gắn vướng mắc → Tự tạo việc gỡ nghẽn (+1 ngày)",
+          trigger: "PROJECT_BLOCKED",
+          keyword: "",
+          action: "CREATE_FOLLOWUP_TASK",
+          payload: "Đôn đốc gỡ vướng mắc dự án",
+          enabled: true,
+          runCount: 0,
+          lastRun: ""
+        }
+      ];
+    })();
+
+    function saveCustomAutomationRules() {
+      localStorage.setItem(CUSTOM_RULES_KEY, JSON.stringify(customAutomationRules));
+    }
+
+    function createCustomAutomationRule(e) {
+      e.preventDefault();
+      const name = document.getElementById("auto-new-name").value.trim();
+      const trigger = document.getElementById("auto-new-trigger").value;
+      const keyword = document.getElementById("auto-new-keyword").value.trim();
+      const action = document.getElementById("auto-new-action").value;
+      const payload = document.getElementById("auto-new-payload").value.trim();
+      if (!name) return;
+
+      customAutomationRules.unshift({
+        id: "rule-" + Date.now().toString().slice(-5),
+        name,
+        trigger,
+        keyword,
+        action,
+        payload,
+        enabled: true,
+        runCount: 0,
+        lastRun: ""
+      });
+      saveCustomAutomationRules();
+      document.getElementById("auto-new-name").value = "";
+      document.getElementById("auto-new-keyword").value = "";
+      document.getElementById("auto-new-payload").value = "";
+      renderCustomAutomationRules();
+      showToast(`✓ Đã tạo quy tắc "${name}"`);
+    }
+
+    function addPresetAutomationRule(presetKey) {
+      const presets = {
+        BLOCKER_TASK: {
+          name: "Gắn vướng mắc → Tạo đầu việc gỡ nghẽn (+1 ngày)",
+          trigger: "PROJECT_BLOCKED",
+          keyword: "",
+          action: "CREATE_FOLLOWUP_TASK",
+          payload: "Xử lý vướng mắc tiến độ"
+        },
+        HIGHLANDS_URGENT: {
+          name: "Việc có từ 'Highlands' → Nâng mức Khẩn cấp",
+          trigger: "TASK_CREATED",
+          keyword: "Highlands",
+          action: "SET_PRIORITY_URGENT",
+          payload: ""
+        },
+        DONE_MEETING: {
+          name: "Hoàn tất việc → Thêm lịch rà soát (+1 ngày)",
+          trigger: "TASK_DONE",
+          keyword: "",
+          action: "CREATE_MEETING",
+          payload: "Rà soát kết quả sau khi hoàn tất"
+        }
+      };
+      const p = presets[presetKey];
+      if (!p) return;
+      customAutomationRules.unshift({
+        id: "rule-" + Date.now().toString().slice(-5),
+        ...p,
+        enabled: true,
+        runCount: 0,
+        lastRun: ""
+      });
+      saveCustomAutomationRules();
+      renderCustomAutomationRules();
+      showToast(`✓ Đã thêm quy tắc mẫu "${p.name}"`);
+    }
+
+    function toggleCustomAutomationRule(ruleId) {
+      const rule = customAutomationRules.find(r => r.id === ruleId);
+      if (!rule) return;
+      rule.enabled = !rule.enabled;
+      saveCustomAutomationRules();
+      renderCustomAutomationRules();
+      showToast(rule.enabled ? `✓ Đã bật "${rule.name}"` : `Đã tạm tắt "${rule.name}"`);
+    }
+
+    function deleteCustomAutomationRule(ruleId) {
+      customAutomationRules = customAutomationRules.filter(r => r.id !== ruleId);
+      saveCustomAutomationRules();
+      renderCustomAutomationRules();
+      showToast("✓ Đã xóa quy tắc tự động hóa");
+    }
+
+    function testCustomAutomationRule(ruleId) {
+      const rule = customAutomationRules.find(r => r.id === ruleId);
+      if (!rule) return;
+      const sampleCtx = {
+        title: rule.keyword ? `Kiểm tra ${rule.keyword}` : "Đầu việc thử nghiệm quy tắc",
+        project_id: state.projects[0]?.id || "p-1",
+        pic: "Bryan"
+      };
+      executeSingleAutomationRule(rule, sampleCtx, true);
+      showToast(`⚡ Đã chạy thử quy tắc "${rule.name}"`);
+    }
+
+    function executeSingleAutomationRule(rule, ctx, isManualTest = false) {
+      const textToMatch = `${ctx.title || ''} ${ctx.reason || ''} ${ctx.merchantName || ''}`.toLowerCase();
+      if (!isManualTest && rule.keyword && !textToMatch.includes(rule.keyword.toLowerCase())) {
+        return false;
+      }
+
+      const d = new Date(getTodayIsoDate() + "T00:00:00");
+      d.setDate(d.getDate() + 1);
+      const tomorrowStr = d.toISOString().slice(0, 10);
+
+      if (rule.action === "SET_PRIORITY_URGENT" && ctx.taskObj) {
+        ctx.taskObj.priority = "KHẨN CẤP";
+      } else if (rule.action === "CREATE_FOLLOWUP_TASK") {
+        const prefix = rule.payload || "Theo dõi tiếp";
+        const newTask = {
+          id: "t-auto-" + Date.now().toString().slice(-4),
+          type: "COMMERCIAL",
+          project_id: ctx.project_id || state.projects[0]?.id || "",
+          title: `${prefix}: ${ctx.title || ctx.reason || 'Công việc mới'}`,
+          pic: ctx.pic || "Bryan",
+          stage: "STAGE_TODO",
+          priority: "CAO",
+          due_date: tomorrowStr,
+          is_overdue: false
+        };
+        state.tasks.unshift(newTask);
+        saveStateStorage();
+        updateAllKpis();
+        renderTasksMainView();
+        renderDashboardQuickTasks();
+      } else if (rule.action === "CREATE_MEETING") {
+        const mtTitle = rule.payload ? `${rule.payload} (${ctx.title || 'Auto'})` : `Rà soát: ${ctx.title || 'Công việc'}`;
+        state.meetings.push({
+          id: "mt-auto-" + Date.now().toString().slice(-4),
+          date: tomorrowStr,
+          time: "10:00",
+          title: mtTitle,
+          partner: ctx.merchantName || "Nội bộ",
+          attendees: ctx.pic || "Bryan"
+        });
+        saveStateStorage();
+        renderDashboardMeetings();
+        if (typeof renderCalendarView === "function") renderCalendarView();
+      } else if (rule.action === "LOG_AND_TOAST") {
+        showToast(`⚡ ${rule.payload || rule.name}`);
+      }
+
+      rule.runCount = (rule.runCount || 0) + 1;
+      rule.lastRun = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+      saveCustomAutomationRules();
+      addNotificationLog(`⚡ Tự động chạy "${rule.name}" cho "${ctx.title || ctx.reason || 'sự kiện'}"`);
+      renderCustomAutomationRules();
+      return true;
+    }
+
+    function runAutomationRules(triggerType, ctx = {}) {
+      customAutomationRules
+        .filter(r => r.enabled && r.trigger === triggerType)
+        .forEach(r => executeSingleAutomationRule(r, ctx, false));
+    }
+
+    function renderCustomAutomationRules() {
+      const list = document.getElementById("custom-automation-rules-list");
+      const countEl = document.getElementById("custom-rules-count");
+      if (countEl) countEl.textContent = customAutomationRules.length;
+      if (!list) return;
+
+      const triggerLabels = {
+        TASK_CREATED: "Khi tạo đầu việc mới",
+        TASK_DONE: "Khi hoàn tất đầu việc",
+        PROJECT_BLOCKED: "Khi dự án gắn vướng mắc",
+        MEETING_CREATED: "Khi thêm lịch họp mới"
+      };
+      const actionLabels = {
+        SET_PRIORITY_URGENT: "Nâng mức Khẩn cấp",
+        CREATE_FOLLOWUP_TASK: "Tạo đầu việc nối tiếp",
+        CREATE_MEETING: "Thêm lịch họp (+1 ngày)",
+        LOG_AND_TOAST: "Ghi nhật ký & Nhắc nổi"
+      };
+
+      if (customAutomationRules.length === 0) {
+        list.innerHTML = `<div class="text-xs text-slate-400 py-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">Chưa có quy tắc nào. Hãy chọn mẫu nhanh hoặc tự tạo ở khung trên!</div>`;
+        return;
+      }
+
+      list.innerHTML = customAutomationRules.map(r => `
+        <div class="p-4 rounded-2xl border ${r.enabled ? 'border-slate-200 bg-white' : 'border-slate-200 bg-slate-50 opacity-70'} flex flex-col lg:flex-row lg:items-center justify-between gap-3 transition">
+          <div class="space-y-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="w-2 h-2 rounded-full ${r.enabled ? 'bg-emerald-500' : 'bg-slate-400'}"></span>
+              <span class="text-xs font-bold text-slate-900">${r.name}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">Đã chạy ${r.runCount || 0} lần${r.lastRun ? ' • ' + r.lastRun : ''}</span>
+            </div>
+            <div class="text-[11px] text-slate-500 flex items-center flex-wrap gap-1.5">
+              <span class="px-2 py-0.5 rounded bg-teal-50 text-teal-800 font-semibold">${triggerLabels[r.trigger] || r.trigger}</span>
+              ${r.keyword ? `<span>→ Chứa "<b class="text-slate-700">${r.keyword}</b>"</span>` : ''}
+              <span>→</span>
+              <span class="px-2 py-0.5 rounded bg-indigo-50 text-indigo-800 font-semibold">${actionLabels[r.action] || r.action}</span>
+              ${r.payload ? `<span class="text-slate-400">(${r.payload})</span>` : ''}
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0 text-xs">
+            <button onclick="testCustomAutomationRule('${r.id}')" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition">Chạy thử</button>
+            <button onclick="toggleCustomAutomationRule('${r.id}')" class="px-2.5 py-1.5 ${r.enabled ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-200 text-slate-600'} rounded-xl font-bold transition">${r.enabled ? 'Đang bật' : 'Đang tắt'}</button>
+            <button onclick="deleteCustomAutomationRule('${r.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg transition" title="Xóa quy tắc">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
     }
 
     function saveNotificationLogs() {
