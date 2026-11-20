@@ -2723,9 +2723,8 @@ Xin cảm ơn sự đồng hành của team!`;
         return;
       }
 
-      // 0B. TỰ ĐỘNG TICK XONG BƯỚC ONBOARDING: "xong B3", "TBP duyệt", "Katinat xong B3"...
-      const hasOnboardingDoneCue = /\b(xong|hoàn thành|done|đã duyệt|duyệt|đã trình|đã gửi|đã làm)\b/i.test(lower) || /\bb\d{1,2}\b/i.test(lower) || /\bbước\s*\d{1,2}\b/i.test(lower);
-      // Tránh bắt nhầm nếu câu lệnh có chữ "tạo task" hoặc "khẩn cấp"
+      // 0B. TỰ ĐỘNG TICK XONG TỚI BƯỚC ONBOARDING: "xong B3 cho Swee Lee", "TBP duyệt cho Swee Lee"...
+      const hasOnboardingDoneCue = /\b(xong|hoàn thành|done|đã duyệt|duyệt|đã trình|đã gửi|đã làm|tới)\b/i.test(lower) || /\bb\d{1,2}\b/i.test(lower) || /\bbước\s*\d{1,2}\b/i.test(lower);
       if (hasOnboardingDoneCue && !lower.includes("tạo task") && !lower.includes("khẩn cấp") && !lower.includes("blocker")) {
         // Tìm đối tác Onboarding được nhắc tên trong câu (hoặc lấy đối tác đang mở)
         let targetOb = onboardingList.find(o => lower.includes(o.merchant_name.toLowerCase()));
@@ -2734,43 +2733,53 @@ Xin cảm ơn sự đồng hành của team!`;
         }
 
         if (targetOb) {
-          let matchedTasks = [];
+          let targetStep = null;
 
           // Cách 1: Match theo số bước (B3, bước 3, step 3...)
           const stepMatches = [...lower.matchAll(/\b(?:b|bước|step)\s*(\d{1,2})\b/gi)];
           if (stepMatches.length > 0) {
             const stepNums = stepMatches.map(m => parseInt(m[1], 10));
-            matchedTasks = targetOb.tasks.filter(t => stepNums.includes(t.step_no));
+            targetStep = Math.max(...stepNums);
           } else {
-            // Cách 2: Match theo nội dung từ khóa bước (VD: "TBP duyệt", "trình CMS", "FC duyệt"...)
+            // Cách 2: Match theo nội dung từ khóa bước (VD: "TBP duyệt cho Swee Lee", "trình CMS", "FC duyệt"...)
             let kw = lower
+              .replace(new RegExp(`\\b(cho|của|bên|đối tác)\\s+${targetOb.merchant_name.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, "gi"), "")
               .replace(targetOb.merchant_name.toLowerCase(), "")
-              .replace(/\b(xong|hoàn thành|done|đã|cho tôi|nhé|nha|rồi|bước|b)\b/gi, "")
+              .replace(/\b(xong|hoàn thành|done|đã|tới|cho tôi|nhé|nha|rồi|bước|b|cho|của)\b/gi, "")
               .trim();
 
             if (kw.length >= 2) {
-              // Ưu tiên tìm các bước có tiêu đề chứa cụm từ khóa
-              matchedTasks = targetOb.tasks.filter(t => t.title.toLowerCase().includes(kw));
-              // Nếu không khớp nguyên cụm, thử tách các từ chính (>= 2 ký tự)
-              if (matchedTasks.length === 0) {
+              // Tìm các bước khớp cụm từ khóa
+              let candidates = targetOb.tasks.filter(t => t.title.toLowerCase().includes(kw));
+              if (candidates.length === 0) {
                 const tokens = kw.split(/\s+/).filter(w => w.length >= 2);
                 if (tokens.length > 0) {
-                  matchedTasks = targetOb.tasks.filter(t =>
+                  candidates = targetOb.tasks.filter(t =>
                     tokens.every(tok => t.title.toLowerCase().includes(tok))
                   );
                 }
               }
+              if (candidates.length > 0) {
+                // Ưu tiên bước chưa DONE đầu tiên, nếu không có lấy bước đầu tiên khớp
+                const firstPending = candidates.find(c => c.status !== "DONE") || candidates[0];
+                targetStep = firstPending.step_no;
+              }
             }
           }
 
-          if (matchedTasks.length > 0) {
-            matchedTasks.forEach(t => { t.status = "DONE"; });
+          if (targetStep !== null && targetStep >= 1) {
+            // Tick xong TẤT CẢ các bước từ B1 đến targetStep (tuần tự)
+            targetOb.tasks.forEach(t => {
+              if (t.step_no <= targetStep) {
+                t.status = "DONE";
+              }
+            });
+
             activeOnboardingId = targetOb.id;
             saveOnboardingStorage();
             navigateTo("ONBOARDING");
 
-            const stepLabels = matchedTasks.map(t => `B${t.step_no}`).join(", ");
-            showToast(`✓ Đã tự động tick xong ${stepLabels} cho ${targetOb.merchant_name}!`);
+            showToast(`✓ Đã tự động tick xong từ B1 đến B${targetStep} cho ${targetOb.merchant_name}!`);
 
             const is100 = targetOb.tasks.length > 0 && targetOb.tasks.every(item => item.status === "DONE");
             if (is100 && !targetOb.graduated) {
