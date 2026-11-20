@@ -1340,7 +1340,22 @@
       ]
     };
 
-    let activeMerchantId = "m-highlands";
+    // Nạp state từ localStorage nếu đã lưu
+    const savedStateRaw = localStorage.getItem("bryan_portal_state_v2");
+    if (savedStateRaw) {
+      try {
+        const parsed = JSON.parse(savedStateRaw);
+        if (parsed && Array.isArray(parsed.merchants)) {
+          state = parsed;
+        }
+      } catch (e) { console.warn("Lỗi đọc state localStorage:", e); }
+    }
+
+    function saveStateStorage() {
+      localStorage.setItem("bryan_portal_state_v2", JSON.stringify(state));
+    }
+
+    let activeMerchantId = state.merchants[0]?.id || "m-highlands";
     let activeSubTab = "OVERVIEW"; // OVERVIEW hoặc Project ID (ví dụ: 'p-hl-1')
     let activeTaskView = "CARDS";
     let activeTaskTypeFilter = "ALL";
@@ -3205,10 +3220,11 @@ Xin cảm ơn sự đồng hành của team!`;
         });
       }
 
-      // 5. Đánh dấu Onboarding đã bàn giao
+      // 5. Đánh dấu Onboarding đã bàn giao & Lưu State vĩnh viễn
       ob.graduated = true;
       ob.linked_merchant_id = newMId;
       saveOnboardingStorage();
+      saveStateStorage();
 
       closeGraduateModal();
       updateAllKpis();
@@ -3216,6 +3232,56 @@ Xin cảm ơn sự đồng hành của team!`;
       navigateTo("PROJECTS");
       addNotificationLog(`Đã bàn giao thành công đối tác ${ob.merchant_name} từ Onboarding SOP sang Dự Án Chuỗi!`);
       showToast(`🎉 Đã chuyển ${ob.merchant_name} sang Dự Án Chuỗi Đối Tác!`);
+    }
+
+    /**
+     * Tự động đồng bộ các đối tác đã Graduated hoặc đạt 100% Onboarding vào Dự Án Chuỗi Đối Tác
+     */
+    function syncGraduatedOnboardingToState() {
+      let changed = false;
+      onboardingList.forEach(ob => {
+        const is100 = ob.tasks.length > 0 && ob.tasks.every(t => t.status === "DONE");
+        if (ob.graduated || is100) {
+          const exists = state.merchants.some(m =>
+            (ob.linked_merchant_id && m.id === ob.linked_merchant_id) ||
+            m.name.toLowerCase() === ob.merchant_name.toLowerCase()
+          );
+          if (!exists) {
+            const newMId = ob.linked_merchant_id || ("m-" + Date.now().toString().slice(-5) + Math.floor(Math.random()*10));
+            const chLabel = SOP_CHANNELS[ob.channel]?.label || ob.channel;
+            state.merchants.push({
+              id: newMId,
+              name: ob.merchant_name,
+              alias: "@" + ob.merchant_name.toLowerCase().replace(/[^a-z0-9]/g, ""),
+              industry: "Chuỗi B2B Enterprise",
+              expected_gmv: "~500M VNĐ/tháng",
+              avatar_letter: ob.merchant_name.charAt(0).toUpperCase(),
+              color: "bg-teal-700",
+              contract_status: `Đã Hoàn Tất Onboarding (${chLabel}) • Đang Vận Hành`
+            });
+            state.projects.push({
+              id: "p-" + Date.now().toString().slice(-5) + Math.floor(Math.random()*10),
+              merchant_id: newMId,
+              title: `Triển Khai & Vận Hành Kênh ${ob.channel.replace("_", " & ")}`,
+              stage: "GO-LIVE",
+              due_date: new Date().toISOString().split("T")[0],
+              progress: 100,
+              milestone_name: "5. Go-Live Chuỗi & Khai Thác GMV",
+              gate_step: 5,
+              is_blocked: false,
+              blocker_reason: "",
+              blocker_owner: ""
+            });
+            ob.graduated = true;
+            ob.linked_merchant_id = newMId;
+            changed = true;
+          }
+        }
+      });
+      if (changed) {
+        saveOnboardingStorage();
+        saveStateStorage();
+      }
     }
 
     function selectOnboardingMerchant(id) {
@@ -3241,6 +3307,13 @@ Xin cảm ơn sự đồng hành của team!`;
         t.status = t.status === "DONE" ? "IN_PROGRESS" : "DONE";
         saveOnboardingStorage();
         renderOnboardingView();
+
+        // Nếu vừa hoàn thành 100% và chưa bàn giao -> Tự động gợi ý mở Modal Bàn Giao
+        const is100 = ob.tasks.length > 0 && ob.tasks.every(item => item.status === "DONE");
+        if (is100 && !ob.graduated) {
+          showToast(`🎉 Chúc mừng! ${ob.merchant_name} đã đạt 100%. Hãy hoàn tất bàn giao sang Dự Án Chuỗi!`);
+          setTimeout(() => openGraduateModal(ob.id), 450);
+        }
       }
     }
 
@@ -3522,6 +3595,7 @@ Xin cảm ơn sự đồng hành của team!`;
     // INITIALIZATION
     // -------------------------------------------------------------
     window.addEventListener("DOMContentLoaded", () => {
+      syncGraduatedOnboardingToState();
       lucide.createIcons();
       updateSyncStatusUI();
       updateAllKpis();
