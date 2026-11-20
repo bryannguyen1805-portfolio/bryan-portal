@@ -119,6 +119,14 @@
           <span class="px-1.5 py-0.5 text-[10px] bg-teal-500/20 text-teal-300 rounded font-bold" id="badge-merchant-count">3 Chuỗi</span>
         </button>
 
+        <button onclick="navigateTo('ONBOARDING')" id="nav-ONBOARDING" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center space-x-3">
+            <i data-lucide="list-checks" class="w-4 h-4 text-slate-400"></i>
+            <span>Onboarding SOP</span>
+          </div>
+          <span class="px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-bold" id="badge-onboarding-count">2 SOP</span>
+        </button>
+
         <button onclick="navigateTo('PIPELINE')" id="nav-PIPELINE" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
           <div class="flex items-center space-x-3">
             <i data-lucide="trending-up" class="w-4 h-4 text-slate-400"></i>
@@ -659,6 +667,42 @@
         </div>
       </div>
 
+      <!-- ================= SCREEN 8: ONBOARDING SOP ENGINE & KANBAN KÉO THẢ ================= -->
+      <div id="view-ONBOARDING" class="hidden space-y-6 max-w-[1400px] mx-auto">
+        <!-- Header & Trigger -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center space-x-2">
+              <h2 class="text-lg font-black text-slate-900 tracking-tight">SOP Onboarding Engine & Kanban Kéo - Thả</h2>
+              <span class="px-2.5 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full">Auto-Generate Steps</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Tự động sinh quy trình 15–19 bước theo Kênh Triển Khai (POS, Paylink, PGW) và kéo-thả thẻ qua 4 giai đoạn</p>
+          </div>
+          <button onclick="openNewOnboardingModal()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-sm shrink-0">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>+ Thêm Đối Tác / Triển Khai Mới</span>
+          </button>
+        </div>
+
+        <!-- Merchant Onboarding Switcher Pills -->
+        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between overflow-x-auto">
+          <div class="flex items-center space-x-2" id="onboarding-pills-bar">
+            <!-- Rendered dynamically -->
+          </div>
+          <span class="text-[11px] text-slate-400 shrink-0 ml-3 font-medium">💡 Kéo thả thẻ bước sang các cột hoặc tích checkbox để cập nhật tiến độ %</span>
+        </div>
+
+        <!-- Active Onboarding Merchant Header + Progress Bar -->
+        <div id="onboarding-active-header" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- 4-Stage Drag & Drop Kanban Board -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="onboarding-kanban-board">
+          <!-- 4 Columns rendered dynamically -->
+        </div>
+      </div>
+
     </main>
 
     <!-- ================= 3. THANH LỆNH ANTIGRAVITY NLP Ở ĐÁY MÀN HÌNH ================= -->
@@ -1040,6 +1084,56 @@
     </div>
   </div>
 
+  <!-- Modal: Khởi Tạo Quy Trình Onboarding SOP (Chỉ 2 trường theo đặc tả) -->
+  <div id="modal-new-onboarding" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center">
+            <i data-lucide="list-checks" class="w-4 h-4"></i>
+          </div>
+          <h3 class="text-base font-bold text-slate-900">Khởi Tạo Quy Trình Đối Tác Mới</h3>
+        </div>
+        <button onclick="closeNewOnboardingModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form onsubmit="handleCreateOnboarding(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Tên Đối Tác (Merchant Name) *</label>
+          <input 
+            type="text" 
+            id="ob-merchant-name" 
+            required 
+            placeholder="VD: GS25, Katinat, Highlands..." 
+            class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none font-medium"
+          />
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Kênh Triển Khai (Channel Type) *</label>
+          <select id="ob-channel-type" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none font-bold text-slate-800">
+            <option value="POS">1. POS (Tự động sinh 15 bước chuẩn)</option>
+            <option value="POS_PAYLINK">2. POS & Paylink (Tự động sinh 18 bước chuẩn)</option>
+            <option value="POS_PGW">3. POS & PGW (Tự động sinh 18 bước chuẩn)</option>
+            <option value="PGW">4. PGW (Tự động sinh 19 bước chuẩn)</option>
+          </select>
+        </div>
+
+        <div class="p-3 bg-teal-50 rounded-xl border border-teal-200 text-teal-800 text-[11px] leading-relaxed">
+          <strong>Tự động hóa SOP:</strong> Hệ thống sẽ tự động sinh toàn bộ các bước từ Làm Hợp Đồng/BM01 $\rightarrow$ Duyệt CMS $\rightarrow$ Cấu Hình/ASM $\rightarrow$ Go-Live và phân bổ sẵn vào Kanban 4 cột.
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeNewOnboardingModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-sm flex items-center space-x-1">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            <span>Khởi Tạo Quy Trình</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div id="toast" class="fixed top-6 right-6 bg-slate-900 text-white text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 transition-all duration-300 opacity-0 pointer-events-none z-50 max-w-sm border border-slate-700">
     <i data-lucide="check" class="w-4 h-4 text-teal-400 shrink-0" id="toast-icon"></i>
@@ -1191,7 +1285,7 @@
     // 2. NAVIGATION & SCREEN SWITCHING
     // -------------------------------------------------------------
     function navigateTo(screenId) {
-      const views = ['DASHBOARD', 'PROJECTS', 'PIPELINE', 'TASKS', 'CALENDAR', 'NOTIFICATIONS', 'AUTOMATION'];
+      const views = ['DASHBOARD', 'PROJECTS', 'ONBOARDING', 'PIPELINE', 'TASKS', 'CALENDAR', 'NOTIFICATIONS', 'AUTOMATION'];
       views.forEach(v => {
         const el = document.getElementById(`view-${v}`);
         const btn = document.getElementById(`nav-${v}`);
@@ -1218,6 +1312,8 @@
         renderMerchantPillsBar();
         renderMerchantSubTabs();
         renderMerchantWorkspaceBody();
+      } else if (screenId === 'ONBOARDING') {
+        renderOnboardingView();
       } else if (screenId === 'TASKS') {
         renderTasksMainView();
       }
@@ -2786,6 +2882,389 @@ Xin cảm ơn sự đồng hành của team!`;
     }
 
     // -------------------------------------------------------------
+    // 12. SOP ONBOARDING ENGINE & DRAG-AND-DROP KANBAN
+    // -------------------------------------------------------------
+    const SOP_CHANNELS = {
+      POS: {
+        label: "POS (15 bước)",
+        steps: [
+          { step_no: 1, title: "Làm Hợp Đồng, Phụ Lục, BM01 và BM01.01", stage: "STAGE_LEGAL_CMS", dept: "Nội bộ" },
+          { step_no: 2, title: "Trình CMS", stage: "STAGE_LEGAL_CMS", dept: "Nội bộ" },
+          { step_no: 3, title: "Nhờ Trưởng Bộ Phận (TBP) duyệt", stage: "STAGE_LEGAL_CMS", dept: "Duyệt" },
+          { step_no: 4, title: "Đưa nội dung TBP duyệt vào BM01 và BM01.01, chuyển thành file PDF và up lên lại CMS 2 bản PDF", stage: "STAGE_LEGAL_CMS", dept: "Nội bộ" },
+          { step_no: 5, title: "FC duyệt", stage: "STAGE_LEGAL_CMS", dept: "Duyệt" },
+          { step_no: 6, title: "LC duyệt", stage: "STAGE_LEGAL_CMS", dept: "Duyệt" },
+          { step_no: 7, title: "Gửi Ban Giám Đốc (BGĐ) ký tên và đóng mộc", stage: "STAGE_SIGN_HANDOVER", dept: "BGĐ" },
+          { step_no: 8, title: "Gửi đến Đối tác", stage: "STAGE_SIGN_HANDOVER", dept: "Đối tác" },
+          { step_no: 9, title: "Làm BM03 gửi mail ASM", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
+          { step_no: 10, title: "Gửi mail Request Cấu Hình Mới xin thông số (BM03)", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
+          { step_no: 11, title: "Gửi mail Cài đặt TK và lắp đặt TBTT (BM01, BM01.01, file payoopos)", stage: "STAGE_CONFIG_DEVICE", dept: "Nội bộ" },
+          { step_no: 12, title: "Mail team DevOps mapping Cấu hình trả góp", stage: "STAGE_CONFIG_DEVICE", dept: "DevOps" },
+          { step_no: 13, title: "ASM trả lại BM01 và BM01.01 có ký nháy ASM", stage: "STAGE_GOLIVE", dept: "ASM" },
+          { step_no: 14, title: "Request training", stage: "STAGE_GOLIVE", dept: "Nội bộ" },
+          { step_no: 15, title: "Gửi bản Scan Bộ Hợp Đồng", stage: "STAGE_GOLIVE", dept: "Nội bộ" }
+        ]
+      },
+      POS_PAYLINK: {
+        label: "POS & Paylink (18 bước)",
+        steps: [
+          { step_no: 1, title: "Làm Hợp Đồng, Phụ Lục, BM01 và BM01.01", stage: "STAGE_LEGAL_CMS", dept: "Nội bộ" },
+          { step_no: 2, title: "Trình CMS", stage: "STAGE_LEGAL_CMS", dept: "Nội bộ" },
+          { step_no: 3, title: "Nhờ Trưởng Bộ Phận (TBP) duyệt", stage: "STAGE_LEGAL_CMS", dept: "Duyệt" },
+          { step_no: 4, title: "Đưa nội dung TBP duyệt vào BM01 và BM01.01, chuyển thành file PDF và up lên lại CMS 2 bản PDF", stage: "STAGE_LEGAL_CMS", dept: "Nội bộ" },
+          { step_no: 5, title: "FC duyệt", stage: "STAGE_LEGAL_CMS", dept: "Duyệt" },
+          { step_no: 6, title: "LC duyệt", stage: "STAGE_LEGAL_CMS", dept: "Duyệt" },
+          { step_no: 7, title: "Gửi Ban Giám Đốc (BGĐ) ký tên và đóng mộc", stage: "STAGE_SIGN_HANDOVER", dept: "BGĐ" },
+          { step_no: 8, title: "Gửi đến Đối tác", stage: "STAGE_SIGN_HANDOVER", dept: "Đối tác" },
+          { step_no: 9, title: "Làm BM03 gửi mail ASM", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
+          { step_no: 10, title: "Gửi mail Request Cấu Hình Mới xin thông số (BM03)", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
+          { step_no: 11, title: "Gửi mail Cài đặt TK và lắp đặt TBTT (BM01, BM01.01, file payoopos)", stage: "STAGE_CONFIG_DEVICE", dept: "Nội bộ" },
+          { step_no: 12, title: "Mail team core Go-live ShopID", stage: "STAGE_CONFIG_DEVICE", dept: "Core" },
+          { step_no: 13, title: "Mail mở Phí dịch vụ số 5 nếu đối tác cần", stage: "STAGE_CONFIG_DEVICE", dept: "Core" },
+          { step_no: 14, title: "Mail gửi ASM cấu hình Phí trả góp lên Cổng", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
+          { step_no: 15, title: "Mail team DevOps mapping Cấu hình trả góp", stage: "STAGE_CONFIG_DEVICE", dept: "DevOps" },
+          { step_no: 16, title: "ASM trả lại BM01 và BM01.01 có ký nháy ASM", stage: "STAGE_GOLIVE", dept: "ASM" },
+          { step_no: 17, title: "Request training", stage: "STAGE_GOLIVE", dept: "Nội bộ" },
+          { step_no: 18, title: "Gửi bản Scan Bộ Hợp Đồng", stage: "STAGE_GOLIVE", dept: "Nội bộ" }
+        ]
+      },
+      POS_PGW: {
+        label: "POS & PGW (18 bước)",
+        steps: [
+          { step_no: 1, title: "Làm Hợp Đồng, Phụ Lục, BM01 và BM01.01", stage: "STAGE_LEGAL_CMS", dept: "Nội bộ" },
+          { step_no: 2, title: "Trình CMS", stage: "STAGE_LEGAL_CMS", dept: "Nội bộ" },
+          { step_no: 3, title: "Nhờ Trưởng Bộ Phận (TBP) duyệt", stage: "STAGE_LEGAL_CMS", dept: "Duyệt" },
+          { step_no: 4, title: "Đưa nội dung TBP duyệt vào BM01 và BM01.01, chuyển thành file PDF và up lên lại CMS 2 bản PDF", stage: "STAGE_LEGAL_CMS", dept: "Nội bộ" },
+          { step_no: 5, title: "Mail team Core giới thiệu đối tác", stage: "STAGE_LEGAL_CMS", dept: "Core" },
+          { step_no: 6, title: "FC duyệt", stage: "STAGE_LEGAL_CMS", dept: "Duyệt" },
+          { step_no: 7, title: "LC duyệt", stage: "STAGE_LEGAL_CMS", dept: "Duyệt" },
+          { step_no: 8, title: "Gửi Ban Giám Đốc (BGĐ) ký tên và đóng mộc", stage: "STAGE_SIGN_HANDOVER", dept: "BGĐ" },
+          { step_no: 9, title: "Gửi đến Đối tác", stage: "STAGE_SIGN_HANDOVER", dept: "Đối tác" },
+          { step_no: 10, title: "Nghiệm thu PGW", stage: "STAGE_SIGN_HANDOVER", dept: "Core" },
+          { step_no: 11, title: "Làm BM03 gửi mail ASM", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
+          { step_no: 12, title: "Gửi mail Request Cấu Hình Mới xin thông số (BM03)", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
+          { step_no: 13, title: "Gửi mail Cài đặt TK và lắp đặt TBTT (BM01, BM01.01, file payoopos)", stage: "STAGE_CONFIG_DEVICE", dept: "Nội bộ" },
+          { step_no: 14, title: "Mail team core Go-live ShopID", stage: "STAGE_CONFIG_DEVICE", dept: "Core" },
+          { step_no: 15, title: "Mail team DevOps mapping Cấu hình trả góp", stage: "STAGE_CONFIG_DEVICE", dept: "DevOps" },
+          { step_no: 16, title: "ASM trả lại BM01 và BM01.01 có ký nháy ASM", stage: "STAGE_GOLIVE", dept: "ASM" },
+          { step_no: 17, title: "Request training", stage: "STAGE_GOLIVE", dept: "Nội bộ" },
+          { step_no: 18, title: "Gửi bản Scan Bộ Hợp Đồng", stage: "STAGE_GOLIVE", dept: "Nội bộ" }
+        ]
+      },
+      PGW: {
+        label: "PGW (19 bước)",
+        steps: [
+          { step_no: 1, title: "Làm Hợp Đồng, Phụ Lục, BM01 và BM01.01", stage: "STAGE_LEGAL_CMS", dept: "Nội bộ" },
+          { step_no: 2, title: "Trình CMS", stage: "STAGE_LEGAL_CMS", dept: "Nội bộ" },
+          { step_no: 3, title: "Nhờ Trưởng Bộ Phận (TBP) duyệt", stage: "STAGE_LEGAL_CMS", dept: "Duyệt" },
+          { step_no: 4, title: "Đưa nội dung TBP duyệt vào BM01 và BM01.01, chuyển thành file PDF và up lên lại CMS 2 bản PDF", stage: "STAGE_LEGAL_CMS", dept: "Nội bộ" },
+          { step_no: 5, title: "Mail team Core giới thiệu đối tác", stage: "STAGE_LEGAL_CMS", dept: "Core" },
+          { step_no: 6, title: "FC duyệt", stage: "STAGE_LEGAL_CMS", dept: "Duyệt" },
+          { step_no: 7, title: "LC duyệt", stage: "STAGE_LEGAL_CMS", dept: "Duyệt" },
+          { step_no: 8, title: "Gửi Ban Giám Đốc (BGĐ) ký tên và đóng mộc", stage: "STAGE_SIGN_HANDOVER", dept: "BGĐ" },
+          { step_no: 9, title: "Gửi đến Đối tác", stage: "STAGE_SIGN_HANDOVER", dept: "Đối tác" },
+          { step_no: 10, title: "Nghiệm thu PGW", stage: "STAGE_SIGN_HANDOVER", dept: "Core" },
+          { step_no: 11, title: "Làm BM03 gửi mail ASM", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
+          { step_no: 12, title: "Gửi mail Request Cấu Hình Mới xin thông số (BM03, BM01 và BM01.01)", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
+          { step_no: 13, title: "Mail team core Go-live ShopID", stage: "STAGE_CONFIG_DEVICE", dept: "Core" },
+          { step_no: 14, title: "Mail mở Phí dịch vụ số 5 nếu đối tác cần", stage: "STAGE_CONFIG_DEVICE", dept: "Core" },
+          { step_no: 15, title: "Mail gửi ASM cấu hình Phí trả góp lên Cổng", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
+          { step_no: 16, title: "Mail team DevOps mapping Cấu hình trả góp", stage: "STAGE_CONFIG_DEVICE", dept: "DevOps" },
+          { step_no: 17, title: "ASM trả lại BM01 và BM01.01 có ký nháy ASM", stage: "STAGE_GOLIVE", dept: "ASM" },
+          { step_no: 18, title: "Request training", stage: "STAGE_GOLIVE", dept: "Nội bộ" },
+          { step_no: 19, title: "Gửi bản Scan Bộ Hợp Đồng", stage: "STAGE_GOLIVE", dept: "Nội bộ" }
+        ]
+      }
+    };
+
+    function generateSopTasks(channelKey, doneUntilStep = 0) {
+      const tpl = SOP_CHANNELS[channelKey] || SOP_CHANNELS.POS;
+      return tpl.steps.map(s => ({
+        id: "ob-step-" + s.step_no + "-" + Math.random().toString(36).slice(2, 6),
+        step_no: s.step_no,
+        title: s.title,
+        stage: s.stage,
+        dept: s.dept,
+        status: s.step_no <= doneUntilStep ? "DONE" : "IN_PROGRESS"
+      }));
+    }
+
+    // Load từ localStorage hoặc khởi tạo 2 mẫu thực tế
+    let onboardingList = JSON.parse(localStorage.getItem("bryan_onboarding_list") || "null") || [
+      {
+        id: "ob-gs25",
+        merchant_name: "GS25 Vietnam",
+        channel: "POS_PGW",
+        total_steps: 18,
+        tasks: generateSopTasks("POS_PGW", 4)
+      },
+      {
+        id: "ob-katinat",
+        merchant_name: "Katinat Saigon Kafe",
+        channel: "POS_PAYLINK",
+        total_steps: 18,
+        tasks: generateSopTasks("POS_PAYLINK", 2)
+      }
+    ];
+
+    let activeOnboardingId = onboardingList[0]?.id || "";
+    let draggedOnboardingTaskId = null;
+
+    function saveOnboardingStorage() {
+      localStorage.setItem("bryan_onboarding_list", JSON.stringify(onboardingList));
+      const badge = document.getElementById("badge-onboarding-count");
+      if (badge) badge.textContent = onboardingList.length + " SOP";
+    }
+
+    function openNewOnboardingModal() {
+      document.getElementById("ob-merchant-name").value = "";
+      document.getElementById("ob-channel-type").value = "POS";
+      document.getElementById("modal-new-onboarding").classList.remove("hidden");
+    }
+
+    function closeNewOnboardingModal() {
+      document.getElementById("modal-new-onboarding").classList.add("hidden");
+    }
+
+    function handleCreateOnboarding(e) {
+      e.preventDefault();
+      const name = document.getElementById("ob-merchant-name").value.trim();
+      const channel = document.getElementById("ob-channel-type").value;
+      if (!name) return;
+
+      const tasks = generateSopTasks(channel, 0);
+      const newOb = {
+        id: "ob-" + Date.now().toString().slice(-5),
+        merchant_name: name,
+        channel: channel,
+        total_steps: tasks.length,
+        tasks: tasks
+      };
+
+      onboardingList.unshift(newOb);
+      activeOnboardingId = newOb.id;
+      saveOnboardingStorage();
+      closeNewOnboardingModal();
+      renderOnboardingView();
+      showToast(`✓ Đã khởi tạo quy trình ${tasks.length} bước cho ${name}!`);
+    }
+
+    function selectOnboardingMerchant(id) {
+      activeOnboardingId = id;
+      renderOnboardingView();
+    }
+
+    function deleteOnboardingMerchant(id) {
+      if (confirm("Xóa quy trình Onboarding của đối tác này?")) {
+        onboardingList = onboardingList.filter(item => item.id !== id);
+        activeOnboardingId = onboardingList[0]?.id || "";
+        saveOnboardingStorage();
+        renderOnboardingView();
+        showToast("✓ Đã xóa quy trình Onboarding.");
+      }
+    }
+
+    function toggleOnboardingTaskDone(taskId) {
+      const ob = onboardingList.find(o => o.id === activeOnboardingId);
+      if (!ob) return;
+      const t = ob.tasks.find(item => item.id === taskId);
+      if (t) {
+        t.status = t.status === "DONE" ? "IN_PROGRESS" : "DONE";
+        saveOnboardingStorage();
+        renderOnboardingView();
+      }
+    }
+
+    // HTML5 Drag & Drop Handlers
+    function onObDragStart(e, taskId) {
+      draggedOnboardingTaskId = taskId;
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", taskId);
+      setTimeout(() => {
+        e.target.classList.add("opacity-40");
+      }, 0);
+    }
+
+    function onObDragEnd(e) {
+      e.target.classList.remove("opacity-40");
+    }
+
+    function onObDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add("ring-2", "ring-teal-400", "bg-teal-50/40");
+    }
+
+    function onObDragLeave(e) {
+      e.currentTarget.classList.remove("ring-2", "ring-teal-400", "bg-teal-50/40");
+    }
+
+    function onObDrop(e, targetStage) {
+      e.preventDefault();
+      e.currentTarget.classList.remove("ring-2", "ring-teal-400", "bg-teal-50/40");
+
+      const taskId = draggedOnboardingTaskId || e.dataTransfer.getData("text/plain");
+      if (!taskId) return;
+
+      const ob = onboardingList.find(o => o.id === activeOnboardingId);
+      if (!ob) return;
+
+      const task = ob.tasks.find(t => t.id === taskId);
+      if (task) {
+        task.stage = targetStage;
+        if (targetStage === "STAGE_GOLIVE") {
+          task.status = "DONE";
+        }
+        saveOnboardingStorage();
+        renderOnboardingView();
+        showToast(`✓ Đã chuyển Bước ${task.step_no} sang cột mới!`);
+      }
+      draggedOnboardingTaskId = null;
+    }
+
+    function renderOnboardingView() {
+      saveOnboardingStorage();
+
+      // 1. Render Pills
+      const pillsBar = document.getElementById("onboarding-pills-bar");
+      if (pillsBar) {
+        pillsBar.innerHTML = onboardingList.map(ob => {
+          const isActive = ob.id === activeOnboardingId;
+          const chLabel = SOP_CHANNELS[ob.channel]?.label || ob.channel;
+          return `
+            <button onclick="selectOnboardingMerchant('${ob.id}')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 shrink-0 ${
+              isActive ? 'bg-teal-700 text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }">
+              <span class="w-5 h-5 rounded-lg ${isActive ? 'bg-teal-500' : 'bg-slate-300'} text-white text-[10px] flex items-center justify-center font-black">
+                ${ob.merchant_name.charAt(0).toUpperCase()}
+              </span>
+              <span>${ob.merchant_name}</span>
+              <span class="text-[10px] ${isActive ? 'text-teal-200' : 'text-slate-400'} font-normal">${chLabel}</span>
+            </button>
+          `;
+        }).join('');
+      }
+
+      const activeOb = onboardingList.find(o => o.id === activeOnboardingId);
+      const headerEl = document.getElementById("onboarding-active-header");
+      const boardEl = document.getElementById("onboarding-kanban-board");
+
+      if (!activeOb) {
+        if (headerEl) headerEl.innerHTML = `<div class="text-center text-xs text-slate-400 py-4">Chưa có đối tác Onboarding nào. Bấm "+ Thêm Đối Tác / Triển Khai Mới" để bắt đầu!</div>`;
+        if (boardEl) boardEl.innerHTML = "";
+        return;
+      }
+
+      // 2. Tính tiến độ % theo đúng công thức: (Số bước ở Cột 4 HOẶC status === DONE) / Tổng bước * 100
+      const completedCount = activeOb.tasks.filter(t => t.stage === "STAGE_GOLIVE" || t.status === "DONE").length;
+      const progressPct = Math.round((completedCount / activeOb.total_steps) * 100);
+      const chInfo = SOP_CHANNELS[activeOb.channel]?.label || activeOb.channel;
+
+      if (headerEl) {
+        headerEl.innerHTML = `
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center space-x-4">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-700 to-emerald-500 text-white font-black text-xl flex items-center justify-center shadow-md">
+                ${activeOb.merchant_name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div class="flex items-center space-x-2">
+                  <h3 class="text-lg font-black text-slate-900">${activeOb.merchant_name}</h3>
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200">Kênh: ${chInfo}</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5">Hoàn thành: <strong class="text-teal-700">${completedCount}/${activeOb.total_steps} bước chuẩn</strong> (bao gồm các bước đã xong hoặc đã chuyển sang Cột 4 Go-Live)</p>
+              </div>
+            </div>
+
+            <div class="flex items-center space-x-4">
+              <div class="w-48">
+                <div class="flex items-center justify-between text-xs font-bold mb-1">
+                  <span class="text-slate-500">Tiến độ Go-Live</span>
+                  <span class="text-teal-700">${progressPct}%</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-2.5 border border-slate-200">
+                  <div class="bg-gradient-to-r from-teal-600 to-emerald-500 h-2.5 rounded-full transition-all duration-300" style="width: ${progressPct}%"></div>
+                </div>
+              </div>
+              <button onclick="deleteOnboardingMerchant('${activeOb.id}')" class="p-2 text-slate-400 hover:text-rose-600 rounded-xl border border-slate-200 hover:bg-rose-50 transition" title="Xóa quy trình này">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      // 3. Render 4 Cột Kanban Hỗ Trợ Kéo Thả
+      const stages = [
+        { id: "STAGE_LEGAL_CMS", title: "1. Pháp Lý & CMS Duyệt", color: "border-slate-300", badge: "bg-slate-200 text-slate-800" },
+        { id: "STAGE_SIGN_HANDOVER", title: "2. Ký Kết & Bàn Giao", color: "border-blue-300", badge: "bg-blue-100 text-blue-800" },
+        { id: "STAGE_CONFIG_DEVICE", title: "3. Cấu Hình & Thiết Bị", color: "border-amber-300", badge: "bg-amber-100 text-amber-800" },
+        { id: "STAGE_GOLIVE", title: "4. Nghiệm Thu & Go-Live", color: "border-emerald-300", badge: "bg-emerald-100 text-emerald-800" }
+      ];
+
+      const deptBadgeColor = (dept) => {
+        if (dept === 'Duyệt') return 'bg-purple-100 text-purple-700';
+        if (dept === 'DevOps') return 'bg-rose-100 text-rose-700';
+        if (dept === 'ASM') return 'bg-amber-100 text-amber-800';
+        if (dept === 'Core') return 'bg-blue-100 text-blue-700';
+        if (dept === 'BGĐ' || dept === 'Đối tác') return 'bg-teal-100 text-teal-800';
+        return 'bg-slate-100 text-slate-700';
+      };
+
+      if (boardEl) {
+        boardEl.innerHTML = stages.map(st => {
+          const colTasks = activeOb.tasks.filter(t => t.stage === st.id).sort((a, b) => a.step_no - b.step_no);
+
+          return `
+            <div 
+              ondragover="onObDragOver(event)" 
+              ondragleave="onObDragLeave(event)" 
+              ondrop="onObDrop(event, '${st.id}')"
+              class="bg-slate-50/90 p-3.5 rounded-2xl border-2 ${st.color} flex flex-col min-h-[460px] transition-colors"
+            >
+              <div class="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-200">
+                <span class="text-xs font-black text-slate-800">${st.title}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${st.badge}">${colTasks.length}</span>
+              </div>
+
+              <div class="space-y-2.5 flex-1">
+                ${colTasks.map(t => {
+                  const isDone = t.status === "DONE";
+                  return `
+                    <div 
+                      draggable="true" 
+                      ondragstart="onObDragStart(event, '${t.id}')" 
+                      ondragend="onObDragEnd(event)"
+                      class="bg-white p-3 rounded-xl border ${isDone ? 'border-emerald-300 bg-emerald-50/30' : 'border-slate-200'} shadow-xs hover:shadow-md cursor-grab active:cursor-grabbing transition space-y-2"
+                    >
+                      <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-black px-2 py-0.5 rounded bg-slate-100 text-slate-700">Bước ${t.step_no}</span>
+                        <span class="text-[10px] font-extrabold px-2 py-0.5 rounded ${deptBadgeColor(t.dept)}">${t.dept}</span>
+                      </div>
+
+                      <div class="flex items-start space-x-2">
+                        <input 
+                          type="checkbox" 
+                          ${isDone ? 'checked' : ''} 
+                          onchange="toggleOnboardingTaskDone('${t.id}')" 
+                          class="w-3.5 h-3.5 mt-0.5 text-teal-600 rounded cursor-pointer shrink-0"
+                        />
+                        <div class="text-xs font-bold leading-snug ${isDone ? 'line-through text-slate-400' : 'text-slate-800'}">
+                          ${t.title}
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      lucide.createIcons();
+    }
+
+    // -------------------------------------------------------------
     // INITIALIZATION
     // -------------------------------------------------------------
     window.addEventListener("DOMContentLoaded", () => {
@@ -2798,6 +3277,7 @@ Xin cảm ơn sự đồng hành của team!`;
       renderMerchantSubTabs();
       renderMerchantWorkspaceBody();
       renderTasksCards();
+      renderOnboardingView();
       renderCharts();
 
       if (API_ENDPOINT) {
