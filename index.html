@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bryan Portal | B2B CRM & PM Ops Hub</title>
+  <title>Bryan Portal | B2B Commercial & Project Delivery Hub</title>
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -35,11 +35,9 @@
             brand: {
               50: '#f0fdfa',
               100: '#ccfbf1',
-              200: '#99f6e4',
               500: '#14b8a6',
               600: '#0d9488',
               700: '#0f766e',
-              800: '#115e59',
             }
           },
           fontFamily: {
@@ -75,20 +73,20 @@
 </head>
 <body class="h-full flex overflow-hidden bg-slate-900 text-slate-800">
 
-  <!-- ================= 1. SIDEBAR TRÁI XANH NAVY TINH GIẢN (BITRIX24 STYLE) ================= -->
+  <!-- ================= 1. SIDEBAR TRÁI XANH NAVY TINH GIẢN (B2B PM FOCUS) ================= -->
   <aside class="w-64 bg-navy-900 text-slate-300 flex flex-col justify-between shrink-0 border-r border-slate-800 z-30 select-none">
     <div>
-      <!-- Brand & Logo -->
+      <!-- Brand & Header -->
       <div class="h-16 px-5 flex items-center space-x-3 border-b border-slate-800/80 bg-navy-950/60">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-600 via-teal-500 to-emerald-400 flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
-          <i data-lucide="layers" class="w-5 h-5"></i>
+          <i data-lucide="briefcase" class="w-5 h-5"></i>
         </div>
         <div>
           <div class="flex items-center space-x-1.5">
             <span class="font-black text-white text-base tracking-tight">BRYAN PORTAL</span>
-            <span class="px-1.5 py-0.5 text-[9px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 rounded">HUB</span>
+            <span class="px-1.5 py-0.5 text-[9px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 rounded">PM HUB</span>
           </div>
-          <p class="text-[10px] text-slate-400 font-medium">B2B CRM & Delivery Hub</p>
+          <p class="text-[10px] text-slate-400 font-medium">B2B Business & Delivery Ops</p>
         </div>
       </div>
 
@@ -101,22 +99,22 @@
           <div class="text-xs font-bold text-white truncate">Bryan Nguyen</div>
           <div class="text-[10px] text-teal-400 font-semibold truncate flex items-center">
             <span class="w-1.5 h-1.5 rounded-full bg-teal-400 mr-1 animate-pulse"></span>
-            Lead PM / Tech Ops
+            Lead B2B Project Manager
           </div>
         </div>
       </div>
 
-      <!-- Navigation Menu Items (Đã tinh giản tối đa) -->
+      <!-- Navigation Menu Items -->
       <nav class="px-3 space-y-1 mt-2 text-xs font-semibold">
         <button onclick="navigateTo('DASHBOARD')" id="nav-DASHBOARD" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-white bg-teal-600/90 shadow-sm shadow-teal-700/30">
           <i data-lucide="layout-dashboard" class="w-4 h-4 text-teal-200"></i>
-          <span>Thống Kê Tổng Quan</span>
+          <span>Tổng Quan Điều Hành</span>
         </button>
 
         <button onclick="navigateTo('PROJECTS')" id="nav-PROJECTS" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
           <div class="flex items-center space-x-3">
-            <i data-lucide="briefcase" class="w-4 h-4 text-slate-400"></i>
-            <span>Workspace Đối Tác</span>
+            <i data-lucide="layers" class="w-4 h-4 text-slate-400"></i>
+            <span>Dự Án Chuỗi Đối Tác</span>
           </div>
           <span class="px-1.5 py-0.5 text-[10px] bg-teal-500/20 text-teal-300 rounded font-bold">3 Chuỗi</span>
         </button>
@@ -124,9 +122,9 @@
         <button onclick="navigateTo('PIPELINE')" id="nav-PIPELINE" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
           <div class="flex items-center space-x-3">
             <i data-lucide="trending-up" class="w-4 h-4 text-slate-400"></i>
-            <span>CRM Sales Pipeline</span>
+            <span>CRM Pipeline B2B</span>
           </div>
-          <span class="px-1.5 py-0.5 text-[10px] bg-amber-500/20 text-amber-300 rounded font-bold">Deals</span>
+          <span class="px-1.5 py-0.5 text-[10px] bg-amber-500/20 text-amber-300 rounded font-bold">3 Deals</span>
         </button>
 
         <button onclick="navigateTo('TASKS')" id="nav-TASKS" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
@@ -139,7 +137,7 @@
 
         <button onclick="navigateTo('CALENDAR')" id="nav-CALENDAR" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
           <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
-          <span>Lịch Biểu & Mốc SLA</span>
+          <span>Lịch Go-Live & Mốc SLA</span>
         </button>
 
         <button onclick="navigateTo('NOTIFICATIONS')" id="nav-NOTIFICATIONS" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
@@ -160,7 +158,7 @@
     <!-- Bottom Controls -->
     <div class="p-4 border-t border-slate-800 bg-navy-950/40 text-xs">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-[11px] font-bold text-slate-400">Database Engine:</span>
+        <span class="text-[11px] font-bold text-slate-400">Google Sheets Sync:</span>
         <button onclick="openApiConfigModal()" class="text-teal-400 hover:underline flex items-center text-[11px]">
           <i data-lucide="settings" class="w-3 h-3 mr-1"></i> Cài đặt
         </button>
@@ -172,40 +170,38 @@
     </div>
   </aside>
 
-  <!-- ================= 2. MAIN WRAPPER (HEADER + CONTENT + NLP BAR) ================= -->
+  <!-- ================= 2. MAIN CONTENT WRAPPER ================= -->
   <div class="flex-1 flex flex-col h-full bg-slate-100 overflow-hidden relative">
 
     <!-- Top Floating Header -->
     <header class="h-16 bg-white/90 backdrop-blur-md border-b border-slate-200 px-6 flex items-center justify-between shrink-0 z-20">
-      <!-- Search & Quick Info -->
       <div class="flex items-center space-x-3">
         <div class="relative w-64 md:w-80">
           <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
           <input 
             type="text" 
-            placeholder="Tìm kiếm Merchant, dự án, PIC..." 
+            placeholder="Tìm Merchant, dự án Go-Live, điều khoản SLA..." 
             class="w-full pl-9 pr-3 py-1.5 bg-slate-100 hover:bg-slate-200/70 focus:bg-white rounded-xl text-xs border border-transparent focus:border-teal-500 outline-none transition font-medium"
           />
         </div>
       </div>
 
-      <!-- Quick Action Buttons -->
+      <!-- Quick Action Controls -->
       <div class="flex items-center space-x-3">
         <!-- Live Clock -->
         <div class="hidden lg:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600">
           <i data-lucide="clock" class="w-3.5 h-3.5 text-teal-600"></i>
-          <span id="header-clock">20/11/2026 • 23:28</span>
+          <span id="header-clock">21/11/2026 • Lead PM</span>
         </div>
 
-        <!-- Sync Button -->
         <button onclick="syncDataFromGoogleSheets()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold transition shadow-xs">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="sync-icon"></i>
           <span>Đồng Bộ Sheets</span>
         </button>
 
-        <button onclick="openNewTaskModal()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition shadow-sm">
+        <button onclick="openNewTaskModal()" class="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition shadow-sm">
           <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-          <span>Tạo Task</span>
+          <span>Tạo Đầu Việc</span>
         </button>
       </div>
     </header>
@@ -213,19 +209,19 @@
     <!-- Scrollable Workspace Body -->
     <main class="flex-1 overflow-y-auto p-4 md:p-6 pb-28">
 
-      <!-- ================= SCREEN 1: DASHBOARD (TỔNG QUAN) ================= -->
+      <!-- ================= SCREEN 1: DASHBOARD (TỔNG QUAN B2B PM) ================= -->
       <div id="view-DASHBOARD" class="space-y-6 max-w-7xl mx-auto">
 
-        <!-- 1. BANNER CHÀO BUỔI TỐI + RADIAL PROGRESS (TASKFLOW STYLE) -->
+        <!-- 1. BANNER CHÀO CÁ NHÂN HÓA + RADIAL TIẾN ĐỘ THƯƠNG MẠI & DỰ ÁN -->
         <div class="bg-gradient-to-r from-navy-900 via-navy-850 to-teal-900 rounded-3xl p-6 text-white shadow-lg border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
           <div class="space-y-2 z-10 text-center md:text-left">
             <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-teal-500/20 border border-teal-500/30 text-teal-300 text-xs font-bold">
               <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
-              <span>Trạm Điều Hành Vận Hành FinTech B2B</span>
+              <span>B2B Commercial & Technical Project Delivery Hub</span>
             </div>
             <h1 class="text-2xl md:text-3xl font-black tracking-tight" id="welcome-title">Chào buổi tối, Bryan! ☕</h1>
             <p class="text-xs md:text-sm text-slate-300 max-w-xl leading-relaxed">
-              Hôm nay bạn có <strong class="text-white font-bold" id="banner-pending-count">3 task ưu tiên</strong> cần chốt và <strong class="text-rose-400 font-bold" id="banner-blocker-count">1 Blocker SLA</strong> tại Highlands Coffee đang chờ xử lý.
+              Bạn đang quản lý danh mục <strong class="text-white font-bold">~3.45 Tỷ VNĐ GMV kỳ vọng</strong> trên 3 chuỗi đối tác trọng yếu, với <strong class="text-rose-400 font-bold" id="banner-blocker-count">1 Blocker cam kết Go-Live</strong> tại Highlands Coffee đang cần gỡ.
             </p>
           </div>
 
@@ -234,136 +230,136 @@
             <div class="relative w-20 h-20 flex items-center justify-center">
               <svg class="w-20 h-20 transform -rotate-90">
                 <circle cx="40" cy="40" r="32" stroke="currentColor" stroke-width="7" class="text-slate-700/60" fill="transparent"/>
-                <circle cx="40" cy="40" r="32" stroke="currentColor" stroke-width="7" class="text-teal-400" fill="transparent" stroke-dasharray="201" stroke-dashoffset="60" stroke-linecap="round"/>
+                <circle cx="40" cy="40" r="32" stroke="currentColor" stroke-width="7" class="text-teal-400" fill="transparent" stroke-dasharray="201" stroke-dashoffset="55" stroke-linecap="round"/>
               </svg>
               <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span class="text-base font-black text-white" id="radial-percent">70%</span>
-                <span class="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Hôm nay</span>
+                <span class="text-base font-black text-white" id="radial-percent">72%</span>
+                <span class="text-[8px] text-slate-400 font-bold uppercase tracking-wider">Milestones</span>
               </div>
             </div>
             <div class="text-xs space-y-1">
-              <div class="text-slate-300 font-semibold">Tiến độ hôm nay</div>
-              <div class="text-[11px] text-teal-300 font-bold">Đã hoàn thành 5/7 việc</div>
-              <div class="text-[10px] text-slate-400">Hiệu suất vận hành: <strong class="text-white">Rất cao</strong></div>
+              <div class="text-slate-300 font-semibold">Tiến độ Cam kết Quý 4</div>
+              <div class="text-[11px] text-teal-300 font-bold">Đã chốt 5/7 Mốc Hợp Đồng</div>
+              <div class="text-[10px] text-slate-400">Mục tiêu: <strong class="text-white">Go-Live trước Noel</strong></div>
             </div>
           </div>
 
-          <!-- Decorative Ambient Glow -->
+          <!-- Background Decorative Glow -->
           <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
         </div>
 
-        <!-- 2. HỆ THỐNG 8 THẺ KPI RỰC RỠ (TASKFLOW 8-METRICS) -->
+        <!-- 2. HỆ THỐNG 8 THẺ KPI RỰC RỠ (KẾT HỢP KINH DOANH & PROJECT MANAGEMENT) -->
         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-          <!-- Card 1: Quá hạn -->
-          <div class="bg-white p-3 rounded-2xl border border-rose-200 shadow-xs flex flex-col justify-between">
-            <div class="flex items-center justify-between text-rose-600">
-              <i data-lucide="alert-octagon" class="w-4 h-4"></i>
-              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-rose-100 rounded">SLA</span>
+          <!-- Card 1: GMV Kỳ Vọng -->
+          <div class="bg-white p-3 rounded-2xl border border-teal-200 shadow-xs flex flex-col justify-between">
+            <div class="flex items-center justify-between text-teal-700">
+              <i data-lucide="circle-dollar-sign" class="w-4 h-4"></i>
+              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-teal-100 rounded">GMV</span>
             </div>
             <div class="mt-2">
-              <div class="text-xl font-black text-rose-600" id="kpi-overdue">1</div>
-              <div class="text-[10px] font-bold text-slate-400">Quá Hạn</div>
+              <div class="text-lg font-black text-teal-800">3.45 Tỷ</div>
+              <div class="text-[10px] font-bold text-slate-400">GMV Kỳ Vọng/Tháng</div>
             </div>
           </div>
 
-          <!-- Card 2: Đang làm -->
+          <!-- Card 2: Merchant Đã Ký -->
+          <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
+            <div class="flex items-center justify-between text-slate-700">
+              <i data-lucide="store" class="w-4 h-4"></i>
+              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-slate-100 rounded">Ký</span>
+            </div>
+            <div class="mt-2">
+              <div class="text-xl font-black text-slate-900" id="kpi-merchants">3</div>
+              <div class="text-[10px] font-bold text-slate-400">Chuỗi Đang Chạy</div>
+            </div>
+          </div>
+
+          <!-- Card 3: Dự Án Phối Hợp Kỹ Thuật -->
           <div class="bg-white p-3 rounded-2xl border border-blue-200 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between text-blue-600">
-              <i data-lucide="play-circle" class="w-4 h-4"></i>
-              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-blue-100 rounded">Run</span>
+              <i data-lucide="layers" class="w-4 h-4"></i>
+              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-blue-100 rounded">Dự Án</span>
             </div>
             <div class="mt-2">
-              <div class="text-xl font-black text-blue-600" id="kpi-doing">3</div>
-              <div class="text-[10px] font-bold text-slate-400">Đang Làm</div>
+              <div class="text-xl font-black text-blue-600" id="kpi-projects">4</div>
+              <div class="text-[10px] font-bold text-slate-400">Dự Án Delivery</div>
             </div>
           </div>
 
-          <!-- Card 3: Cần làm -->
-          <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
-            <div class="flex items-center justify-between text-slate-600">
-              <i data-lucide="clock" class="w-4 h-4"></i>
-              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-slate-100 rounded">Todo</span>
-            </div>
-            <div class="mt-2">
-              <div class="text-xl font-black text-slate-800" id="kpi-todo">2</div>
-              <div class="text-[10px] font-bold text-slate-400">Cần Làm</div>
-            </div>
-          </div>
-
-          <!-- Card 4: Hoàn thành -->
-          <div class="bg-white p-3 rounded-2xl border border-emerald-200 shadow-xs flex flex-col justify-between">
-            <div class="flex items-center justify-between text-emerald-600">
-              <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-emerald-100 rounded">Done</span>
-            </div>
-            <div class="mt-2">
-              <div class="text-xl font-black text-emerald-600" id="kpi-done">5</div>
-              <div class="text-[10px] font-bold text-slate-400">Hoàn Thành</div>
-            </div>
-          </div>
-
-          <!-- Card 5: Blocker Khẩn -->
+          <!-- Card 4: Blocker Cam Kết Go-Live -->
           <div class="bg-white p-3 rounded-2xl border border-rose-300 shadow-xs flex flex-col justify-between ring-2 ring-rose-500/10">
             <div class="flex items-center justify-between text-rose-600">
               <i data-lucide="alert-triangle" class="w-4 h-4 animate-bounce"></i>
-              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-rose-200 text-rose-800 rounded">GẤP</span>
+              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-rose-200 text-rose-800 rounded">SLA</span>
             </div>
             <div class="mt-2">
               <div class="text-xl font-black text-rose-600" id="kpi-blocker">1</div>
-              <div class="text-[10px] font-bold text-rose-600">Blocker SLA</div>
+              <div class="text-[10px] font-bold text-rose-600">Blocker Hợp Đồng</div>
             </div>
           </div>
 
-          <!-- Card 6: Dự án Active -->
+          <!-- Card 5: Việc Thương Mại & Vận Hành -->
           <div class="bg-white p-3 rounded-2xl border border-purple-200 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between text-purple-600">
-              <i data-lucide="git-branch" class="w-4 h-4"></i>
-              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-purple-100 rounded">Tech</span>
+              <i data-lucide="file-signature" class="w-4 h-4"></i>
+              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-purple-100 rounded">B2B</span>
             </div>
             <div class="mt-2">
-              <div class="text-xl font-black text-purple-600" id="kpi-projects">4</div>
-              <div class="text-[10px] font-bold text-slate-400">Dự Án Active</div>
+              <div class="text-xl font-black text-purple-600">5</div>
+              <div class="text-[10px] font-bold text-slate-400">Việc B2B & Chuỗi</div>
             </div>
           </div>
 
-          <!-- Card 7: Merchant Active -->
-          <div class="bg-white p-3 rounded-2xl border border-teal-200 shadow-xs flex flex-col justify-between">
-            <div class="flex items-center justify-between text-teal-600">
-              <i data-lucide="store" class="w-4 h-4"></i>
-              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-teal-100 rounded">Chuỗi</span>
-            </div>
-            <div class="mt-2">
-              <div class="text-xl font-black text-teal-700" id="kpi-merchants">3</div>
-              <div class="text-[10px] font-bold text-slate-400">Merchant Ký</div>
-            </div>
-          </div>
-
-          <!-- Card 8: Họp Hôm Nay -->
+          <!-- Card 6: Đang Triển Khai -->
           <div class="bg-white p-3 rounded-2xl border border-amber-200 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between text-amber-600">
-              <i data-lucide="video" class="w-4 h-4"></i>
-              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-amber-100 rounded">Meet</span>
+              <i data-lucide="play-circle" class="w-4 h-4"></i>
+              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-amber-100 rounded">Run</span>
             </div>
             <div class="mt-2">
-              <div class="text-xl font-black text-amber-600" id="kpi-meetings">2</div>
-              <div class="text-[10px] font-bold text-slate-400">Lịch Họp</div>
+              <div class="text-xl font-black text-amber-600" id="kpi-doing">3</div>
+              <div class="text-[10px] font-bold text-slate-400">Đang Triển Khai</div>
+            </div>
+          </div>
+
+          <!-- Card 7: Quá Hạn Hợp Đồng -->
+          <div class="bg-white p-3 rounded-2xl border border-rose-200 shadow-xs flex flex-col justify-between">
+            <div class="flex items-center justify-between text-rose-600">
+              <i data-lucide="alert-octagon" class="w-4 h-4"></i>
+              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-rose-100 rounded">Trễ</span>
+            </div>
+            <div class="mt-2">
+              <div class="text-xl font-black text-rose-600" id="kpi-overdue">1</div>
+              <div class="text-[10px] font-bold text-slate-400">Trễ Cam Kết</div>
+            </div>
+          </div>
+
+          <!-- Card 8: Lịch Họp 3 Bên Hôm Nay -->
+          <div class="bg-white p-3 rounded-2xl border border-emerald-200 shadow-xs flex flex-col justify-between">
+            <div class="flex items-center justify-between text-emerald-600">
+              <i data-lucide="video" class="w-4 h-4"></i>
+              <span class="text-[10px] font-extrabold px-1.5 py-0.2 bg-emerald-100 rounded">Meet</span>
+            </div>
+            <div class="mt-2">
+              <div class="text-xl font-black text-emerald-600" id="kpi-meetings">2</div>
+              <div class="text-[10px] font-bold text-slate-400">Họp Đối Tác</div>
             </div>
           </div>
         </div>
 
-        <!-- 3. HIỆN THỰC HÓA BẢN VẼ TAY (WIREFRAME 4 Ô XEM NHANH) -->
+        <!-- 3. HIỆN THỰC HÓA BẢN VẼ TAY (4 KHỐI XEM NHANH ĐIỀU HÀNH B2B PM) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-          <!-- [ Ô 1: LỊCH HÔM NAY ] -->
+          <!-- [ Ô 1: LỊCH HỌP THƯƠNG MẠI & KỸ THUẬT ] -->
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
             <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
               <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
                 <div class="w-6 h-6 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center">
                   <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
                 </div>
-                <span>[ 1. LỊCH HỌP & DEMO HÔM NAY ]</span>
+                <span>[ 1. LỊCH HỌP THƯƠNG MẠI & TIẾN ĐỘ ]</span>
               </div>
-              <span class="text-[11px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full">2 Sự kiện</span>
+              <span class="text-[11px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full">2 Cuộc họp</span>
             </div>
 
             <div class="space-y-2.5 flex-1">
@@ -371,9 +367,9 @@
                 <div>
                   <div class="flex items-center space-x-2">
                     <span class="px-2 py-0.5 text-[10px] font-extrabold rounded bg-teal-100 text-teal-800">14:30 - 15:30</span>
-                    <span class="text-xs font-bold text-slate-800">Họp UAT kịch bản lỗi thẻ App</span>
+                    <span class="text-xs font-bold text-slate-800">Họp 3 bên: Chốt nghiệm thu kịch bản lỗi thẻ trừ tiền App</span>
                   </div>
-                  <div class="text-[11px] text-slate-500 mt-1">Highlands Coffee • PIC: Anh Tuấn (IT) & Chị Mai (Bank)</div>
+                  <div class="text-[11px] text-slate-500 mt-1">Highlands Coffee • Thành phần: Bryan (Lead PM), Anh Tuấn (IT Chuỗi), Chị Mai (Bank)</div>
                 </div>
                 <button onclick="showToast('Đang mở link Google Meet...')" class="p-1.5 text-teal-700 hover:bg-teal-100 rounded-lg transition">
                   <i data-lucide="video" class="w-4 h-4"></i>
@@ -384,9 +380,9 @@
                 <div>
                   <div class="flex items-center space-x-2">
                     <span class="px-2 py-0.5 text-[10px] font-extrabold rounded bg-amber-100 text-amber-800">16:00 - 17:00</span>
-                    <span class="text-xs font-bold text-slate-800">Demo giải pháp SmartPOS 3 bên</span>
+                    <span class="text-xs font-bold text-slate-800">Họp thương thảo điều khoản SLA & Biểu phí SmartPOS siêu thị</span>
                   </div>
-                  <div class="text-[11px] text-slate-500 mt-1">JDV Siêu Thị Bán Lẻ • Khách mời: Anh Khoa & Pvcombank</div>
+                  <div class="text-[11px] text-slate-500 mt-1">JDV Chuỗi Bán Lẻ • Thành phần: Bryan, Anh Khoa (Solution Arch), Anh Dũng (Pvcombank)</div>
                 </div>
                 <button onclick="showToast('Đang mở link Google Meet...')" class="p-1.5 text-teal-700 hover:bg-teal-100 rounded-lg transition">
                   <i data-lucide="video" class="w-4 h-4"></i>
@@ -395,14 +391,14 @@
             </div>
           </div>
 
-          <!-- [ Ô 2: TASK ƯU TIÊN & TÍCH CHỌN ] -->
+          <!-- [ Ô 2: ĐẦU VIỆC B2B PM ƯU TIÊN ] -->
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
             <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
               <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
                 <div class="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
                   <i data-lucide="check-square" class="w-3.5 h-3.5"></i>
                 </div>
-                <span>[ 2. TASK CẦN LÀM ƯU TIÊN ]</span>
+                <span>[ 2. ĐẦU VIỆC B2B PM CẦN CHỐT ]</span>
               </div>
               <button onclick="navigateTo('TASKS')" class="text-xs text-teal-600 font-bold hover:underline">Xem tất cả</button>
             </div>
@@ -412,33 +408,33 @@
             </div>
           </div>
 
-          <!-- [ Ô 3: CASE GẤP / BLOCKER SLA ] -->
+          <!-- [ Ô 3: BLOCKER CAM KẾT HỢP ĐỒNG / GO-LIVE ] -->
           <div class="bg-white p-5 rounded-2xl border border-rose-300 shadow-sm blocker-flash flex flex-col">
             <div class="flex items-center justify-between mb-3 pb-2 border-b border-rose-100">
               <div class="flex items-center space-x-2 text-rose-700 font-bold text-sm">
                 <div class="w-6 h-6 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center">
                   <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
                 </div>
-                <span>[ 3. CASE GẤP / BLOCKER SLA ]</span>
+                <span>[ 3. BLOCKER CAM KẾT HỢP ĐỒNG & GO-LIVE ]</span>
               </div>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-700 animate-pulse">CHÁY DEADLINE</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-700 animate-pulse">NGUY CƠ CHẬM TIẾN ĐỘ</span>
             </div>
 
             <div class="p-3.5 rounded-xl bg-rose-50/80 border border-rose-200 flex-1 flex flex-col justify-between">
               <div>
                 <div class="flex items-center justify-between text-xs">
-                  <span class="font-bold text-rose-900">Highlands Coffee • Dự án Recurring App</span>
-                  <span class="text-[10px] font-bold text-rose-700 bg-rose-200 px-2 py-0.5 rounded">Trễ 2 ngày</span>
+                  <span class="font-bold text-rose-900">Highlands Coffee • Dự án Recurring Tokenization App</span>
+                  <span class="text-[10px] font-bold text-rose-700 bg-rose-200 px-2 py-0.5 rounded">Trễ 2 ngày so với Milestone</span>
                 </div>
                 <p class="text-xs text-rose-800 mt-2 font-medium">
-                  <strong>Điểm nghẽn:</strong> Chờ Tech Merchant mở IP whitelist Webhook Callback Sandbox để hoàn tất test case trừ tiền tự động.
+                  <strong>Điểm nghẽn:</strong> Đội Kỹ thuật Highlands chưa mở Whitelist IP Callback Webhook, dẫn tới chưa thể ký Biên bản Nghiệm thu UAT để kịp chiến dịch Marketing Tết.
                 </p>
-                <div class="text-[11px] text-rose-700 mt-1">PIC chịu trách nhiệm: <strong>Anh Tuấn (Head of IT Highlands)</strong></div>
+                <div class="text-[11px] text-rose-700 mt-1">PIC đối tác cần đôn đốc: <strong>Anh Tuấn (Head of IT Highlands)</strong></div>
               </div>
 
               <div class="mt-4 pt-3 border-t border-rose-200/80 flex items-center justify-between">
-                <span class="text-[10px] text-slate-500">Bấm nút để tự động copy text Zalo:</span>
-                <button onclick="handlePingPIC('Highlands Coffee', 'Recurring Tokenization App', 'Chờ mở IP whitelist Webhook Callback')" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-sm">
+                <span class="text-[10px] text-slate-500">Bấm nút để tự động copy text nhắc việc gửi Zalo:</span>
+                <button onclick="handlePingPIC('Highlands Coffee', 'Recurring Tokenization App', 'Chưa mở IP whitelist Webhook Callback dẫn tới chậm nghiệm thu UAT')" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-sm">
                   <i data-lucide="send" class="w-3.5 h-3.5"></i>
                   <span>Bắn Nhắc Hẹn (Ping PIC)</span>
                 </button>
@@ -446,14 +442,14 @@
             </div>
           </div>
 
-          <!-- [ Ô 4: QL DỰ ÁN TECH GATES ] -->
+          <!-- [ Ô 4: TIẾN ĐỘ DỰ ÁN HƯỚNG TỚI NGÀY GO-LIVE ] -->
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
             <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
               <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
                 <div class="w-6 h-6 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
-                  <i data-lucide="git-merge" class="w-3.5 h-3.5"></i>
+                  <i data-lucide="rocket" class="w-3.5 h-3.5"></i>
                 </div>
-                <span>[ 4. TIẾN ĐỘ CỔNG KỸ THUẬT (TECH GATES) ]</span>
+                <span>[ 4. TIẾN ĐỘ DELIVERY CÁC CHUỖI ĐỐI TÁC ]</span>
               </div>
               <button onclick="navigateTo('PROJECTS')" class="text-xs text-teal-600 font-bold hover:underline">Vào Workspace</button>
             </div>
@@ -462,29 +458,29 @@
               <!-- Item 1: Highlands -->
               <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
                 <div class="flex items-center justify-between">
-                  <span class="font-bold text-slate-800">Highlands Coffee (Recurring App)</span>
+                  <span class="font-bold text-slate-800">Highlands Coffee • Recurring App (~1.5 Tỷ GMV/tháng)</span>
                   <span class="font-bold text-teal-700">75%</span>
                 </div>
                 <div class="w-full bg-slate-200 rounded-full h-1.5 my-1.5">
                   <div class="bg-teal-600 h-1.5 rounded-full" style="width: 75%"></div>
                 </div>
                 <div class="text-[11px] text-slate-500 flex items-center justify-between">
-                  <span>Cổng hiện tại: <strong>3. UAT Sandbox & Lỗi Thẻ</strong></span>
-                  <span class="text-rose-600 font-bold">Blocker!</span>
+                  <span>Cột mốc: <strong>3. UAT Nghiệm thu & Lỗi Thẻ</strong></span>
+                  <span class="text-rose-600 font-bold">Cần gỡ Blocker</span>
                 </div>
               </div>
 
               <!-- Item 2: JDV -->
               <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
                 <div class="flex items-center justify-between">
-                  <span class="font-bold text-slate-800">JDV Siêu Thị (POS 3 bên Pvcombank)</span>
+                  <span class="font-bold text-slate-800">JDV Siêu Thị • POS 3 bên Pvcombank (~750M GMV/tháng)</span>
                   <span class="font-bold text-blue-700">45%</span>
                 </div>
                 <div class="w-full bg-slate-200 rounded-full h-1.5 my-1.5">
                   <div class="bg-blue-600 h-1.5 rounded-full" style="width: 45%"></div>
                 </div>
                 <div class="text-[11px] text-slate-500 flex items-center justify-between">
-                  <span>Cổng hiện tại: <strong>2. Đồng bộ mã hóa đơn ERP</strong></span>
+                  <span>Cột mốc: <strong>2. Đồng bộ mã hóa đơn ERP & Kế toán</strong></span>
                   <span class="text-blue-600 font-semibold">Đúng tiến độ</span>
                 </div>
               </div>
@@ -492,15 +488,15 @@
               <!-- Item 3: Xe Điện Việt Thanh -->
               <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
                 <div class="flex items-center justify-between">
-                  <span class="font-bold text-slate-800">Xe Điện Việt Thanh (Trả Góp 0% 35 Showroom)</span>
+                  <span class="font-bold text-slate-800">Xe Điện Việt Thanh • Trả Góp 0% 35 Showroom (~1.2 Tỷ GMV)</span>
                   <span class="font-bold text-emerald-700">85%</span>
                 </div>
                 <div class="w-full bg-slate-200 rounded-full h-1.5 my-1.5">
                   <div class="bg-emerald-600 h-1.5 rounded-full" style="width: 85%"></div>
                 </div>
                 <div class="text-[11px] text-slate-500 flex items-center justify-between">
-                  <span>Cổng hiện tại: <strong>4. Pilot 5 Showroom Hà Nội</strong></span>
-                  <span class="text-emerald-600 font-semibold">Sắp Go-Live</span>
+                  <span>Cột mốc: <strong>4. Pilot 5 Showroom & Đào tạo thu ngân</strong></span>
+                  <span class="text-emerald-600 font-semibold">Chuẩn bị Go-Live</span>
                 </div>
               </div>
             </div>
@@ -508,15 +504,15 @@
 
         </div>
 
-        <!-- 4. DASHBOARD CHARTS (VELOCITY 7 NGÀY & TRẠNG THÁI) -->
+        <!-- 4. BIỂU ĐỒ VELOCITY & PHÂN BỔ CÔNG VIỆC -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
             <div class="flex items-center justify-between mb-4">
               <div>
-                <h3 class="text-sm font-bold text-slate-800">Tốc Độ Xử Lý Nhiệm Vụ 7 Ngày Qua (Velocity)</h3>
-                <p class="text-xs text-slate-400">Đo lường số task hoàn tất và các điểm nghẽn phát sinh</p>
+                <h3 class="text-sm font-bold text-slate-800">Tốc Độ Xử Lý & Chốt Mốc Cam Kết (Delivery Velocity)</h3>
+                <p class="text-xs text-slate-400">Số lượng đầu việc thương mại / kỹ thuật được giải quyết 7 ngày qua</p>
               </div>
-              <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg">Tuần 47 / 2026</span>
+              <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg">Tuần Này</span>
             </div>
             <div class="h-60">
               <canvas id="velocityChart"></canvas>
@@ -526,137 +522,137 @@
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
             <div class="flex items-center justify-between mb-2">
               <div>
-                <h3 class="text-sm font-bold text-slate-800">Phân Bổ Công Việc</h3>
-                <p class="text-xs text-slate-400">Tỷ lệ theo trạng thái thực tế</p>
+                <h3 class="text-sm font-bold text-slate-800">Cơ Cấu Đầu Việc B2B PM</h3>
+                <p class="text-xs text-slate-400">Tỷ lệ theo tính chất công việc</p>
               </div>
             </div>
             <div class="h-44 relative flex items-center justify-center">
               <canvas id="statusChart"></canvas>
             </div>
             <div class="grid grid-cols-2 gap-2 mt-2 text-xs">
-              <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span><span>Hoàn thành: 5</span></div>
-              <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span><span>Đang làm: 3</span></div>
-              <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span><span>Cần làm: 2</span></div>
-              <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span>Quá hạn: 1</span></div>
+              <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span><span>Hợp đồng & Đối tác: 40%</span></div>
+              <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span><span>Phối hợp Kỹ thuật: 35%</span></div>
+              <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span><span>Đào tạo & Vận hành: 15%</span></div>
+              <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span><span>Việc Cá Nhân: 10%</span></div>
             </div>
           </div>
         </div>
 
       </div>
 
-      <!-- ================= SCREEN 2: DEDICATED MERCHANT WORKSPACE ================= -->
+      <!-- ================= SCREEN 2: DEDICATED MERCHANT WORKSPACE (KHÔNG GIAN RIÊNG TỪNG CHUỖI) ================= -->
       <div id="view-PROJECTS" class="hidden space-y-6 max-w-7xl mx-auto">
-        <!-- Merchant Switcher Pills -->
+        <!-- Switcher Pills -->
         <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between overflow-x-auto">
           <div class="flex items-center space-x-2" id="merchant-pills-bar">
-            <!-- Rendered dynamically -->
+            <!-- Dynamic -->
           </div>
           <button onclick="openNewMerchantModal()" class="shrink-0 ml-3 px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl text-xs font-bold transition flex items-center space-x-1">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-            <span>+ Ký Thêm Đối Tác</span>
+            <span>+ Thêm Chuỗi Đã Ký</span>
           </button>
         </div>
 
-        <!-- Dedicated Workspace Detail -->
+        <!-- Dedicated Workspace View -->
         <div id="dedicated-workspace-container" class="space-y-6">
           <!-- Rendered by renderDedicatedWorkspace() -->
         </div>
       </div>
 
-      <!-- ================= SCREEN 3: CRM SALES PIPELINE (MERCHANT ĐANG DEAL) ================= -->
+      <!-- ================= SCREEN 3: CRM B2B SALES PIPELINE (PHỄU THƯƠNG MẠI) ================= -->
       <div id="view-PIPELINE" class="hidden space-y-6 max-w-7xl mx-auto">
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <div class="flex items-center space-x-2">
-                <h2 class="text-lg font-black text-slate-900 tracking-tight">CRM B2B Sales Pipeline</h2>
-                <span class="px-2.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded-full">Merchant Đang Tiếp Cận / Deal</span>
+                <h2 class="text-lg font-black text-slate-900 tracking-tight">CRM B2B Sales & Merchant Acquisition Pipeline</h2>
+                <span class="px-2.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded-full">Merchant Đang Đàm Phán</span>
               </div>
-              <p class="text-xs text-slate-400 mt-0.5">Phễu bán hàng theo dõi các thương vụ đàm phán hợp đồng trước khi sang Integration Workspace</p>
+              <p class="text-xs text-slate-400 mt-0.5">Phễu thương mại quản lý các thương vụ tiếp cận, đàm phán biểu phí và hợp đồng trước khi chuyển sang triển khai kỹ thuật</p>
             </div>
-            <button onclick="showToast('Chức năng thêm Deal đang cập nhật!')" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-sm">
+            <button onclick="showToast('Chức năng thêm Deal mới đang mở!')" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-sm">
               <i data-lucide="plus" class="w-4 h-4"></i>
               <span>+ Thêm Thương Vụ Deal</span>
             </button>
           </div>
 
-          <!-- 4-Stage Kanban Pipeline -->
+          <!-- 4-Stage Commercial Pipeline -->
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="pipeline-kanban">
-            <!-- Stage 1 -->
+            <!-- Giai đoạn 1 -->
             <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex flex-col">
               <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 text-xs font-bold text-slate-700">
-                <span>1. KHẢO SÁT NHU CẦU</span>
+                <span>1. KHẢO SÁT NHU CẦU & MÔ HÌNH</span>
                 <span class="bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded-full text-[10px]">1 Deal</span>
               </div>
               <div class="space-y-2">
                 <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
                   <div class="text-xs font-bold text-slate-800">Katinat Saigon Kafe</div>
-                  <div class="text-[11px] text-slate-500 mt-1">Nhu cầu: Tích hợp Loyalty CRM & VietQR Động</div>
+                  <div class="text-[11px] text-slate-500 mt-1">Mô hình: Tích hợp Loyalty CRM & Cổng VietQR Động</div>
                   <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
-                    <span class="font-bold text-teal-700">~150M GMV/tháng</span>
-                    <span class="text-slate-400 font-medium">BD: Bryan</span>
+                    <span class="font-bold text-teal-700">GMV dự kiến: ~150M/tháng</span>
+                    <span class="text-slate-400 font-medium">BD Lead: Bryan</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Stage 2 -->
+            <!-- Giai đoạn 2 -->
             <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex flex-col">
               <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 text-xs font-bold text-blue-700">
-                <span>2. DEMO GIẢI PHÁP</span>
+                <span>2. DEMO GIẢI PHÁP & TƯ VẤN KIẾN TRÚC</span>
                 <span class="bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded-full text-[10px]">1 Deal</span>
               </div>
               <div class="space-y-2">
                 <div class="bg-white p-3.5 rounded-xl border border-blue-200 shadow-xs">
-                  <div class="text-xs font-bold text-slate-800">GS25 Vietnam (Chuỗi Tiện Lợi)</div>
-                  <div class="text-[11px] text-slate-500 mt-1">Nhu cầu: SmartPOS All-in-one quầy thu ngân 250+ quán</div>
+                  <div class="text-xs font-bold text-slate-800">GS25 Vietnam (250+ Cửa Hàng)</div>
+                  <div class="text-[11px] text-slate-500 mt-1">Đề xuất: SmartPOS quầy thu ngân kết hợp đối soát T+1</div>
                   <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
-                    <span class="font-bold text-blue-700">~800M GMV/tháng</span>
+                    <span class="font-bold text-blue-700">GMV dự kiến: ~800M/tháng</span>
                     <span class="text-blue-600 font-bold">Đã gửi API Spec</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Stage 3 -->
+            <!-- Giai đoạn 3 -->
             <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex flex-col">
               <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 text-xs font-bold text-amber-700">
-                <span>3. ĐÀM PHÁN HỢP ĐỒNG</span>
+                <span>3. ĐÀM PHÁN BIỂU PHÍ & PHÁP LÝ HỢP ĐỒNG</span>
                 <span class="bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded-full text-[10px]">1 Deal</span>
               </div>
               <div class="space-y-2">
                 <div class="bg-white p-3.5 rounded-xl border border-amber-200 shadow-xs">
                   <div class="text-xs font-bold text-slate-800">Golden Gate Group (400+ Nhà Hàng)</div>
-                  <div class="text-[11px] text-slate-500 mt-1">Nội dung: Thống nhất biểu phí MDR & Phí giao dịch thẻ quốc tế</div>
+                  <div class="text-[11px] text-slate-500 mt-1">Nội dung: Thống nhất biểu phí MDR thẻ quốc tế & Phụ lục SLA cam kết thời gian hoàn tiền 24h</div>
                   <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
-                    <span class="font-bold text-amber-700">~2.5 Tỷ GMV/tháng</span>
+                    <span class="font-bold text-amber-700">GMV dự kiến: ~2.5 Tỷ/tháng</span>
                     <span class="text-amber-600 font-bold">Legal Review</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Stage 4 -->
+            <!-- Giai đoạn 4 -->
             <div class="bg-teal-50/60 rounded-xl p-3 border border-teal-200 flex flex-col">
               <div class="flex items-center justify-between pb-2 mb-2 border-b border-teal-200 text-xs font-bold text-teal-800">
-                <span>4. CHỐT KÝ KẾT (WON)</span>
+                <span>4. ĐÃ KÝ KẾT $\rightarrow$ BÀN GIAO WORKSPACE</span>
                 <span class="bg-teal-200 text-teal-800 px-1.5 py-0.2 rounded-full text-[10px]">3 Chuỗi Đang Chạy</span>
               </div>
               <div class="space-y-2">
                 <div onclick="selectMerchant('m-highlands'); navigateTo('PROJECTS');" class="bg-white p-3 rounded-xl border border-teal-200 shadow-xs hover:border-teal-500 cursor-pointer transition">
                   <div class="flex items-center justify-between text-xs font-bold text-slate-800">
                     <span>Highlands Coffee</span>
-                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                    <span class="w-2 h-2 rounded-full bg-rose-500" title="Đang có blocker"></span>
                   </div>
-                  <div class="text-[11px] text-teal-600 font-medium mt-1">Đã ký • Chuyển sang Workspace</div>
+                  <div class="text-[11px] text-teal-600 font-medium mt-1">1.5 Tỷ GMV • Recurring App</div>
                 </div>
                 <div onclick="selectMerchant('m-jdv'); navigateTo('PROJECTS');" class="bg-white p-3 rounded-xl border border-teal-200 shadow-xs hover:border-teal-500 cursor-pointer transition">
                   <div class="text-xs font-bold text-slate-800">JDV Siêu Thị Bán Lẻ</div>
-                  <div class="text-[11px] text-teal-600 font-medium mt-1">Đã ký • Chuyển sang Workspace</div>
+                  <div class="text-[11px] text-teal-600 font-medium mt-1">750M GMV • SmartPOS 3 Bên</div>
                 </div>
                 <div onclick="selectMerchant('m-vietthanh'); navigateTo('PROJECTS');" class="bg-white p-3 rounded-xl border border-teal-200 shadow-xs hover:border-teal-500 cursor-pointer transition">
                   <div class="text-xs font-bold text-slate-800">Xe Điện Việt Thanh</div>
-                  <div class="text-[11px] text-teal-600 font-medium mt-1">Đã ký • Chuyển sang Workspace</div>
+                  <div class="text-[11px] text-teal-600 font-medium mt-1">1.2 Tỷ GMV • Trả Góp 35 Showroom</div>
                 </div>
               </div>
             </div>
@@ -664,17 +660,16 @@
         </div>
       </div>
 
-      <!-- ================= SCREEN 4: TASKS & KANBAN (MULTI-VIEW) ================= -->
+      <!-- ================= SCREEN 4: TASKS & DELIVERY MANAGEMENT (MULTI-VIEW) ================= -->
       <div id="view-TASKS" class="hidden space-y-6 max-w-7xl mx-auto">
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <!-- Header & View Switcher -->
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h2 class="text-lg font-black text-slate-900 tracking-tight">Hệ Thống Nhiệm Vụ & SLA</h2>
-              <p class="text-xs text-slate-400">Phân tách việc cá nhân (👤) và công việc B2B (💼) với 3 chế độ xem linh hoạt</p>
+              <h2 class="text-lg font-black text-slate-900 tracking-tight">Nhiệm Vụ & Tiến Độ Vận Hành B2B PM</h2>
+              <p class="text-xs text-slate-400">Phân tách rõ ràng giữa việc Thương mại / Hợp đồng, Phối hợp kỹ thuật và Việc cá nhân</p>
             </div>
 
-            <!-- Multi-view Switcher -->
+            <!-- View Switcher -->
             <div class="flex items-center space-x-2">
               <div class="bg-slate-100 p-1 rounded-xl border border-slate-200 flex items-center space-x-1">
                 <button onclick="switchTaskView('CARDS')" id="btn-view-cards" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-teal-700 shadow-xs flex items-center space-x-1">
@@ -683,29 +678,29 @@
                 </button>
                 <button onclick="switchTaskView('KANBAN')" id="btn-view-kanban" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center space-x-1">
                   <i data-lucide="columns" class="w-3.5 h-3.5"></i>
-                  <span>Kanban 5 Cột</span>
+                  <span>Kanban Tiến Độ</span>
                 </button>
               </div>
 
               <button onclick="openNewTaskModal()" class="px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm transition">
                 <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>Tạo Task Mới</span>
+                <span>Tạo Đầu Việc Mới</span>
               </button>
             </div>
           </div>
 
-          <!-- Type Filters: Tất cả | Việc Cá Nhân | Công Việc B2B -->
+          <!-- Type Filters -->
           <div class="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200 mb-6">
             <div class="flex items-center space-x-2">
               <span class="text-xs font-bold text-slate-500 mr-1">Phân loại:</span>
               <button onclick="filterTasksByType('ALL')" id="filter-type-ALL" class="px-3 py-1 text-xs font-bold rounded-lg bg-teal-600 text-white shadow-xs">Tất Cả</button>
-              <button onclick="filterTasksByType('B2B')" id="filter-type-B2B" class="px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100">💼 Công Việc B2B</button>
+              <button onclick="filterTasksByType('COMMERCIAL')" id="filter-type-COMMERCIAL" class="px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100">📋 Thương Mại & Hợp Đồng</button>
+              <button onclick="filterTasksByType('TECH_DELIVERY')" id="filter-type-TECH_DELIVERY" class="px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100">⚙️ Phối Hợp Kỹ Thuật</button>
               <button onclick="filterTasksByType('PERSONAL')" id="filter-type-PERSONAL" class="px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100">👤 Việc Cá Nhân</button>
             </div>
 
-            <!-- Priority filter -->
             <div class="flex items-center space-x-2 text-xs">
-              <span class="text-slate-500 font-medium">Lọc ưu tiên:</span>
+              <span class="text-slate-500 font-medium">Mức độ ưu tiên:</span>
               <select id="filter-task-priority" onchange="renderTasksMainView()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-medium outline-none">
                 <option value="ALL">Tất cả mức độ</option>
                 <option value="KHẨN CẤP">Khẩn cấp (SLA)</option>
@@ -717,28 +712,27 @@
 
           <!-- CONTAINER 1: CARDS VIEW -->
           <div id="container-task-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Rendered dynamically -->
+            <!-- Dynamic -->
           </div>
 
-          <!-- CONTAINER 2: KANBAN 5 COLUMNS VIEW -->
+          <!-- CONTAINER 2: KANBAN VIEW -->
           <div id="container-task-kanban" class="hidden grid grid-cols-1 md:grid-cols-5 gap-3">
-            <!-- 5 Columns: Backlog, Todo, Doing, Review, Done -->
+            <!-- Dynamic 5 Columns -->
           </div>
         </div>
       </div>
 
-      <!-- ================= SCREEN 5: CALENDAR (LỊCH THÁNG & MỐC RELEASE) ================= -->
+      <!-- ================= SCREEN 5: CALENDAR GO-LIVE & MILESTONES ================= -->
       <div id="view-CALENDAR" class="hidden space-y-6 max-w-7xl mx-auto">
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div class="flex items-center justify-between mb-6">
             <div>
-              <h2 class="text-lg font-black text-slate-900 tracking-tight">Lịch Biểu & Mốc Cổng Kỹ Thuật (SLA Gates)</h2>
-              <p class="text-xs text-slate-400">Theo dõi toàn diện các mốc UAT, Pilot và ngày Go-Live toàn chuỗi</p>
+              <h2 class="text-lg font-black text-slate-900 tracking-tight">Lịch Trình Go-Live & Mốc Nghiệm Thu Thương Mại</h2>
+              <p class="text-xs text-slate-400">Giám sát các cột mốc cam kết với đối tác C-Level để đảm bảo kịp tiến độ kinh doanh</p>
             </div>
             <span class="text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200 px-3 py-1 rounded-lg">Tháng 11 - 12 / 2026</span>
           </div>
 
-          <!-- Calendar Events Grid -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="p-4 rounded-2xl border border-rose-200 bg-rose-50/40 space-y-2">
               <div class="flex items-center justify-between">
@@ -746,33 +740,33 @@
                 <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-200 text-rose-800">SLA KHẨN</span>
               </div>
               <div class="text-sm font-bold text-slate-900">Mở IP Whitelist Callback Sandbox</div>
-              <div class="text-xs text-slate-600">Highlands Coffee • Phụ trách: Anh Tuấn (IT)</div>
+              <div class="text-xs text-slate-600">Highlands Coffee • Phụ trách: Anh Tuấn (IT) & Bryan</div>
               <div class="text-[11px] text-rose-600 font-semibold pt-2 border-t border-rose-200">
-                Blocker chính của dự án Recurring App
+                Điều kiện tiên quyết để kịp ký nghiệm thu chạy chiến dịch Tết
               </div>
             </div>
 
             <div class="p-4 rounded-2xl border border-blue-200 bg-blue-50/40 space-y-2">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-black text-blue-700">28/11/2026</span>
-                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-200 text-blue-800">UAT GATE</span>
+                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-200 text-blue-800">UAT SIGN-OFF</span>
               </div>
-              <div class="text-sm font-bold text-slate-900">UAT Kịch bản Lỗi Thẻ & Auto-Debit</div>
+              <div class="text-sm font-bold text-slate-900">Ký Biên Bản Nghiệm Thu UAT Lỗi Thẻ</div>
               <div class="text-xs text-slate-600">Highlands Coffee • Phụ trách: Bryan & VietinBank</div>
               <div class="text-[11px] text-blue-600 font-semibold pt-2 border-t border-blue-200">
-                Nghiệm thu 100% test case ngoại lệ
+                Chốt phương án đối soát phí giao dịch trừ tự động
               </div>
             </div>
 
             <div class="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/40 space-y-2">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-black text-emerald-700">05/12/2026</span>
-                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-800">GO-LIVE PILOT</span>
+                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-800">GO-LIVE THƯƠNG MẠI</span>
               </div>
-              <div class="text-sm font-bold text-slate-900">Pilot 5 Showroom Xe Điện Việt Thanh</div>
-              <div class="text-xs text-slate-600">Việt Thanh • Phụ trách: Anh Thanh & Bryan</div>
+              <div class="text-sm font-bold text-slate-900">Go-Live 35 Showroom Xe Điện Việt Thanh</div>
+              <div class="text-xs text-slate-600">Việt Thanh • Phụ trách: Anh Thanh (CEO) & Bryan</div>
               <div class="text-[11px] text-emerald-600 font-semibold pt-2 border-t border-emerald-200">
-                Kiểm thử giao dịch trả góp thẻ thực tế
+                Bắt đầu khai thác doanh số trả góp 0% thẻ tín dụng
               </div>
             </div>
           </div>
@@ -783,19 +777,16 @@
       <div id="view-NOTIFICATIONS" class="hidden space-y-6 max-w-7xl mx-auto">
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <h2 class="text-lg font-black text-slate-900 tracking-tight mb-1">Nhật Ký Cảnh Báo SLA & Bắn Nhắc Hẹn (Ping PIC)</h2>
-          <p class="text-xs text-slate-400 mb-6">Lịch sử các lần kích hoạt Blocker và copy tin nhắn nhắc hẹn gửi Zalo</p>
-
-          <div class="space-y-3" id="notifications-log-list">
-            <!-- Rendered dynamically -->
-          </div>
+          <p class="text-xs text-slate-400 mb-6">Lịch sử các lần kích hoạt Blocker và copy tin nhắn nhắc hẹn gửi Zalo cho đối tác</p>
+          <div class="space-y-3" id="notifications-log-list"></div>
         </div>
       </div>
 
       <!-- ================= SCREEN 7: AUTOMATION RULES ================= -->
       <div id="view-AUTOMATION" class="hidden space-y-6 max-w-7xl mx-auto">
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h2 class="text-lg font-black text-slate-900 tracking-tight mb-1">Cấu Hình Quy Tắc Tự Động Hóa (Automation Rules)</h2>
-          <p class="text-xs text-slate-400 mb-6">Tự động hoá các phản hồi khi có điểm nghẽn SLA hoặc vượt hạn chót Due Date</p>
+          <h2 class="text-lg font-black text-slate-900 tracking-tight mb-1">Cấu Hình Quy Tắc Tự Động Hóa Vận Hành B2B</h2>
+          <p class="text-xs text-slate-400 mb-6">Tự động hoá các phản hồi khi có điểm nghẽn SLA hoặc vượt hạn chót cam kết hợp đồng</p>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex items-start justify-between">
@@ -804,7 +795,7 @@
                   <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                   <span>Tự Động Tạo Mẫu Tin Nhắn Zalo Khi Gắn Blocker</span>
                 </div>
-                <p class="text-slate-500 mt-1">Khi cờ Blocker = TRUE, soạn sẵn mẫu tin hối thúc SLA kèm tên PIC và tên dự án.</p>
+                <p class="text-slate-500 mt-1">Khi cờ Blocker = TRUE, soạn sẵn mẫu tin hối thúc SLA gửi nhóm Zalo dự án 3 bên.</p>
               </div>
               <input type="checkbox" checked class="w-4 h-4 text-teal-600 rounded">
             </div>
@@ -813,9 +804,9 @@
               <div>
                 <div class="flex items-center space-x-2 font-bold text-slate-800">
                   <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  <span>Tự Động Gắn Cờ "Quá Hạn X Ngày" Theo Thời Gian Thực</span>
+                  <span>Cảnh Báo Quá Hạn Cột Mốc Nghiệm Thu (Due Date)</span>
                 </div>
-                <p class="text-slate-500 mt-1">Hệ thống so sánh Due Date với ngày hiện tại để đếm số ngày trễ SLA.</p>
+                <p class="text-slate-500 mt-1">Hệ thống so sánh Due Date với ngày hiện tại để đếm số ngày trễ mốc Go-Live.</p>
               </div>
               <input type="checkbox" checked class="w-4 h-4 text-teal-600 rounded">
             </div>
@@ -833,14 +824,14 @@
           <span class="font-bold text-slate-400 shrink-0 flex items-center">
             <i data-lucide="sparkles" class="w-3.5 h-3.5 text-teal-500 mr-1"></i> Gợi ý lệnh:
           </span>
-          <button onclick="setNlpCommand('Tạo task Highlands test kịch bản thẻ lỗi due date 25/11')" class="shrink-0 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition font-medium border border-slate-200">
-            + Tạo Task Highlands thẻ lỗi
+          <button onclick="setNlpCommand('Tạo task Highlands rà soát phụ lục đối soát biểu phí due date 25/11')" class="shrink-0 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition font-medium border border-slate-200">
+            + Ký phụ lục biểu phí Highlands
           </button>
           <button onclick="setNlpCommand('@highlands khẩn cấp lỗi IP webhook Sandbox trễ 2 ngày')" class="shrink-0 px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg transition font-medium border border-rose-200">
-            ! Bật Blocker Highlands
+            ! Blocker Go-Live Highlands
           </button>
-          <button onclick="setNlpCommand('Tạo task JDV test máy POS 3 bên Pvcombank')" class="shrink-0 px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition font-medium border border-blue-200">
-            + Tạo Task JDV POS 3 bên
+          <button onclick="setNlpCommand('Tạo task JDV thống nhất quy trình đối soát POS với Pvcombank')" class="shrink-0 px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition font-medium border border-blue-200">
+            + Đối soát POS JDV
           </button>
           <button onclick="setNlpCommand('@vietthanh')" class="shrink-0 px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-lg transition font-medium border border-teal-200">
             → Đến @vietthanh
@@ -855,7 +846,7 @@
           <input 
             id="nlp-command-input" 
             type="text" 
-            placeholder="Gõ lệnh tiếng Việt (VD: 'Tạo task JDV test POS 3 bên', '@highlands', hoặc 'khẩn cấp lỗi webhook')..." 
+            placeholder="Nhập lệnh tự nhiên (VD: 'Tạo task Highlands họp chốt biểu phí', '@highlands', hoặc 'khẩn cấp lỗi webhook')..." 
             class="w-full pl-10 pr-28 py-2.5 bg-slate-100/90 hover:bg-slate-100 focus:bg-white text-slate-800 text-xs md:text-sm rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition font-medium"
           />
           <button 
@@ -876,28 +867,32 @@
   <div id="modal-new-task" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
       <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
-        <h3 class="text-base font-bold text-slate-900">Tạo Nhiệm Vụ Mới</h3>
+        <h3 class="text-base font-bold text-slate-900">Tạo Đầu Việc / Nhiệm Vụ Mới</h3>
         <button onclick="closeNewTaskModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
       <form onsubmit="handleSaveNewTask(event)" class="space-y-4 text-xs">
         <div>
           <label class="block font-bold text-slate-700 mb-1">Loại Nhiệm Vụ *</label>
-          <div class="grid grid-cols-2 gap-2">
-            <label class="flex items-center space-x-2 p-2 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50">
-              <input type="radio" name="task-type" value="B2B" checked class="text-teal-600">
-              <span class="font-bold text-slate-700">💼 Công Việc B2B</span>
+          <div class="grid grid-cols-3 gap-2">
+            <label class="flex items-center space-x-1.5 p-2 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50">
+              <input type="radio" name="task-type" value="COMMERCIAL" checked class="text-teal-600">
+              <span class="font-bold text-slate-700 text-[11px]">📋 Thương Mại</span>
             </label>
-            <label class="flex items-center space-x-2 p-2 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50">
+            <label class="flex items-center space-x-1.5 p-2 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50">
+              <input type="radio" name="task-type" value="TECH_DELIVERY" class="text-teal-600">
+              <span class="font-bold text-slate-700 text-[11px]">⚙️ Kỹ Thuật</span>
+            </label>
+            <label class="flex items-center space-x-1.5 p-2 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50">
               <input type="radio" name="task-type" value="PERSONAL" class="text-teal-600">
-              <span class="font-bold text-slate-700">👤 Việc Cá Nhân</span>
+              <span class="font-bold text-slate-700 text-[11px]">👤 Cá Nhân</span>
             </label>
           </div>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Tiêu Đề Task *</label>
-          <input type="text" id="task-title" required placeholder="VD: Test kịch bản thẻ lỗi due date..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none">
+          <label class="block font-bold text-slate-700 mb-1">Tiêu Đề Đầu Việc *</label>
+          <input type="text" id="task-title" required placeholder="VD: Họp rà soát biểu phí MDR thẻ quốc tế..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none">
         </div>
 
         <div>
@@ -929,7 +924,7 @@
 
         <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
           <button type="button" onclick="closeNewTaskModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">Hủy</button>
-          <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-sm">Lưu Nhiệm Vụ</button>
+          <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-sm">Lưu Đầu Việc</button>
         </div>
       </form>
     </div>
@@ -939,14 +934,14 @@
   <div id="modal-new-merchant" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
       <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
-        <h3 class="text-base font-bold text-slate-900">Thêm Đối Tác Merchant Mới (Đã Ký Hợp Đồng)</h3>
+        <h3 class="text-base font-bold text-slate-900">Thêm Chuỗi Đối Tác Mới (Đã Ký Hợp Đồng)</h3>
         <button onclick="closeNewMerchantModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
       <form onsubmit="handleSaveNewMerchant(event)" class="space-y-4 text-xs">
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Tên Đối Tác *</label>
+            <label class="block font-bold text-slate-700 mb-1">Tên Chuỗi / Thương Hiệu *</label>
             <input type="text" id="merchant-name" required placeholder="VD: Katinat Saigon Kafe" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none">
           </div>
           <div>
@@ -954,9 +949,15 @@
             <input type="text" id="merchant-alias" required placeholder="@katinat" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none">
           </div>
         </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Quy Mô / Ngành Nghề</label>
-          <input type="text" id="merchant-industry" placeholder="VD: Chuỗi F&B / 80+ Cửa hàng" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Quy Mô / Ngành Nghề</label>
+            <input type="text" id="merchant-industry" placeholder="VD: Chuỗi F&B 80+ Cửa Hàng" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Doanh Số Kỳ Vọng (GMV)</label>
+            <input type="text" id="merchant-gmv" placeholder="VD: ~500M GMV/tháng" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none">
+          </div>
         </div>
 
         <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
@@ -968,7 +969,7 @@
             </div>
             <div>
               <label class="block text-slate-600 mb-1">Chức Vụ</label>
-              <input type="text" id="merchant-stk-role" placeholder="Tech Lead Chuỗi" class="w-full p-2 bg-white border border-slate-300 rounded-lg outline-none">
+              <input type="text" id="merchant-stk-role" placeholder="Giám Đốc Vận Hành / Tech Lead" class="w-full p-2 bg-white border border-slate-300 rounded-lg outline-none">
             </div>
           </div>
           <div class="grid grid-cols-2 gap-3">
@@ -978,7 +979,7 @@
             </div>
             <div>
               <label class="block text-slate-600 mb-1">Email</label>
-              <input type="email" id="merchant-stk-email" placeholder="nam.it@katinat.vn" class="w-full p-2 bg-white border border-slate-300 rounded-lg outline-none">
+              <input type="email" id="merchant-stk-email" placeholder="nam.ops@katinat.vn" class="w-full p-2 bg-white border border-slate-300 rounded-lg outline-none">
             </div>
           </div>
         </div>
@@ -1026,16 +1027,16 @@
     </div>
   </div>
 
-  <!-- Toast Notification Container -->
+  <!-- Toast Notification -->
   <div id="toast" class="fixed top-6 right-6 bg-slate-900 text-white text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 transition-all duration-300 opacity-0 pointer-events-none z-50 max-w-sm border border-slate-700">
     <i data-lucide="check" class="w-4 h-4 text-teal-400 shrink-0" id="toast-icon"></i>
     <span id="toast-message">Nội dung thông báo</span>
   </div>
 
-  <!-- ================= 4. CORE ENGINE JAVASCRIPT ================= -->
+  <!-- ================= 4. CORE JAVASCRIPT ENGINE ================= -->
   <script>
     // -------------------------------------------------------------
-    // 1. STATE MANAGEMENT (3 CASE STUDIES FINTECH THỰC CHIẾN)
+    // 1. DATA STATE (B2B COMMERCIAL & TECHNICAL DELIVERY)
     // -------------------------------------------------------------
     let API_ENDPOINT = localStorage.getItem("bryan_portal_api") || "";
 
@@ -1046,98 +1047,101 @@
           name: "Highlands Coffee", 
           alias: "@highlands", 
           industry: "Chuỗi F&B Toàn Quốc (700+ Cửa Hàng)", 
+          expected_gmv: "~1.5 Tỷ VNĐ/tháng",
           avatar_letter: "H", 
           color: "bg-red-700",
-          contract_status: "Đã Ký Kết & Đang Triển Khai"
+          contract_status: "Đã Ký Hợp Đồng Kinh Tế • Đang Triển Khai Delivery"
         },
         { 
           id: "m-jdv", 
           name: "JDV Chuỗi Bán Lẻ", 
           alias: "@jdv", 
           industry: "Hệ thống Siêu Thị Bán Lẻ Tiêu Dùng", 
+          expected_gmv: "~750M VNĐ/tháng",
           avatar_letter: "J", 
           color: "bg-blue-700",
-          contract_status: "Đã Ký Kết & Đang Triển Khai"
+          contract_status: "Đã Ký Phụ Lục 3 Bên • Đang Thử Nghiệm POS"
         },
         { 
           id: "m-vietthanh", 
           name: "Xe Điện Việt Thanh", 
           alias: "@vietthanh", 
           industry: "Chuỗi 35 Showroom Xe Điện Toàn Quốc", 
+          expected_gmv: "~1.2 Tỷ VNĐ/tháng",
           avatar_letter: "V", 
           color: "bg-emerald-700",
-          contract_status: "Đã Ký Kết & Đang Triển Khai"
+          contract_status: "Đã Ký Hợp Đồng Trả Góp 0% • Chuẩn Bị Go-Live"
         }
       ],
       stakeholders: [
-        // Highlands Coffee
+        // Highlands
         { id: "s-hl-1", merchant_id: "m-highlands", name: "Anh Tuấn", role: "Head of IT & Digital", phone: "0908123456", email: "tuan.it@highlandscoffee.com.vn", group: "Tech Chuỗi" },
         { id: "s-hl-2", merchant_id: "m-highlands", name: "Chị Mai", role: "Acquiring Lead - VietinBank", phone: "0912334455", email: "mai.bank@vietinbank.vn", group: "Ngân Hàng" },
-        { id: "s-hl-3", merchant_id: "m-highlands", name: "Bryan Nguyen", role: "Lead PM Delivery", phone: "0934000111", email: "bryan.nguyen@hub.internal", group: "Nội Bộ Bryan" },
+        { id: "s-hl-3", merchant_id: "m-highlands", name: "Bryan Nguyen", role: "Lead B2B PM Delivery", phone: "0934000111", email: "bryan.nguyen@hub.internal", group: "Nội Bộ Bryan" },
         
         // JDV
         { id: "s-jdv-1", merchant_id: "m-jdv", name: "Anh Khoa", role: "Lead Solution Arch JDV", phone: "0988776655", email: "khoa.arch@jdv.vn", group: "Tech Chuỗi" },
         { id: "s-jdv-2", merchant_id: "m-jdv", name: "Anh Tuấn Dũng", role: "Core Banking Lead - Pvcombank", phone: "0977221100", email: "dung.pvcom@pvcombank.com.vn", group: "Ngân Hàng" },
-        { id: "s-jdv-3", merchant_id: "m-jdv", name: "Bryan Nguyen", role: "Lead PM Delivery", phone: "0934000111", email: "bryan.nguyen@hub.internal", group: "Nội Bộ Bryan" },
+        { id: "s-jdv-3", merchant_id: "m-jdv", name: "Bryan Nguyen", role: "Lead B2B PM Delivery", phone: "0934000111", email: "bryan.nguyen@hub.internal", group: "Nội Bộ Bryan" },
 
-        // Xe Điện Việt Thanh
-        { id: "s-vt-1", merchant_id: "m-vietthanh", name: "Anh Thanh", role: "CEO & Founder Việt Thanh", phone: "0966554433", email: "thanh.ceo@xedienvietthanh.com", group: "Tech Chuỗi" },
+        // Việt Thanh
+        { id: "s-vt-1", merchant_id: "m-vietthanh", name: "Anh Thanh", role: "CEO & Founder Việt Thanh", phone: "0966554433", email: "thanh.ceo@xedienvietthanh.com", group: "Đại Diện Chuỗi" },
         { id: "s-vt-2", merchant_id: "m-vietthanh", name: "Chị Hạnh", role: "Phụ trách Trả góp 0% Đối tác", phone: "0944112233", email: "hanh.bank@partner.vn", group: "Ngân Hàng" },
-        { id: "s-vt-3", merchant_id: "m-vietthanh", name: "Bryan Nguyen", role: "Lead PM Delivery", phone: "0934000111", email: "bryan.nguyen@hub.internal", group: "Nội Bộ Bryan" }
+        { id: "s-vt-3", merchant_id: "m-vietthanh", name: "Bryan Nguyen", role: "Lead B2B PM Delivery", phone: "0934000111", email: "bryan.nguyen@hub.internal", group: "Nội Bộ Bryan" }
       ],
       projects: [
-        // Highlands (2 dự án)
+        // Highlands
         { 
           id: "p-hl-1", 
           merchant_id: "m-highlands", 
-          title: "Recurring Tokenization & Auto-Debit App", 
-          stage: "UAT", 
+          title: "Recurring Tokenization & Trừ Tiền Tự Động Trên Highlands App", 
+          stage: "UAT SIGN-OFF", 
           due_date: "2026-11-28", 
           progress: 75, 
-          tech_gate: "UAT Sandbox & Test Thẻ", 
-          gate_step: 3, // 1: Khảo sát, 2: Sandbox, 3: UAT, 4: Pilot, 5: Go-live
+          milestone_name: "3. UAT Nghiệm Thu Lỗi Thẻ & Quy Trình Đối Soát", 
+          gate_step: 3,
           is_blocked: true, 
-          blocker_reason: "Chờ Merchant mở IP whitelist Webhook Callback", 
-          blocker_owner: "Anh Tuấn (Tech Chuỗi)"
+          blocker_reason: "Chưa mở Whitelist IP Callback Webhook dẫn tới chưa thể ký nghiệm thu UAT", 
+          blocker_owner: "Anh Tuấn (IT Chuỗi)" 
         },
         { 
           id: "p-hl-2", 
           merchant_id: "m-highlands", 
           title: "Smart POS Tích Hợp VietQR Động Quầy Thu Ngân", 
-          stage: "PILOT", 
+          stage: "STORE PILOT", 
           due_date: "2026-12-15", 
           progress: 40, 
-          tech_gate: "Đang nạp firmware 20 máy demo", 
+          milestone_name: "4. Thử nghiệm quầy mẫu & đào tạo thu ngân", 
           gate_step: 4,
           is_blocked: false, 
           blocker_reason: "", 
           blocker_owner: "" 
         },
 
-        // JDV (1 dự án)
+        // JDV
         { 
           id: "p-jdv-1", 
           merchant_id: "m-jdv", 
-          title: "Smart POS 3 Bên (Pvcombank - JDV - Payoo)", 
-          stage: "SIT", 
+          title: "Smart POS 3 Bên (Pvcombank - JDV - Payoo) Đồng Bộ Hóa Đơn ERP", 
+          stage: "INTEGRATION", 
           due_date: "2026-12-10", 
           progress: 45, 
-          tech_gate: "Đồng bộ mã hóa đơn ERP siêu thị", 
+          milestone_name: "2. Khảo sát luồng hóa đơn ERP & Kế toán", 
           gate_step: 2,
           is_blocked: false, 
           blocker_reason: "", 
           blocker_owner: "" 
         },
 
-        // Xe Điện Việt Thanh (1 dự án)
+        // Việt Thanh
         { 
           id: "p-vt-1", 
           merchant_id: "m-vietthanh", 
-          title: "Cổng Thanh Toán & Trả Góp 0% 35 Showroom", 
-          stage: "PILOT", 
+          title: "Cổng Thanh Toán & Trả Góp 0% 25 Ngân Hàng Tại 35 Showroom", 
+          stage: "STORE PILOT", 
           due_date: "2026-12-05", 
           progress: 85, 
-          tech_gate: "Pilot 5 Showroom Hà Nội", 
+          milestone_name: "4. Pilot 5 Showroom Hà Nội & Nghiệm thu", 
           gate_step: 4,
           is_blocked: false, 
           blocker_reason: "", 
@@ -1145,18 +1149,18 @@
         }
       ],
       tasks: [
-        { id: "t-1", type: "B2B", project_id: "p-hl-1", title: "Kiểm thử kịch bản trừ tiền định kỳ lỗi thẻ ngân hàng", pic: "Bryan", stage: "STAGE_DOING", priority: "CAO", due_date: "2026-11-25", is_overdue: false },
-        { id: "t-2", type: "B2B", project_id: "p-hl-1", title: "Follow up IP Whitelist cho cổng Webhook", pic: "Anh Tuấn", stage: "STAGE_TODO", priority: "KHẨN CẤP", due_date: "2026-11-20", is_overdue: true },
-        { id: "t-3", type: "B2B", project_id: "p-hl-2", title: "Bàn giao 20 máy SmartPOS demo cho cửa hàng mẫu", pic: "Bryan", stage: "STAGE_DOING", priority: "TRUNG BÌNH", due_date: "2026-11-30", is_overdue: false },
-        { id: "t-4", type: "B2B", project_id: "p-jdv-1", title: "Kiểm tra log gọi Webhook hoàn tiền Refund với Pvcombank", pic: "Bryan", stage: "STAGE_TODO", priority: "CAO", due_date: "2026-12-02", is_overdue: false },
-        { id: "t-5", type: "B2B", project_id: "p-vt-1", title: "Rà soát hạn mức trả góp thẻ tín dụng 25 ngân hàng", pic: "Bryan", stage: "STAGE_DONE", priority: "TRUNG BÌNH", due_date: "2026-11-18", is_overdue: false },
-        { id: "t-6", type: "PERSONAL", project_id: "", title: "Cafe trưa trao đổi định hướng tích hợp với anh Khoa JDV", pic: "Bryan", stage: "STAGE_DONE", priority: "TRUNG BÌNH", due_date: "2026-11-20", is_overdue: false }
+        { id: "t-1", type: "COMMERCIAL", project_id: "p-hl-1", title: "Rà soát biểu phí MDR & Phụ lục đối soát tự động T+1 với VietinBank", pic: "Bryan", stage: "STAGE_DOING", priority: "CAO", due_date: "2026-11-25", is_overdue: false },
+        { id: "t-2", type: "TECH_DELIVERY", project_id: "p-hl-1", title: "Đôn đốc IT Highlands mở Whitelist IP Webhook để nghiệm thu UAT", pic: "Anh Tuấn", stage: "STAGE_TODO", priority: "KHẨN CẤP", due_date: "2026-11-20", is_overdue: true },
+        { id: "t-3", type: "TECH_DELIVERY", project_id: "p-hl-2", title: "Kiểm tra 20 máy SmartPOS demo trước khi bàn giao cho cửa hàng mẫu", pic: "Bryan", stage: "STAGE_DOING", priority: "TRUNG BÌNH", due_date: "2026-11-30", is_overdue: false },
+        { id: "t-4", type: "COMMERCIAL", project_id: "p-jdv-1", title: "Thống nhất quy trình đối soát hoàn tiền (Refund) giữa JDV và Pvcombank", pic: "Bryan", stage: "STAGE_TODO", priority: "CAO", due_date: "2026-12-02", is_overdue: false },
+        { id: "t-5", type: "COMMERCIAL", project_id: "p-vt-1", title: "Ký biên bản nghiệm thu pilot đợt 1 tại 5 showroom với anh Thanh CEO", pic: "Bryan", stage: "STAGE_DONE", priority: "TRUNG BÌNH", due_date: "2026-11-18", is_overdue: false },
+        { id: "t-6", type: "PERSONAL", project_id: "", title: "Cafe trưa trao đổi kế hoạch mở rộng chuỗi miền Nam với anh Khoa JDV", pic: "Bryan", stage: "STAGE_DONE", priority: "TRUNG BÌNH", due_date: "2026-11-20", is_overdue: false }
       ]
     };
 
     let activeMerchantId = "m-highlands";
-    let activeTaskView = "CARDS"; // CARDS or KANBAN
-    let activeTaskTypeFilter = "ALL"; // ALL, B2B, PERSONAL
+    let activeTaskView = "CARDS";
+    let activeTaskTypeFilter = "ALL";
     let velocityChartInstance = null;
     let statusChartInstance = null;
 
@@ -1195,7 +1199,7 @@
     }
 
     // -------------------------------------------------------------
-    // 3. DASHBOARD LOGIC & QUICK TASKS
+    // 3. DASHBOARD QUICK TASKS
     // -------------------------------------------------------------
     function renderDashboardQuickTasks() {
       const container = document.getElementById("dash-quick-tasks");
@@ -1203,9 +1207,12 @@
 
       const quickTasks = state.tasks.filter(t => t.stage !== 'STAGE_DONE').slice(0, 3);
       container.innerHTML = quickTasks.map(t => {
-        const isB2B = t.type === 'B2B';
         const proj = state.projects.find(p => p.id === t.project_id);
         const m = proj ? state.merchants.find(merchant => merchant.id === proj.merchant_id) : null;
+
+        let typeBadge = '📋 Thương mại';
+        if (t.type === 'TECH_DELIVERY') typeBadge = '⚙️ Kỹ thuật';
+        if (t.type === 'PERSONAL') typeBadge = '👤 Cá nhân';
 
         return `
           <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
@@ -1213,11 +1220,11 @@
               <input type="checkbox" onchange="toggleTaskDone('${t.id}')" class="w-4 h-4 text-teal-600 rounded cursor-pointer">
               <div class="truncate">
                 <div class="text-xs font-bold text-slate-800 flex items-center space-x-1.5 truncate">
-                  <span>${isB2B ? '💼' : '👤'}</span>
+                  <span class="text-[10px] font-extrabold px-1.5 py-0.2 rounded ${t.type === 'COMMERCIAL' ? 'bg-purple-100 text-purple-700' : (t.type === 'TECH_DELIVERY' ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-700')}">${typeBadge}</span>
                   <span class="truncate">${t.title}</span>
                 </div>
                 <div class="text-[10px] text-slate-400 mt-0.5 truncate">
-                  ${m ? m.name : 'Việc Cá Nhân'} • Hạn: <strong class="${t.is_overdue ? 'text-rose-600 font-bold' : 'text-slate-600'}">${t.due_date}</strong>
+                  ${m ? m.name : 'Nội bộ Bryan'} • Hạn chót: <strong class="${t.is_overdue ? 'text-rose-600 font-bold' : 'text-slate-600'}">${t.due_date}</strong>
                 </div>
               </div>
             </div>
@@ -1235,7 +1242,7 @@
       const task = state.tasks.find(t => t.id === taskId);
       if (task) {
         task.stage = task.stage === 'STAGE_DONE' ? 'STAGE_DOING' : 'STAGE_DONE';
-        showToast(`✓ Đã cập nhật trạng thái nhiệm vụ!`);
+        showToast(`✓ Đã cập nhật trạng thái đầu việc!`);
         updateAllKpis();
         renderDashboardQuickTasks();
         if (activeTaskView === 'CARDS') renderTasksCards();
@@ -1243,7 +1250,7 @@
     }
 
     // -------------------------------------------------------------
-    // 4. DEDICATED MERCHANT WORKSPACE (4 TRỤ CỘT BẮT BUỘC)
+    // 4. DEDICATED MERCHANT WORKSPACE
     // -------------------------------------------------------------
     function selectMerchant(mId) {
       activeMerchantId = mId;
@@ -1269,7 +1276,7 @@
               ${m.avatar_letter}
             </span>
             <span>${m.name}</span>
-            <span class="text-[10px] ${isActive ? 'text-teal-200' : 'text-slate-400'}">${m.alias}</span>
+            <span class="text-[10px] ${isActive ? 'text-teal-200' : 'text-slate-400'}">${m.expected_gmv}</span>
             ${hasBlocker ? `<span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>` : ''}
           </button>
         `;
@@ -1287,7 +1294,7 @@
       const merchantStakeholders = state.stakeholders.filter(s => s.merchant_id === merchant.id);
 
       container.innerHTML = `
-        <!-- TRỤ CỘT 1: HEADER & DANH BẠ STAKEHOLDERS 3 BÊN -->
+        <!-- HEADER THƯƠNG HIỆU & HỢP ĐỒNG -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
             <div class="flex items-center space-x-4">
@@ -1299,14 +1306,15 @@
                   <h2 class="text-xl font-black text-slate-900 tracking-tight">${merchant.name}</h2>
                   <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200">${merchant.alias}</span>
                 </div>
-                <p class="text-xs text-slate-500 mt-1">${merchant.industry} • <strong class="text-teal-700 font-bold">${merchant.contract_status}</strong></p>
+                <p class="text-xs text-slate-500 mt-1">${merchant.industry} • Doanh số kỳ vọng: <strong class="text-teal-700 font-bold">${merchant.expected_gmv}</strong></p>
+                <div class="text-[11px] text-slate-600 mt-0.5 font-medium">Trạng thái thương mại: <strong class="text-slate-800">${merchant.contract_status}</strong></div>
               </div>
             </div>
 
             <div class="flex items-center space-x-2">
               <button onclick="openNewTaskModalForMerchant('${merchant.id}')" class="px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-sm">
                 <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>Thêm Dự Án / Task Kỹ Thuật</span>
+                <span>Thêm Dự Án / Đầu Việc</span>
               </button>
             </div>
           </div>
@@ -1314,8 +1322,8 @@
           <!-- DANH BẠ STAKEHOLDERS 3 BÊN -->
           <div>
             <div class="flex items-center justify-between mb-3">
-              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Danh Bạ Stakeholders 3 Bên Cố Định (Lưu Ngay Khi Ký)</h4>
-              <span class="text-[11px] text-teal-700 font-semibold">3 Bên: Tech Chuỗi • Ngân Hàng • Nội Bộ Bryan</span>
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Danh Bạ Stakeholders 3 Bên (Cố Định Ngay Khi Ký)</h4>
+              <span class="text-[11px] text-teal-700 font-semibold">Cầu Nối: Đại Diện Chuỗi • Ngân Hàng Đối Tác • Lead PM Bryan</span>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1323,8 +1331,8 @@
                 <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex items-start justify-between">
                   <div>
                     <span class="text-[10px] font-extrabold px-2 py-0.5 rounded inline-block mb-1 ${
-                      s.group === 'Tech Chuỗi' ? 'bg-purple-100 text-purple-700' :
-                      s.group === 'Ngân Hàng' ? 'bg-blue-100 text-blue-700' : 'bg-teal-100 text-teal-800'
+                      s.group.includes('Chuỗi') ? 'bg-purple-100 text-purple-700' :
+                      s.group.includes('Ngân Hàng') ? 'bg-blue-100 text-blue-700' : 'bg-teal-100 text-teal-800'
                     }">${s.group}</span>
                     <div class="text-xs font-bold text-slate-800">${s.name}</div>
                     <div class="text-[11px] text-slate-500">${s.role}</div>
@@ -1344,10 +1352,10 @@
           </div>
         </div>
 
-        <!-- TRỤ CỘT 2 & 3: CÁC DỰ ÁN KỸ THUẬT & MILESTONE STEPPER 5 CỔNG -->
+        <!-- CÁC DỰ ÁN DELIVERY & MỐC NGHIỆM THU TIẾN ĐỘ -->
         <div class="space-y-4">
           <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-slate-900">Các Dự Án Kỹ Thuật Đang Triển Khai (${merchantProjects.length})</h3>
+            <h3 class="text-base font-bold text-slate-900">Các Dự Án Đang Phối Hợp Kỹ Thuật (${merchantProjects.length})</h3>
           </div>
 
           <div class="grid grid-cols-1 gap-4">
@@ -1358,12 +1366,12 @@
                     <div>
                       <div class="flex items-center space-x-2">
                         <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${
-                          p.stage === 'UAT' ? 'bg-amber-100 text-amber-800' :
-                          p.stage === 'PILOT' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
-                        }">GIAI ĐOẠN ${p.stage}</span>
+                          p.stage.includes('UAT') ? 'bg-amber-100 text-amber-800' :
+                          p.stage.includes('PILOT') ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
+                        }">CỘT MỐC: ${p.stage}</span>
                         <h4 class="font-bold text-sm text-slate-900">${p.title}</h4>
                       </div>
-                      <p class="text-xs text-slate-500 mt-1">Cổng kỹ thuật: <strong class="text-slate-800">${p.tech_gate}</strong> • Hạn chót: <strong>${p.due_date}</strong></p>
+                      <p class="text-xs text-slate-500 mt-1">Đang thực hiện: <strong class="text-slate-800">${p.milestone_name}</strong> • Hạn chót cam kết: <strong>${p.due_date}</strong></p>
                     </div>
 
                     <div class="flex items-center space-x-3">
@@ -1381,36 +1389,36 @@
                     </div>
                   </div>
 
-                  <!-- MILESTONE STEPPER 5 CỔNG KỸ THUẬT -->
+                  <!-- 5 MỐC DELIVERY CHUẨN B2B PROJECT MANAGEMENT -->
                   <div class="pt-2 pb-1 border-t border-slate-100">
-                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Tiến Trình 5 Cổng Nghiệm Thu:</div>
+                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Tiến Trình 5 Cột Mốc Delivery Thương Mại:</div>
                     <div class="grid grid-cols-5 gap-2 text-center text-[10px]">
                       <div class="p-2 rounded-lg ${p.gate_step >= 1 ? 'bg-teal-50 text-teal-800 font-bold border border-teal-200' : 'bg-slate-50 text-slate-400'}">
-                        1. Khảo sát luồng
+                        1. Khảo sát & Ký Hợp Đồng
                       </div>
                       <div class="p-2 rounded-lg ${p.gate_step >= 2 ? 'bg-teal-50 text-teal-800 font-bold border border-teal-200' : 'bg-slate-50 text-slate-400'}">
-                        2. Cấp Sandbox API
+                        2. Cấp Sandbox & Tích Hợp
                       </div>
                       <div class="p-2 rounded-lg ${p.gate_step >= 3 ? 'bg-teal-50 text-teal-800 font-bold border border-teal-200' : 'bg-slate-50 text-slate-400'}">
-                        3. UAT Ngoại Lệ
+                        3. UAT & Ký Biên Bản Nghiệm Thu
                       </div>
                       <div class="p-2 rounded-lg ${p.gate_step >= 4 ? 'bg-teal-50 text-teal-800 font-bold border border-teal-200' : 'bg-slate-50 text-slate-400'}">
-                        4. Pilot Thử Nghiệm
+                        4. Pilot Quầy & Đào Tạo Vận Hành
                       </div>
                       <div class="p-2 rounded-lg ${p.gate_step >= 5 ? 'bg-emerald-50 text-emerald-800 font-bold border border-emerald-200' : 'bg-slate-50 text-slate-400'}">
-                        5. Go-Live Chuỗi
+                        5. Go-Live Chuỗi & Khai Thác GMV
                       </div>
                     </div>
                   </div>
 
-                  <!-- TRỤ CỘT 4: BLOCKER SLA VÀ NÚT BẮN NHẮC HẸN (PING PIC) -->
+                  <!-- BLOCKER CAM KẾT & PING PIC -->
                   ${p.is_blocked ? `
                     <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div class="flex items-start space-x-2.5">
                         <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-600 shrink-0 mt-0.5"></i>
                         <div>
-                          <div class="text-xs font-bold text-rose-800">BLOCKER SLA: ${p.blocker_reason}</div>
-                          <div class="text-[11px] text-rose-600 mt-0.5">Đơn vị / PIC chịu trách nhiệm: <strong>${p.blocker_owner}</strong></div>
+                          <div class="text-xs font-bold text-rose-800">BLOCKER HỢP ĐỒNG: ${p.blocker_reason}</div>
+                          <div class="text-[11px] text-rose-600 mt-0.5">Đơn vị / Nhân sự cần đôn đốc: <strong>${p.blocker_owner}</strong></div>
                         </div>
                       </div>
 
@@ -1431,16 +1439,16 @@
     }
 
     // -------------------------------------------------------------
-    // 5. PING PIC (ZALO & EMAIL SLA TEMPLATE)
+    // 5. PING PIC (ZALO & EMAIL TEMPLATE)
     // -------------------------------------------------------------
     function handlePingPIC(merchantName, projectTitle, reason) {
-      const template = `[BRYAN PORTAL - CẢNH BÁO SLA]
+      const template = `[BRYAN PORTAL - CẢNH BÁO TIẾN ĐỘ DỰ ÁN]
 Kính gửi PIC phụ trách dự án ${merchantName},
-Dự án "${projectTitle}" hiện đang gặp Blocker kỹ thuật cần giải quyết gấp:
+Dự án "${projectTitle}" hiện đang gặp vướng mắc cần giải quyết gấp:
 - Điểm nghẽn: ${reason}
-- Tác động: Nguy cơ chậm trễ mốc nghiệm thu Cổng Kỹ Thuật (Tech Gate).
-Bryan nhờ team đối tác hỗ trợ kiểm tra và cập nhật tiến độ sớm nhất trong ngày hôm nay. 
-Xin chân thành cảm ơn!`;
+- Tác động: Nguy cơ chậm trễ mốc Go-Live và ảnh hưởng cam kết thương mại chung.
+Bryan nhờ team đối tác phối hợp hỗ trợ xử lý sớm trong ngày hôm nay.
+Xin cảm ơn sự đồng hành của team!`;
 
       navigator.clipboard.writeText(template).then(() => {
         showToast("✓ Đã copy mẫu tin nhắn nhắc hẹn SLA vào Clipboard! Hãy dán vào Zalo/Email gửi PIC.");
@@ -1452,7 +1460,7 @@ Xin chân thành cảm ơn!`;
     }
 
     // -------------------------------------------------------------
-    // 6. TASKS & MULTI-VIEW (CARDS & KANBAN)
+    // 6. TASKS & MULTI-VIEW
     // -------------------------------------------------------------
     function switchTaskView(viewMode) {
       activeTaskView = viewMode;
@@ -1478,7 +1486,7 @@ Xin chân thành cảm ơn!`;
 
     function filterTasksByType(type) {
       activeTaskTypeFilter = type;
-      ['ALL', 'B2B', 'PERSONAL'].forEach(t => {
+      ['ALL', 'COMMERCIAL', 'TECH_DELIVERY', 'PERSONAL'].forEach(t => {
         const btn = document.getElementById(`filter-type-${t}`);
         if (btn) {
           if (t === type) {
@@ -1514,18 +1522,25 @@ Xin chân thành cảm ơn!`;
 
       const tasks = getFilteredTasks();
       container.innerHTML = tasks.map(t => {
-        const isB2B = t.type === 'B2B';
         const proj = state.projects.find(p => p.id === t.project_id);
         const merchant = proj ? state.merchants.find(m => m.id === proj.merchant_id) : null;
+
+        let badgeText = '📋 THƯƠNG MẠI';
+        let badgeColor = 'bg-purple-50 text-purple-800 border-purple-200';
+        if (t.type === 'TECH_DELIVERY') {
+          badgeText = '⚙️ KỸ THUẬT';
+          badgeColor = 'bg-blue-50 text-blue-800 border-blue-200';
+        } else if (t.type === 'PERSONAL') {
+          badgeText = '👤 CÁ NHÂN';
+          badgeColor = 'bg-slate-100 text-slate-700 border-slate-200';
+        }
 
         return `
           <div class="bg-white p-4 rounded-2xl border ${t.is_overdue ? 'border-rose-300' : 'border-slate-200'} shadow-xs flex flex-col justify-between space-y-3">
             <div>
               <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded ${
-                  isB2B ? 'bg-teal-50 text-teal-800 border border-teal-200' : 'bg-slate-100 text-slate-700 border border-slate-200'
-                }">
-                  ${isB2B ? '💼 B2B DELIVERY' : '👤 CÁ NHÂN'}
+                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded border ${badgeColor}">
+                  ${badgeText}
                 </span>
                 <span class="text-[10px] font-extrabold px-2 py-0.5 rounded ${
                   t.priority === 'KHẨN CẤP' ? 'bg-rose-100 text-rose-700' :
@@ -1539,7 +1554,7 @@ Xin chân thành cảm ơn!`;
 
             <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
               <div>
-                <span class="text-slate-400">Hạn:</span>
+                <span class="text-slate-400">Hạn chót:</span>
                 <span class="${t.is_overdue ? 'text-rose-600 font-bold' : 'text-slate-700'}">${t.due_date}</span>
                 ${t.is_overdue ? '<span class="text-[10px] text-rose-600 font-bold block">Quá hạn 2 ngày</span>' : ''}
               </div>
@@ -1560,10 +1575,10 @@ Xin chân thành cảm ơn!`;
       if (!container) return;
 
       const columns = [
-        { id: 'STAGE_BACKLOG', title: '1. BACKLOG' },
+        { id: 'STAGE_BACKLOG', title: '1. CHUẨN BỊ' },
         { id: 'STAGE_TODO', title: '2. CẦN LÀM' },
         { id: 'STAGE_DOING', title: '3. ĐANG LÀM' },
-        { id: 'STAGE_REVIEW', title: '4. ĐANG REVIEW' },
+        { id: 'STAGE_REVIEW', title: '4. ĐANG DUYỆT' },
         { id: 'STAGE_DONE', title: '5. HOÀN TẤT' }
       ];
 
@@ -1583,7 +1598,9 @@ Xin chân thành cảm ơn!`;
               ${colTasks.map(t => `
                 <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-xs space-y-1.5">
                   <div class="flex items-center justify-between text-[10px]">
-                    <span class="font-bold ${t.type === 'B2B' ? 'text-teal-700' : 'text-slate-600'}">${t.type === 'B2B' ? '💼 B2B' : '👤 Cá nhân'}</span>
+                    <span class="font-bold ${t.type === 'COMMERCIAL' ? 'text-purple-700' : (t.type === 'TECH_DELIVERY' ? 'text-blue-700' : 'text-slate-600')}">
+                      ${t.type === 'COMMERCIAL' ? '📋 Thương mại' : (t.type === 'TECH_DELIVERY' ? '⚙️ Kỹ thuật' : '👤 Cá nhân')}
+                    </span>
                     <span class="font-extrabold ${t.priority === 'KHẨN CẤP' ? 'text-rose-600' : 'text-slate-500'}">${t.priority}</span>
                   </div>
                   <div class="text-xs font-bold text-slate-800">${t.title}</div>
@@ -1600,7 +1617,7 @@ Xin chân thành cảm ơn!`;
       const task = state.tasks.find(t => t.id === taskId);
       if (task) {
         task.stage = newStage;
-        showToast("✓ Đã cập nhật trạng thái Task");
+        showToast("✓ Đã cập nhật trạng thái đầu việc");
         updateAllKpis();
         renderTasksMainView();
       }
@@ -1647,8 +1664,8 @@ Xin chân thành cảm ơn!`;
 
         if (matchedProj) {
           matchedProj.is_blocked = true;
-          matchedProj.blocker_reason = cmd.replace(/@\w+/g, '').replace(/khẩn cấp/gi, '').trim() || "Sự cố kỹ thuật khẩn cấp";
-          matchedProj.blocker_owner = "Tech Chuỗi";
+          matchedProj.blocker_reason = cmd.replace(/@\w+/g, '').replace(/khẩn cấp/gi, '').trim() || "Vướng mắc tiến độ cam kết";
+          matchedProj.blocker_owner = "Đội ngũ Đối tác";
 
           postDataToGoogleSheets({
             action: "UPDATE_BLOCKER",
@@ -1660,7 +1677,7 @@ Xin chân thành cảm ơn!`;
 
           renderDedicatedWorkspace();
           updateAllKpis();
-          showToast(`✓ Antigravity AI đã bật cờ Blocker cho ${matchedProj.title}`);
+          showToast(`✓ Antigravity AI đã gắn cờ Blocker cho ${matchedProj.title}`);
           return;
         }
       }
@@ -1672,9 +1689,13 @@ Xin chân thành cảm ơn!`;
         if (lower.includes("jdv")) matchedProj = state.projects.find(p => p.merchant_id === "m-jdv");
         if (lower.includes("việt thanh") || lower.includes("vietthanh")) matchedProj = state.projects.find(p => p.merchant_id === "m-vietthanh");
 
+        let taskType = "COMMERCIAL";
+        if (lower.includes("kỹ thuật") || lower.includes("test") || lower.includes("ip") || lower.includes("webhook")) taskType = "TECH_DELIVERY";
+        if (lower.includes("cá nhân") || lower.includes("ăn") || lower.includes("cafe")) taskType = "PERSONAL";
+
         const newTask = {
           id: "t-" + Date.now().toString().slice(-4),
-          type: lower.includes("cá nhân") ? "PERSONAL" : "B2B",
+          type: taskType,
           project_id: matchedProj ? matchedProj.id : "",
           title: cmd.replace(/tạo task/gi, '').trim(),
           pic: "Bryan",
@@ -1690,7 +1711,7 @@ Xin chân thành cảm ơn!`;
         updateAllKpis();
         renderDashboardQuickTasks();
         renderTasksMainView();
-        showToast(`✓ Antigravity AI đã tạo Task: "${newTask.title}"`);
+        showToast(`✓ Antigravity AI đã tạo đầu việc: "${newTask.title}"`);
         return;
       }
 
@@ -1698,7 +1719,7 @@ Xin chân thành cảm ơn!`;
     }
 
     // -------------------------------------------------------------
-    // 8. MODAL ACTIONS & KPIS
+    // 8. MODAL SUBMITS & KPIS
     // -------------------------------------------------------------
     function openNewTaskModal() {
       const select = document.getElementById("task-project-id");
@@ -1723,7 +1744,7 @@ Xin chân thành cảm ơn!`;
 
     function handleSaveNewTask(e) {
       e.preventDefault();
-      const type = document.querySelector('input[name="task-type"]:checked')?.value || "B2B";
+      const type = document.querySelector('input[name="task-type"]:checked')?.value || "COMMERCIAL";
       const title = document.getElementById("task-title").value.trim();
       const projId = document.getElementById("task-project-id").value;
       const pic = document.getElementById("task-pic").value.trim() || "Bryan";
@@ -1749,7 +1770,7 @@ Xin chân thành cảm ơn!`;
       updateAllKpis();
       renderDashboardQuickTasks();
       renderTasksMainView();
-      showToast("✓ Đã tạo nhiệm vụ mới thành công!");
+      showToast("✓ Đã lưu đầu việc mới thành công!");
     }
 
     function openNewMerchantModal() {
@@ -1764,9 +1785,10 @@ Xin chân thành cảm ơn!`;
       e.preventDefault();
       const name = document.getElementById("merchant-name").value.trim();
       const alias = document.getElementById("merchant-alias").value.trim();
-      const industry = document.getElementById("merchant-industry").value.trim() || "Chuỗi B2B";
+      const industry = document.getElementById("merchant-industry").value.trim() || "Doanh nghiệp Chuỗi";
+      const gmv = document.getElementById("merchant-gmv").value.trim() || "~500M GMV/tháng";
       const stkName = document.getElementById("merchant-stk-name").value.trim();
-      const stkRole = document.getElementById("merchant-stk-role").value.trim() || "Tech Lead Chuỗi";
+      const stkRole = document.getElementById("merchant-stk-role").value.trim() || "Giám Đốc Vận Hành";
       const stkPhone = document.getElementById("merchant-stk-phone").value.trim();
       const stkEmail = document.getElementById("merchant-stk-email").value.trim();
 
@@ -1776,9 +1798,10 @@ Xin chân thành cảm ơn!`;
         name: name,
         alias: alias.startsWith("@") ? alias : "@" + alias,
         industry: industry,
+        expected_gmv: gmv,
         avatar_letter: name.charAt(0).toUpperCase(),
         color: "bg-teal-700",
-        contract_status: "Đã Ký Kết & Đang Triển Khai"
+        contract_status: "Đã Ký Hợp Đồng • Chuẩn Bị Triển Khai"
       };
 
       state.merchants.push(newM);
@@ -1791,18 +1814,18 @@ Xin chân thành cảm ơn!`;
           role: stkRole,
           phone: stkPhone,
           email: stkEmail,
-          group: "Tech Chuỗi"
+          group: "Đại Diện Chuỗi"
         });
       }
 
       state.projects.push({
         id: "p-" + Date.now().toString().slice(-4),
         merchant_id: newMId,
-        title: "Tích Hợp Hạ Tầng Thanh Toán Đa Kênh",
+        title: "Tích Hợp Hạ Tầng Thanh Toán Đa Kênh Chuỗi",
         stage: "KICKOFF",
         due_date: "2026-12-25",
         progress: 15,
-        tech_gate: "1. Khảo sát luồng",
+        milestone_name: "1. Khảo sát & Ký Hợp Đồng",
         gate_step: 1,
         is_blocked: false,
         blocker_reason: "",
@@ -1814,6 +1837,7 @@ Xin chân thành cảm ơn!`;
         name: newM.name,
         alias: newM.alias,
         industry: newM.industry,
+        expected_gmv: newM.expected_gmv,
         stakeholder: stkName ? { name: stkName, role: stkRole, phone: stkPhone, email: stkEmail } : null
       });
 
@@ -1821,7 +1845,7 @@ Xin chân thành cảm ơn!`;
       selectMerchant(newMId);
       navigateTo("PROJECTS");
       updateAllKpis();
-      showToast(`✓ Đã thêm đối tác ${name} vào Workspace!`);
+      showToast(`✓ Đã thêm chuỗi ${name} vào Workspace quản lý!`);
     }
 
     function toggleBlocker(projId) {
@@ -1829,11 +1853,11 @@ Xin chân thành cảm ơn!`;
       if (!proj) return;
 
       if (!proj.is_blocked) {
-        const reason = prompt("Nhập lý do Blocker kỹ thuật cần giải quyết:", "Chờ mở IP whitelist Webhook Callback");
+        const reason = prompt("Nhập lý do Blocker làm chậm tiến độ cam kết:", "Chưa ký phụ lục đối soát biểu phí");
         if (reason) {
           proj.is_blocked = true;
           proj.blocker_reason = reason;
-          proj.blocker_owner = "Tech Chuỗi";
+          proj.blocker_owner = "Đội ngũ Đối tác";
         }
       } else {
         proj.is_blocked = false;
@@ -1856,25 +1880,20 @@ Xin chân thành cảm ơn!`;
     function updateAllKpis() {
       const overdue = state.tasks.filter(t => t.is_overdue).length;
       const doing = state.tasks.filter(t => t.stage === 'STAGE_DOING').length;
-      const todo = state.tasks.filter(t => t.stage === 'STAGE_TODO').length;
-      const done = state.tasks.filter(t => t.stage === 'STAGE_DONE').length;
       const blocker = state.projects.filter(p => p.is_blocked).length;
 
       document.getElementById("kpi-overdue").textContent = overdue;
       document.getElementById("kpi-doing").textContent = doing;
-      document.getElementById("kpi-todo").textContent = todo;
-      document.getElementById("kpi-done").textContent = done;
       document.getElementById("kpi-blocker").textContent = blocker;
       document.getElementById("kpi-projects").textContent = state.projects.length;
       document.getElementById("kpi-merchants").textContent = state.merchants.length;
 
       document.getElementById("badge-task-count").textContent = state.tasks.length;
-      document.getElementById("banner-pending-count").textContent = (doing + todo) + " task ưu tiên";
-      document.getElementById("banner-blocker-count").textContent = blocker + " Blocker SLA";
+      document.getElementById("banner-blocker-count").textContent = blocker + " Blocker cam kết Go-Live";
     }
 
     // -------------------------------------------------------------
-    // 9. CHARTS (CHART.JS)
+    // 9. CHARTS
     // -------------------------------------------------------------
     function renderCharts() {
       // Velocity
@@ -1887,7 +1906,7 @@ Xin chân thành cảm ơn!`;
             labels: ['T2 (16/11)', 'T3 (17/11)', 'T4 (18/11)', 'T5 (19/11)', 'T6 (20/11)', 'T7 (21/11)', 'CN (22/11)'],
             datasets: [
               {
-                label: 'Task Hoàn Tất',
+                label: 'Mục Tiêu Đạt Được',
                 data: [4, 6, 5, 8, 7, 9, 6],
                 borderColor: '#0d9488',
                 backgroundColor: 'rgba(13, 148, 136, 0.1)',
@@ -1927,10 +1946,10 @@ Xin chân thành cảm ơn!`;
         statusChartInstance = new Chart(sCtx, {
           type: 'doughnut',
           data: {
-            labels: ['Hoàn thành', 'Đang làm', 'Cần làm', 'Quá hạn'],
+            labels: ['Thương mại & Đối tác', 'Phối hợp Kỹ thuật', 'Vận hành & Đào tạo', 'Việc Cá nhân'],
             datasets: [{
-              data: [5, 3, 2, 1],
-              backgroundColor: ['#14b8a6', '#3b82f6', '#f59e0b', '#ef4444'],
+              data: [40, 35, 15, 10],
+              backgroundColor: ['#14b8a6', '#3b82f6', '#f59e0b', '#8b5cf6'],
               borderWidth: 0
             }]
           },
@@ -1945,7 +1964,7 @@ Xin chân thành cảm ơn!`;
     }
 
     // -------------------------------------------------------------
-    // 10. GOOGLE APPS SCRIPT API ENGINE & SYNC
+    // 10. GOOGLE APPS SCRIPT API
     // -------------------------------------------------------------
     function openApiConfigModal() {
       const input = document.getElementById("cfg-api-endpoint");
@@ -2031,7 +2050,7 @@ Xin chân thành cảm ơn!`;
     }
 
     // -------------------------------------------------------------
-    // 11. TOAST & NOTIFICATIONS UTILITY
+    // 11. TOAST & NOTIFICATIONS
     // -------------------------------------------------------------
     function showToast(message) {
       const toast = document.getElementById("toast");
@@ -2081,7 +2100,7 @@ Xin chân thành cảm ơn!`;
         syncDataFromGoogleSheets();
       }
 
-      addNotificationLog("Bryan Portal khởi động thành công. Sẵn sàng điều hành!");
+      addNotificationLog("Bryan Portal khởi động thành công. Sẵn sàng điều phối B2B Delivery!");
     });
   </script>
 </body>
