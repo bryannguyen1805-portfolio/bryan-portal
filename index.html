@@ -163,50 +163,60 @@
       </nav>
     </div>
 
-    <!-- Bottom Controls -->
-    <div class="p-4 border-t border-slate-800 bg-navy-950/40 text-xs">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-[11px] font-bold text-slate-400">Đồng Bộ Dữ Liệu:</span>
-        <button onclick="openApiConfigModal()" class="text-teal-400 hover:underline flex items-center text-[11px]">
-          <i data-lucide="settings" class="w-3 h-3 mr-1"></i> Cài đặt
-        </button>
-      </div>
-      <div class="flex items-center space-x-2 text-[11px] text-slate-400 bg-slate-800/50 p-2 rounded-lg border border-slate-800">
-        <span id="sidebar-sync-dot" class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>
-        <span id="sidebar-sync-text" class="truncate font-medium">Lưu Cục Bộ (Offline)</span>
-      </div>
+    <!-- Bottom Footer -->
+    <div class="p-4 border-t border-slate-800/80 bg-navy-950/40 text-[11px] text-slate-500 flex items-center justify-between">
+      <span class="font-semibold">Payoo B2B Ops</span>
+      <span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono text-[9px]">v3.0</span>
     </div>
   </aside>
 
   <!-- ================= 2. MAIN CONTENT WRAPPER ================= -->
   <div class="flex-1 flex flex-col h-full bg-slate-100 overflow-hidden relative">
 
-    <!-- Top Floating Header -->
-    <header class="h-16 bg-white/90 backdrop-blur-md border-b border-slate-200 px-6 flex items-center justify-between shrink-0 z-20">
-      <div class="flex items-center space-x-3">
-        <div class="relative w-64 md:w-80">
-          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+    <!-- Topbar với Smart Omnibar (⌘K) & Cloud Sync Status -->
+    <header class="h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 px-6 flex items-center justify-between gap-4 shrink-0 z-30 relative">
+      <!-- Smart Omnibar (Trung tâm Topbar - Không Vibe Code) -->
+      <div class="flex-1 max-w-2xl relative">
+        <form onsubmit="handleCommandSubmit(event)" class="relative flex items-center">
+          <div class="absolute left-3.5 text-amber-500 flex items-center pointer-events-none">
+            <i data-lucide="zap" class="w-4 h-4 fill-amber-400/30"></i>
+          </div>
           <input 
+            id="nlp-command-input" 
             type="text" 
-            placeholder="Tìm đối tác, dự án, đầu việc..." 
-            class="w-full pl-9 pr-3 py-1.5 bg-slate-100 hover:bg-slate-200/70 focus:bg-white rounded-xl text-xs border border-transparent focus:border-teal-500 outline-none transition font-medium"
+            autocomplete="off"
+            oninput="handleOmnibarLivePreview(this.value)"
+            onfocus="handleOmnibarLivePreview(this.value)"
+            placeholder="Nhập công việc, lịch họp hoặc gõ tắt quy trình (VD: xong B3, Họp Highlands 13h 23/11)..." 
+            class="w-full pl-10 pr-16 py-2 bg-slate-100/90 hover:bg-slate-100 focus:bg-white text-slate-800 text-xs rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition font-medium"
           />
+          <div class="absolute right-2.5 flex items-center space-x-1 pointer-events-none">
+            <kbd class="px-1.5 py-0.5 text-[10px] font-bold text-slate-400 bg-white border border-slate-200 rounded-md shadow-2xs">⌘K</kbd>
+          </div>
+        </form>
+
+        <!-- Live Token Preview Popover (Hiện khi người dùng gõ) -->
+        <div id="omnibar-preview" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-white rounded-xl border border-slate-200 shadow-xl p-2.5 z-50 space-y-2">
+          <div id="omnibar-preview-tokens" class="flex flex-wrap items-center gap-1.5 text-xs"></div>
+          <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1 border-t border-slate-100">
+            <span>Nhấn <strong class="text-slate-600">Enter</strong> để xác nhận thực hiện</span>
+            <button type="button" onclick="hideOmnibarPreview()" class="text-slate-400 hover:text-slate-600">Đóng (Esc)</button>
+          </div>
         </div>
       </div>
 
-      <!-- Quick Action Controls -->
-      <div class="flex items-center space-x-3">
-        <div class="hidden lg:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600">
-          <i data-lucide="clock" class="w-3.5 h-3.5 text-teal-600"></i>
-          <span id="header-clock">Điều Hành B2B</span>
-        </div>
-
-        <button onclick="syncDataFromGoogleSheets()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold transition shadow-xs">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="sync-icon"></i>
-          <span>Đồng Bộ Bảng Tính</span>
+      <!-- Góc phải Topbar: Cloud Sync Icon + Tạo Đầu Việc -->
+      <div class="flex items-center space-x-2.5 shrink-0">
+        <button onclick="openApiConfigModal()" id="topbar-cloud-btn" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold transition" title="Cài đặt đồng bộ máy chủ & Google Sheets">
+          <i data-lucide="cloud-off" class="w-4 h-4 text-amber-600" id="topbar-cloud-icon"></i>
+          <span class="hidden sm:inline" id="topbar-cloud-text">Lưu cục bộ</span>
         </button>
 
-        <button onclick="openNewTaskModal()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition shadow-sm">
+        <button onclick="syncDataFromGoogleSheets()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition" title="Đồng bộ dữ liệu ngay">
+          <i data-lucide="refresh-cw" class="w-4 h-4" id="sync-icon"></i>
+        </button>
+
+        <button onclick="openNewTaskModal()" class="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition shadow-xs">
           <i data-lucide="plus" class="w-3.5 h-3.5"></i>
           <span>Tạo Đầu Việc</span>
         </button>
@@ -218,28 +228,28 @@
 
       <!-- ================= SCREEN 1: TỔNG QUAN ĐIỀU HÀNH (ƯU TIÊN CÔNG VIỆC HÀNG NGÀY TRÊN ĐẦU) ================= -->
       <div id="view-DASHBOARD" class="space-y-4 max-w-[1440px] mx-auto">
-        <!-- 1. THANH CHÀO & TÓM TẮT HIỆU SUẤT -->
-        <div class="bg-gradient-to-r from-navy-900 via-navy-850 to-teal-900 rounded-2xl px-6 py-4 text-white shadow-sm border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div class="space-y-1 text-center md:text-left">
+        <!-- 1. HERO BANNER TỐI ƯU CHIỀU CAO + CLICKABLE SUMMARY BADGES -->
+        <div class="bg-gradient-to-r from-navy-900 via-navy-850 to-teal-900 rounded-2xl px-5 py-3 text-white shadow-sm border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3">
+          <div class="space-y-1.5 text-center md:text-left">
             <div class="flex items-center justify-center md:justify-start space-x-2">
-              <h1 class="text-xl font-black tracking-tight" id="welcome-title">Chào Bryan! ☕</h1>
-              <span class="px-2 py-0.5 rounded-full bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[10px] font-bold">Trạm Điều Hành Cá Nhân</span>
+              <h1 class="text-lg font-black tracking-tight" id="welcome-title">Chào Bryan! ☕</h1>
+              <span class="px-2 py-0.5 rounded-full bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[10px] font-bold">Payoo B2B</span>
             </div>
-            <p class="text-xs text-slate-300" id="banner-summary-text">
-              Đang tổng hợp lịch trình và tiến độ dự án...
-            </p>
+            <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs" id="banner-summary-text">
+              <!-- Clickable Summary Badges rendered dynamically -->
+            </div>
           </div>
 
-          <div class="flex items-center space-x-3 shrink-0 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
-            <div class="relative w-12 h-12 flex items-center justify-center">
-              <svg class="w-12 h-12 transform -rotate-90">
-                <circle cx="24" cy="24" r="19" stroke="currentColor" stroke-width="5" class="text-slate-700/60" fill="transparent"/>
-                <circle id="radial-progress-circle" cx="24" cy="24" r="19" stroke="currentColor" stroke-width="5" class="text-teal-400 transition-all duration-500" fill="transparent" stroke-dasharray="119.4" stroke-dashoffset="35" stroke-linecap="round"/>
+          <div class="flex items-center space-x-3 shrink-0 bg-white/5 px-3.5 py-1.5 rounded-xl border border-white/10">
+            <div class="relative w-11 h-11 flex items-center justify-center">
+              <svg class="w-11 h-11 transform -rotate-90">
+                <circle cx="22" cy="22" r="17" stroke="currentColor" stroke-width="4.5" class="text-slate-700/60" fill="transparent"/>
+                <circle id="radial-progress-circle" cx="22" cy="22" r="17" stroke="currentColor" stroke-width="4.5" class="text-teal-400 transition-all duration-500" fill="transparent" stroke-dasharray="106.8" stroke-dashoffset="30" stroke-linecap="round"/>
               </svg>
-              <span class="absolute text-[11px] font-black text-white" id="radial-percent">0%</span>
+              <span class="absolute text-[10px] font-black text-white" id="radial-percent">0%</span>
             </div>
             <div class="text-xs">
-              <div class="text-slate-300 font-semibold text-[11px]">Tỷ Lệ Hoàn Thành</div>
+              <div class="text-slate-300 font-semibold text-[10px]">Tỷ Lệ Hoàn Thành</div>
               <div class="text-teal-300 font-bold text-xs" id="radial-subtext">0/0 đầu việc xong</div>
             </div>
           </div>
@@ -258,14 +268,14 @@
             </div>
           </div>
 
-          <div onclick="navigateTo('PROJECTS')" class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-rose-400 cursor-pointer transition shadow-xs flex items-center justify-between" id="kpi-blocker-card">
+          <div onclick="document.getElementById('dash-blocker-section')?.scrollIntoView({behavior: 'smooth'})" class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-emerald-400 cursor-pointer transition shadow-xs flex items-center justify-between" id="kpi-blocker-card">
             <div>
               <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Vướng Mắc Cần Gỡ</div>
-              <div class="text-2xl font-black text-rose-600 mt-0.5" id="kpi-blocker">0</div>
-              <div class="text-[11px] font-semibold text-rose-500 mt-0.5" id="kpi-blocker-sub">Mọi dự án thông suốt</div>
+              <div class="text-2xl font-black text-emerald-700 mt-0.5" id="kpi-blocker">0</div>
+              <div class="text-[11px] font-semibold text-emerald-600 mt-0.5" id="kpi-blocker-sub">Mọi dự án thông suốt</div>
             </div>
-            <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
-              <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+            <div id="kpi-blocker-icon-wrap" class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <i data-lucide="shield-check" class="w-5 h-5" id="kpi-blocker-icon"></i>
             </div>
           </div>
 
@@ -329,18 +339,9 @@
           </div>
         </div>
 
-        <!-- 4. ƯU TIÊN SỐ 2: VƯỚNG MẮC CẦN XỬ LÝ GẤP -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
-          <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
-            <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
-              <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-600"></i>
-              <span>Vướng Mắc Cần Xử Lý Gấp (Điểm Nghẽn Tiến Độ)</span>
-            </div>
-            <span class="text-[11px] font-bold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full" id="dash-blocker-badge">0 Vướng mắc</span>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="dash-blockers-list">
-            <!-- Rendered dynamically -->
-          </div>
+        <!-- 4. ƯU TIÊN SỐ 2: VƯỚNG MẮC CẦN XỬ LÝ GẤP (SLIM COLLAPSIBLE BANNER KHI THÔNG SUỐT) -->
+        <div id="dash-blocker-section">
+          <!-- Rendered dynamically by renderDashboardBlockers() -->
         </div>
 
         <!-- 5. ƯU TIÊN SỐ 3: QUẢN LÝ DỰ ÁN & QUY TRÌNH TRIỂN KHAI THÁNG -->
@@ -723,48 +724,6 @@
       </div>
 
     </main>
-
-    <!-- ================= 3. THANH LỆNH ANTIGRAVITY NLP Ở ĐÁY (KHÔNG CHE NỘI DUNG) ================= -->
-    <div class="shrink-0 p-3 md:px-6 bg-white border-t border-slate-200 z-30 shadow-lg">
-      <div class="max-w-4xl mx-auto">
-        <div class="flex items-center space-x-2 mb-2 overflow-x-auto text-[11px] pb-1">
-          <span class="font-bold text-slate-400 shrink-0 flex items-center">
-            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-teal-500 mr-1"></i> Gợi ý lệnh:
-          </span>
-          <button onclick="setNlpCommand('Họp Recurring Highlands 13h 23/11/2026')" class="shrink-0 px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-lg transition font-medium border border-blue-200">
-            📅 Họp Highlands 13h 23/11
-          </button>
-          <button onclick="setNlpCommand('Triển khai mới Phúc Long kênh POS & PGW')" class="shrink-0 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg transition font-medium border border-emerald-200">
-            + Triển khai mới Phúc Long
-          </button>
-          <button onclick="setNlpCommand('xong TBP duyệt')" class="shrink-0 px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-lg transition font-medium border border-teal-200">
-            ✓ Xong TBP duyệt
-          </button>
-          <button onclick="setNlpCommand('Tạo task Highlands rà soát phụ lục đối soát biểu phí due date 25/11')" class="shrink-0 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition font-medium border border-slate-200">
-            + Ký phụ lục Highlands
-          </button>
-          <button onclick="setNlpCommand('@highlands khẩn cấp lỗi IP webhook Sandbox trễ 2 ngày')" class="shrink-0 px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg transition font-medium border border-rose-200">
-            ! Blocker Highlands
-          </button>
-        </div>
-
-        <form onsubmit="handleCommandSubmit(event)" class="relative flex items-center">
-          <div class="absolute left-3.5 text-teal-600"><i data-lucide="terminal" class="w-4 h-4"></i></div>
-          <input 
-            id="nlp-command-input" 
-            type="text" 
-            placeholder="Nhập lệnh tự nhiên (VD: 'Triển khai mới Phúc Long kênh POS & PGW', 'xong B3', 'TBP duyệt', '@highlands')..." 
-            class="w-full pl-10 pr-28 py-2.5 bg-slate-100/90 hover:bg-slate-100 focus:bg-white text-slate-800 text-xs md:text-sm rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition font-medium"
-          />
-          <button 
-            type="submit" 
-            class="absolute right-1.5 px-4 py-1.5 bg-gradient-to-r from-teal-700 to-teal-600 hover:from-teal-800 hover:to-teal-700 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1 shadow-sm">
-            <span>Thực Thi</span>
-            <i data-lucide="corner-down-left" class="w-3.5 h-3.5"></i>
-          </button>
-        </form>
-      </div>
-    </div>
 
   </div>
 
@@ -1486,49 +1445,59 @@
     // 3. DASHBOARD RENDERS (100% DYNAMIC REAL DATA)
     // -------------------------------------------------------------
     function renderDashboardBlockers() {
-      const container = document.getElementById("dash-blockers-list");
-      const badge = document.getElementById("dash-blocker-badge");
-      if (!container) return;
+      const section = document.getElementById("dash-blocker-section");
+      if (!section) return;
 
       const blockedProjects = state.projects.filter(p => p.is_blocked);
-      if (badge) {
-        badge.textContent = blockedProjects.length > 0 ? `${blockedProjects.length} Vướng mắc` : "Thông suốt";
-        badge.className = blockedProjects.length > 0
-          ? "text-[11px] font-bold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200"
-          : "text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200";
-      }
 
+      // AC-06: Khi không có vướng mắc -> Thu gọn thành Slim Banner <= 52px
       if (blockedProjects.length === 0) {
-        container.innerHTML = `
-          <div class="h-full min-h-[100px] rounded-xl bg-emerald-50/50 border border-emerald-200/80 p-4 flex flex-col items-center justify-center text-center space-y-1 col-span-2">
-            <i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-600"></i>
-            <div class="text-xs font-bold text-emerald-800">Không có vướng mắc nào!</div>
-            <div class="text-[11px] text-emerald-600">Tất cả dự án đều đang chạy đúng tiến độ cam kết.</div>
+        section.innerHTML = `
+          <div class="h-[48px] px-5 rounded-2xl bg-emerald-50/80 border border-emerald-200 flex items-center justify-between text-xs shadow-2xs">
+            <div class="flex items-center space-x-2.5 text-emerald-800 font-bold">
+              <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+              <span>Tất cả các dự án đối tác đang vận hành theo đúng cam kết tiến độ.</span>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-extrabold text-[10px]">Thông suốt</span>
           </div>
         `;
         lucide.createIcons();
         return;
       }
 
-      container.innerHTML = blockedProjects.map(p => {
-        const m = state.merchants.find(item => item.id === p.merchant_id);
-        return `
-          <div class="p-3.5 rounded-xl bg-rose-50/60 border border-rose-200 border-l-4 border-l-rose-500 space-y-2">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-xs font-bold text-rose-950 truncate">${m ? m.name : ''} • ${p.title}</span>
-              <button onclick="selectMerchant('${p.merchant_id}'); selectSubTab('${p.id}'); navigateTo('PROJECTS');" class="text-[11px] text-rose-700 font-bold hover:underline shrink-0">Mở dự án →</button>
+      // Khi có >= 1 vướng mắc -> Mở rộng hiển thị chi tiết
+      section.innerHTML = `
+        <div class="bg-white p-5 rounded-2xl border border-rose-200 shadow-xs flex flex-col">
+          <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-rose-100">
+            <div class="flex items-center space-x-2 text-rose-700 font-bold text-sm">
+              <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-600"></i>
+              <span>Vướng Mắc Cần Xử Lý Gấp (${blockedProjects.length})</span>
             </div>
-            <p class="text-xs text-rose-800">${p.blocker_reason}</p>
-            <div class="flex items-center justify-between pt-2 border-t border-rose-200/70">
-              <span class="text-[11px] text-rose-700">Phụ trách: <strong>${p.blocker_owner || 'Đối tác'}</strong></span>
-              <button onclick="handlePingPIC('${m ? m.name : ''}', '${p.title}', '${p.blocker_reason}')" class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[11px] font-bold transition flex items-center space-x-1 shadow-2xs">
-                <i data-lucide="send" class="w-3 h-3"></i>
-                <span>Nhắc Phụ Trách (Zalo)</span>
-              </button>
-            </div>
+            <span class="text-[11px] font-bold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">Cần can thiệp ngay</span>
           </div>
-        `;
-      }).join('');
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${blockedProjects.map(p => {
+              const m = state.merchants.find(item => item.id === p.merchant_id);
+              return `
+                <div class="p-3.5 rounded-xl bg-rose-50/60 border border-rose-200 border-l-4 border-l-rose-500 space-y-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-bold text-rose-950 truncate">${m ? m.name : ''} • ${p.title}</span>
+                    <button onclick="selectMerchant('${p.merchant_id}'); selectSubTab('${p.id}'); navigateTo('PROJECTS');" class="text-[11px] text-rose-700 font-bold hover:underline shrink-0">Mở dự án →</button>
+                  </div>
+                  <p class="text-xs text-rose-800">${p.blocker_reason}</p>
+                  <div class="flex items-center justify-between pt-2 border-t border-rose-200/70">
+                    <span class="text-[11px] text-rose-700">Phụ trách: <strong>${p.blocker_owner || 'Đối tác'}</strong></span>
+                    <button onclick="handlePingPIC('${m ? m.name : ''}', '${p.title}', '${p.blocker_reason}')" class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[11px] font-bold transition flex items-center space-x-1 shadow-2xs">
+                      <i data-lucide="send" class="w-3 h-3"></i>
+                      <span>Nhắc Phụ Trách (Zalo)</span>
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
       lucide.createIcons();
     }
 
@@ -1583,27 +1552,26 @@
         .sort((a, b) => (priorityRank[a.priority] || 9) - (priorityRank[b.priority] || 9))
         .slice(0, 4);
 
-      if (quickTasks.length === 0) {
-        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">Tuyệt vời! Bạn đã hoàn thành hết tất cả đầu việc.</div>`;
-        return;
-      }
-
-      container.innerHTML = quickTasks.map(t => {
+      let html = quickTasks.map(t => {
         const proj = state.projects.find(p => p.id === t.project_id);
         const m = proj ? state.merchants.find(merchant => merchant.id === proj.merchant_id) : null;
 
-        let typeBadge = '📋 Thương mại';
-        if (t.type === 'TECH_DELIVERY') typeBadge = '⚙️ Kỹ thuật';
-        if (t.type === 'PERSONAL') typeBadge = '👤 Cá nhân';
+        let typeBadge = 'Thương mại';
+        let typeCls = 'bg-purple-100 text-purple-700';
+        if (t.type === 'TECH_DELIVERY') { typeBadge = 'Kỹ thuật'; typeCls = 'bg-blue-100 text-blue-700'; }
+        if (t.type === 'PERSONAL') { typeBadge = 'Cá nhân'; typeCls = 'bg-slate-200 text-slate-700'; }
 
         return `
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2 hover:border-teal-300 transition">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2 hover:border-teal-300 transition">
             <div class="flex items-center space-x-2.5 min-w-0">
               <input type="checkbox" onchange="toggleTaskDone('${t.id}')" class="w-4 h-4 accent-teal-600 rounded cursor-pointer shrink-0">
               <div class="min-w-0">
                 <div class="text-xs font-bold text-slate-800 truncate">${t.title}</div>
-                <div class="text-[10px] text-slate-400 mt-0.5 truncate">
-                  <span class="font-semibold text-slate-600">${typeBadge}</span> • ${m ? m.name : 'Nội bộ'} • Hạn: <strong class="${t.is_overdue ? 'text-rose-600' : 'text-slate-600'}">${t.due_date}</strong>
+                <div class="flex flex-wrap items-center gap-1.5 mt-1 text-[10px]">
+                  <span class="px-1.5 py-0.2 rounded font-bold ${typeCls}">${typeBadge}</span>
+                  <span class="text-slate-500 font-semibold">${m ? m.name : 'Nội bộ'}</span>
+                  <span class="text-slate-300">•</span>
+                  <span class="${t.is_overdue ? 'text-rose-600 font-bold' : 'text-slate-500'}">Hạn: ${t.due_date}</span>
                 </div>
               </div>
             </div>
@@ -1615,6 +1583,25 @@
           </div>
         `;
       }).join('');
+
+      // Cân bằng chiều cao thị giác 2 cột: Nếu việc chưa xong < 2 -> hiển thị thêm tối đa 2 việc đã hoàn tất dạng mờ nhẹ
+      if (quickTasks.length < 2) {
+        const doneRecent = state.tasks.filter(t => t.stage === 'STAGE_DONE').slice(0, 2 - quickTasks.length);
+        if (quickTasks.length === 0) {
+          html += `<div class="p-3 rounded-xl bg-emerald-50/50 border border-emerald-200/70 text-xs font-bold text-emerald-700 text-center">✓ Đã xử lý xong toàn bộ đầu việc ưu tiên hôm nay!</div>`;
+        }
+        html += doneRecent.map(t => `
+          <div class="p-2.5 rounded-xl bg-slate-50/60 border border-slate-200/50 flex items-center justify-between gap-2 opacity-65">
+            <div class="flex items-center space-x-2.5 min-w-0">
+              <input type="checkbox" checked onchange="toggleTaskDone('${t.id}')" class="w-3.5 h-3.5 accent-emerald-600 rounded cursor-pointer shrink-0">
+              <span class="text-xs font-semibold text-slate-500 line-through truncate">${t.title}</span>
+            </div>
+            <span class="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded shrink-0">Xong</span>
+          </div>
+        `).join('');
+      }
+
+      container.innerHTML = html;
       lucide.createIcons();
     }
 
@@ -2994,8 +2981,102 @@ Xin cảm ơn sự đồng hành của team!`;
       }
     }
 
+    function hideOmnibarPreview() {
+      document.getElementById("omnibar-preview")?.classList.add("hidden");
+    }
+
+    // Phím tắt toàn cục Ctrl+K / Cmd+K & Esc
+    document.addEventListener("keydown", (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        const inp = document.getElementById("nlp-command-input");
+        if (inp) {
+          inp.focus();
+          inp.select();
+          handleOmnibarLivePreview(inp.value);
+        }
+      } else if (e.key === "Escape") {
+        hideOmnibarPreview();
+      }
+    });
+
+    // Live Token Preview khi người dùng đang gõ trên Omnibar (Mục 2.3 SRS)
+    function handleOmnibarLivePreview(raw) {
+      const box = document.getElementById("omnibar-preview");
+      const tokensEl = document.getElementById("omnibar-preview-tokens");
+      if (!box || !tokensEl) return;
+
+      const val = (raw || "").trim();
+      if (!val) {
+        box.classList.add("hidden");
+        return;
+      }
+
+      const lower = val.toLowerCase();
+      const chips = [];
+
+      // 1. Tạo quy trình mới
+      if (lower.includes("triển khai mới") || lower.includes("onboard mới")) {
+        chips.push(`<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold">🚀 Khởi tạo quy trình mới</span>`);
+        let ch = "POS (15 bước)";
+        if (lower.includes("paylink")) ch = "POS & Paylink (18 bước)";
+        else if (lower.includes("pos") && lower.includes("pgw")) ch = "POS & PGW (18 bước)";
+        else if (lower.includes("pgw")) ch = "PGW (19 bước)";
+        chips.push(`<span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 font-bold">Kênh: ${ch}</span>`);
+      }
+      // 2. Đặt lịch họp
+      else if ((lower.startsWith("họp") || lower.includes("lịch họp")) && !lower.includes("tạo task")) {
+        chips.push(`<span class="px-2 py-0.5 rounded-md bg-teal-100 text-teal-800 font-bold">📅 Tạo lịch họp</span>`);
+        const tMatch = val.match(/\b(\d{1,2})[:h](\d{0,2})\b/i);
+        if (tMatch) {
+          const hh = String(parseInt(tMatch[1], 10)).padStart(2, "0");
+          const mm = tMatch[2] ? tMatch[2].padStart(2, "0") : "00";
+          chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold">🕒 ${hh}:${mm}</span>`);
+        }
+        const dMatch = val.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/);
+        if (dMatch) {
+          chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold">📆 ${dMatch[0]}</span>`);
+        }
+        const mFound = state.merchants.find(m => lower.includes(m.name.toLowerCase()) || lower.includes(m.alias.replace("@","").toLowerCase()));
+        if (mFound) chips.push(`<span class="px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 font-bold">🏢 ${mFound.name}</span>`);
+      }
+      // 3. Tick bước Onboarding (Context-Aware)
+      else if (/\b(xong|hoàn thành|done|đã duyệt|duyệt|tới)\b/i.test(lower) || /\bb\d{1,2}\b/i.test(lower) || /\bbước\s*\d{1,2}\b/i.test(lower)) {
+        chips.push(`<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold">✓ Cập nhật tiến độ</span>`);
+        let targetOb = onboardingList.find(o => lower.includes(o.merchant_name.toLowerCase()))
+          || onboardingList.find(o => o.id === activeOnboardingId)
+          || onboardingList[0];
+        if (targetOb) {
+          chips.push(`<span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 font-bold">🏢 ${targetOb.merchant_name}</span>`);
+          const sMatch = lower.match(/\b(?:b|bước|step)\s*(\d{1,2})\b/i);
+          if (sMatch) {
+            const st = targetOb.tasks.find(t => t.step_no === parseInt(sMatch[1], 10));
+            if (st) chips.push(`<span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 font-semibold">B${st.step_no}: ${st.title}</span>`);
+          } else {
+            let kw = lower.replace(targetOb.merchant_name.toLowerCase(), "").replace(/\b(xong|hoàn thành|done|đã|tới|cho|của|bước|b)\b/gi, "").trim();
+            if (kw.length >= 2) {
+              const st = targetOb.tasks.find(t => t.title.toLowerCase().includes(kw));
+              if (st) chips.push(`<span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 font-semibold">B${st.step_no}: ${st.title}</span>`);
+            }
+          }
+        }
+      }
+      // 4. Tạo Task
+      else if (lower.includes("tạo task") || lower.includes("task")) {
+        chips.push(`<span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 font-bold">📋 Tạo đầu việc mới</span>`);
+      }
+      // Mặc định: gợi ý thao tác nhanh
+      else {
+        chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium">💡 Gợi ý: <strong>xong B3</strong> • <strong>TBP duyệt</strong> • <strong>Họp Highlands 13h 23/11</strong> • <strong>Triển khai mới [Tên] kênh [POS]</strong></span>`);
+      }
+
+      tokensEl.innerHTML = chips.join("");
+      box.classList.remove("hidden");
+    }
+
     async function handleCommandSubmit(e) {
       e.preventDefault();
+      hideOmnibarPreview();
       const input = document.getElementById("nlp-command-input");
       const cmd = input.value.trim();
       if (!cmd) return;
@@ -3285,14 +3366,24 @@ Xin cảm ơn sự đồng hành của team!`;
       if (radialPctEl) radialPctEl.textContent = taskPct + "%";
       if (radialSubEl) radialSubEl.textContent = `${doneTasks}/${totalTasks} việc hoàn tất`;
       if (radialCircle) {
-        const circumference = 119.4;
+        const circumference = 106.8;
         radialCircle.setAttribute("stroke-dashoffset", circumference - (taskPct / 100) * circumference);
       }
 
-      // Banner summary
+      // Clickable Summary Badges (Mục 4.2 SRS v3.0)
       const summaryEl = document.getElementById("banner-summary-text");
       if (summaryEl) {
-        summaryEl.innerHTML = `<strong class="text-white">${state.merchants.length} chuỗi đối tác</strong> đang vận hành • <strong class="text-teal-300">${obActive} quy trình triển khai mới</strong> • <strong class="${blockerCount > 0 ? 'text-rose-400' : 'text-emerald-300'}">${blockerCount} vướng mắc tiến độ</strong>`;
+        summaryEl.innerHTML = `
+          <button onclick="navigateTo('PROJECTS')" class="px-2.5 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold transition cursor-pointer">
+            ${state.merchants.length} chuỗi đối tác đang vận hành
+          </button>
+          <button onclick="navigateTo('ONBOARDING')" class="px-2.5 py-0.5 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-200 font-semibold transition cursor-pointer">
+            ${obActive} quy trình triển khai mới
+          </button>
+          <button onclick="document.getElementById('dash-blocker-section')?.scrollIntoView({behavior: 'smooth'})" class="px-2.5 py-0.5 rounded-lg ${blockerCount > 0 ? 'bg-rose-500/30 text-rose-200 hover:bg-rose-500/40' : 'bg-emerald-500/20 text-emerald-200 hover:bg-emerald-500/30'} font-semibold transition cursor-pointer">
+            ${blockerCount} vướng mắc tiến độ
+          </button>
+        `;
       }
 
       // 4 Strategic KPIs
@@ -3303,6 +3394,8 @@ Xin cảm ơn sự đồng hành của team!`;
       const elBlocker = document.getElementById("kpi-blocker");
       const elBlockerSub = document.getElementById("kpi-blocker-sub");
       const elBlockerCard = document.getElementById("kpi-blocker-card");
+      const elBlockerIconWrap = document.getElementById("kpi-blocker-icon-wrap");
+      const elBlockerIcon = document.getElementById("kpi-blocker-icon");
       const elTasksPending = document.getElementById("kpi-tasks-pending");
       const elOverdueSub = document.getElementById("kpi-overdue-sub");
 
@@ -3310,15 +3403,29 @@ Xin cảm ơn sự đồng hành của team!`;
       if (elProjSub) elProjSub.textContent = `${activeProjs} dự án đang chạy`;
       if (elObActive) elObActive.textContent = obActive;
       if (elObSub) elObSub.textContent = `${obGraduated} chuỗi đã bàn giao`;
-      if (elBlocker) elBlocker.textContent = blockerCount;
+      if (elBlocker) {
+        elBlocker.textContent = blockerCount;
+        elBlocker.className = blockerCount > 0
+          ? "text-2xl font-black text-rose-600 mt-0.5"
+          : "text-2xl font-black text-emerald-700 mt-0.5";
+      }
       if (elBlockerSub) {
-        elBlockerSub.textContent = blockerCount > 0 ? "Cần nhắc phụ trách xử lý" : "Mọi dự án thông suốt";
+        elBlockerSub.textContent = blockerCount > 0 ? "Cần can thiệp gỡ nghẽn ngay" : "Mọi dự án thông suốt";
         elBlockerSub.className = blockerCount > 0 ? "text-[11px] font-semibold text-rose-600 mt-0.5" : "text-[11px] font-semibold text-emerald-600 mt-0.5";
       }
       if (elBlockerCard) {
         elBlockerCard.className = blockerCount > 0
           ? "bg-white p-4 rounded-2xl border border-rose-300 hover:border-rose-400 cursor-pointer transition shadow-xs flex items-center justify-between"
           : "bg-white p-4 rounded-2xl border border-slate-200 hover:border-emerald-400 cursor-pointer transition shadow-xs flex items-center justify-between";
+      }
+      if (elBlockerIconWrap) {
+        elBlockerIconWrap.className = blockerCount > 0
+          ? "w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center"
+          : "w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center";
+      }
+      if (elBlockerIcon) {
+        elBlockerIcon.setAttribute("data-lucide", blockerCount > 0 ? "alert-triangle" : "shield-check");
+        lucide.createIcons();
       }
       if (elTasksPending) elTasksPending.textContent = pendingTasks;
       if (elOverdueSub) elOverdueSub.textContent = overdueTasks > 0 ? `${overdueTasks} việc trễ hạn` : "Không có việc quá hạn";
@@ -3425,15 +3532,23 @@ Xin cảm ơn sự đồng hành của team!`;
     }
 
     function updateSyncStatusUI() {
-      const dot = document.getElementById("sidebar-sync-dot");
-      const text = document.getElementById("sidebar-sync-text");
+      const btn = document.getElementById("topbar-cloud-btn");
+      const icon = document.getElementById("topbar-cloud-icon");
+      const text = document.getElementById("topbar-cloud-text");
+      if (!btn || !icon || !text) return;
+
       if (API_ENDPOINT) {
-        dot.className = "w-2 h-2 rounded-full bg-teal-400 animate-pulse shrink-0";
-        text.textContent = "Đã Kết Nối Bảng Tính";
+        btn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold transition";
+        icon.setAttribute("data-lucide", "cloud-check");
+        icon.className = "w-4 h-4 text-emerald-600";
+        text.textContent = "Đã đồng bộ";
       } else {
-        dot.className = "w-2 h-2 rounded-full bg-amber-400 shrink-0";
-        text.textContent = "Lưu Cục Bộ (Offline)";
+        btn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold transition";
+        icon.setAttribute("data-lucide", "cloud-off");
+        icon.className = "w-4 h-4 text-amber-600";
+        text.textContent = "Lưu cục bộ";
       }
+      lucide.createIcons();
     }
 
     async function syncDataFromGoogleSheets() {
