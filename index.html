@@ -698,17 +698,17 @@
           <span class="font-bold text-slate-400 shrink-0 flex items-center">
             <i data-lucide="sparkles" class="w-3.5 h-3.5 text-teal-500 mr-1"></i> Gợi ý lệnh:
           </span>
+          <button onclick="setNlpCommand('Triển khai mới Phúc Long kênh POS & PGW')" class="shrink-0 px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg transition font-medium border border-emerald-200">
+            + Triển khai mới Phúc Long kênh POS & PGW
+          </button>
+          <button onclick="setNlpCommand('xong TBP duyệt')" class="shrink-0 px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-lg transition font-medium border border-teal-200">
+            ✓ Xong TBP duyệt
+          </button>
           <button onclick="setNlpCommand('Tạo task Highlands rà soát phụ lục đối soát biểu phí due date 25/11')" class="shrink-0 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition font-medium border border-slate-200">
-            + Ký phụ lục biểu phí Highlands
+            + Ký phụ lục Highlands
           </button>
           <button onclick="setNlpCommand('@highlands khẩn cấp lỗi IP webhook Sandbox trễ 2 ngày')" class="shrink-0 px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg transition font-medium border border-rose-200">
-            ! Blocker Go-Live Highlands
-          </button>
-          <button onclick="setNlpCommand('Tạo task JDV thống nhất quy trình đối soát POS với Pvcombank')" class="shrink-0 px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition font-medium border border-blue-200">
-            + Đối soát POS JDV
-          </button>
-          <button onclick="setNlpCommand('@vietthanh')" class="shrink-0 px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-lg transition font-medium border border-teal-200">
-            → Đến @vietthanh
+            ! Blocker Highlands
           </button>
         </div>
 
@@ -717,7 +717,7 @@
           <input 
             id="nlp-command-input" 
             type="text" 
-            placeholder="Nhập lệnh tự nhiên (VD: 'Tạo task Highlands họp chốt biểu phí', '@highlands', hoặc 'khẩn cấp lỗi webhook')..." 
+            placeholder="Nhập lệnh tự nhiên (VD: 'Triển khai mới Phúc Long kênh POS & PGW', 'xong B3', 'TBP duyệt', '@highlands')..." 
             class="w-full pl-10 pr-28 py-2.5 bg-slate-100/90 hover:bg-slate-100 focus:bg-white text-slate-800 text-xs md:text-sm rounded-xl border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition font-medium"
           />
           <button 
@@ -2677,6 +2677,109 @@ Xin cảm ơn sự đồng hành của team!`;
 
       input.value = "";
       const lower = cmd.toLowerCase();
+
+      // 0A. TỰ ĐỘNG HÓA ONBOARDING SOP: "Triển khai mới [Tên] kênh [Kênh]"
+      if (lower.includes("triển khai mới") || lower.includes("onboard mới") || lower.includes("onboarding mới")) {
+        // Trích xuất tên đối tác (giữa prefix và chữ 'kênh', hoặc phần còn lại)
+        let cleanText = cmd.replace(/^(triển khai mới|onboarding mới|onboard mới)\s*/i, "").trim();
+        let merchantName = cleanText;
+        let channelPart = lower;
+
+        const kenhMatch = cleanText.match(/^(.*?)\s+kênh\s+(.+)$/i);
+        if (kenhMatch) {
+          merchantName = kenhMatch[1].trim();
+          channelPart = kenhMatch[2].toLowerCase();
+        } else {
+          // Loại bỏ tên kênh nếu không có chữ "kênh"
+          merchantName = cleanText.replace(/\b(pos\s*&\s*paylink|pos\s*&\s*pgw|paylink|pgw|pos)\b/gi, "").trim();
+        }
+
+        if (!merchantName) merchantName = "Đối Tác Mới";
+
+        // Xác định kênh triển khai
+        let channelKey = "POS";
+        if (channelPart.includes("paylink")) {
+          channelKey = "POS_PAYLINK";
+        } else if (channelPart.includes("pos") && channelPart.includes("pgw")) {
+          channelKey = "POS_PGW";
+        } else if (channelPart.includes("pgw")) {
+          channelKey = "PGW";
+        }
+
+        const tasks = generateSopTasks(channelKey, 0);
+        const newOb = {
+          id: "ob-" + Date.now().toString().slice(-5),
+          merchant_name: merchantName,
+          channel: channelKey,
+          total_steps: tasks.length,
+          tasks: tasks
+        };
+
+        onboardingList.unshift(newOb);
+        activeOnboardingId = newOb.id;
+        saveOnboardingStorage();
+        navigateTo("ONBOARDING");
+        showToast(`✓ Đã tự động tạo Onboarding "${merchantName}" (${SOP_CHANNELS[channelKey].label})!`);
+        return;
+      }
+
+      // 0B. TỰ ĐỘNG TICK XONG BƯỚC ONBOARDING: "xong B3", "TBP duyệt", "Katinat xong B3"...
+      const hasOnboardingDoneCue = /\b(xong|hoàn thành|done|đã duyệt|duyệt|đã trình|đã gửi|đã làm)\b/i.test(lower) || /\bb\d{1,2}\b/i.test(lower) || /\bbước\s*\d{1,2}\b/i.test(lower);
+      // Tránh bắt nhầm nếu câu lệnh có chữ "tạo task" hoặc "khẩn cấp"
+      if (hasOnboardingDoneCue && !lower.includes("tạo task") && !lower.includes("khẩn cấp") && !lower.includes("blocker")) {
+        // Tìm đối tác Onboarding được nhắc tên trong câu (hoặc lấy đối tác đang mở)
+        let targetOb = onboardingList.find(o => lower.includes(o.merchant_name.toLowerCase()));
+        if (!targetOb) {
+          targetOb = onboardingList.find(o => o.id === activeOnboardingId) || onboardingList[0];
+        }
+
+        if (targetOb) {
+          let matchedTasks = [];
+
+          // Cách 1: Match theo số bước (B3, bước 3, step 3...)
+          const stepMatches = [...lower.matchAll(/\b(?:b|bước|step)\s*(\d{1,2})\b/gi)];
+          if (stepMatches.length > 0) {
+            const stepNums = stepMatches.map(m => parseInt(m[1], 10));
+            matchedTasks = targetOb.tasks.filter(t => stepNums.includes(t.step_no));
+          } else {
+            // Cách 2: Match theo nội dung từ khóa bước (VD: "TBP duyệt", "trình CMS", "FC duyệt"...)
+            let kw = lower
+              .replace(targetOb.merchant_name.toLowerCase(), "")
+              .replace(/\b(xong|hoàn thành|done|đã|cho tôi|nhé|nha|rồi|bước|b)\b/gi, "")
+              .trim();
+
+            if (kw.length >= 2) {
+              // Ưu tiên tìm các bước có tiêu đề chứa cụm từ khóa
+              matchedTasks = targetOb.tasks.filter(t => t.title.toLowerCase().includes(kw));
+              // Nếu không khớp nguyên cụm, thử tách các từ chính (>= 2 ký tự)
+              if (matchedTasks.length === 0) {
+                const tokens = kw.split(/\s+/).filter(w => w.length >= 2);
+                if (tokens.length > 0) {
+                  matchedTasks = targetOb.tasks.filter(t =>
+                    tokens.every(tok => t.title.toLowerCase().includes(tok))
+                  );
+                }
+              }
+            }
+          }
+
+          if (matchedTasks.length > 0) {
+            matchedTasks.forEach(t => { t.status = "DONE"; });
+            activeOnboardingId = targetOb.id;
+            saveOnboardingStorage();
+            navigateTo("ONBOARDING");
+
+            const stepLabels = matchedTasks.map(t => `B${t.step_no}`).join(", ");
+            showToast(`✓ Đã tự động tick xong ${stepLabels} cho ${targetOb.merchant_name}!`);
+
+            const is100 = targetOb.tasks.length > 0 && targetOb.tasks.every(item => item.status === "DONE");
+            if (is100 && !targetOb.graduated) {
+              setTimeout(() => openGraduateModal(targetOb.id), 450);
+            }
+            return;
+          }
+        }
+      }
 
       // 1. Chuyển nhanh workspace @merchant
       if (lower.startsWith("@")) {
