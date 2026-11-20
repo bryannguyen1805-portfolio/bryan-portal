@@ -84,9 +84,9 @@
         <div>
           <div class="flex items-center space-x-1.5">
             <span class="font-black text-white text-base tracking-tight">BRYAN PORTAL</span>
-            <span class="px-1.5 py-0.5 text-[9px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 rounded">PM HUB</span>
+            <span class="px-1.5 py-0.5 text-[9px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30 rounded">ĐIỀU HÀNH</span>
           </div>
-          <p class="text-[10px] text-slate-400 font-medium">B2B Business & Delivery Ops</p>
+          <p class="text-[10px] text-slate-400 font-medium">Quản Lý Công Việc & Dự Án Đối Tác</p>
         </div>
       </div>
 
@@ -99,7 +99,7 @@
           <div class="text-xs font-bold text-white truncate">Bryan Nguyen</div>
           <div class="text-[10px] text-teal-400 font-semibold truncate flex items-center">
             <span class="w-1.5 h-1.5 rounded-full bg-teal-400 mr-1 animate-pulse"></span>
-            Lead B2B Project Manager
+            Quản Lý Dự Án B2B
           </div>
         </div>
       </div>
@@ -122,17 +122,17 @@
         <button onclick="navigateTo('ONBOARDING')" id="nav-ONBOARDING" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
           <div class="flex items-center space-x-3">
             <i data-lucide="list-checks" class="w-4 h-4 text-slate-400"></i>
-            <span>Onboarding SOP</span>
+            <span>Quy Trình Triển Khai</span>
           </div>
-          <span class="px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-bold" id="badge-onboarding-count">2 SOP</span>
+          <span class="px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-bold" id="badge-onboarding-count">2 Chuỗi</span>
         </button>
 
         <button onclick="navigateTo('PIPELINE')" id="nav-PIPELINE" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
           <div class="flex items-center space-x-3">
             <i data-lucide="trending-up" class="w-4 h-4 text-slate-400"></i>
-            <span>CRM Pipeline B2B</span>
+            <span>Phễu Thương Mại</span>
           </div>
-          <span class="px-1.5 py-0.5 text-[10px] bg-amber-500/20 text-amber-300 rounded font-bold">3 Deals</span>
+          <span class="px-1.5 py-0.5 text-[10px] bg-amber-500/20 text-amber-300 rounded font-bold">3 Thương vụ</span>
         </button>
 
         <button onclick="navigateTo('TASKS')" id="nav-TASKS" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
@@ -145,20 +145,20 @@
 
         <button onclick="navigateTo('CALENDAR')" id="nav-CALENDAR" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
           <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
-          <span>Lịch Go-Live & Mốc SLA</span>
+          <span>Lịch Họp & Cột Mốc</span>
         </button>
 
         <button onclick="navigateTo('NOTIFICATIONS')" id="nav-NOTIFICATIONS" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
           <div class="flex items-center space-x-3">
             <i data-lucide="bell" class="w-4 h-4 text-slate-400"></i>
-            <span>Cảnh Báo & Ping PIC</span>
+            <span>Cảnh Báo & Nhắc Hẹn</span>
           </div>
           <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
         </button>
 
         <button onclick="navigateTo('AUTOMATION')" id="nav-AUTOMATION" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
           <i data-lucide="zap" class="w-4 h-4 text-slate-400"></i>
-          <span>Tự Động Hóa AI</span>
+          <span>Tự Động Hóa</span>
         </button>
       </nav>
     </div>
@@ -166,14 +166,14 @@
     <!-- Bottom Controls -->
     <div class="p-4 border-t border-slate-800 bg-navy-950/40 text-xs">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-[11px] font-bold text-slate-400">Google Sheets Sync:</span>
+        <span class="text-[11px] font-bold text-slate-400">Đồng Bộ Dữ Liệu:</span>
         <button onclick="openApiConfigModal()" class="text-teal-400 hover:underline flex items-center text-[11px]">
           <i data-lucide="settings" class="w-3 h-3 mr-1"></i> Cài đặt
         </button>
       </div>
       <div class="flex items-center space-x-2 text-[11px] text-slate-400 bg-slate-800/50 p-2 rounded-lg border border-slate-800">
         <span id="sidebar-sync-dot" class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>
-        <span id="sidebar-sync-text" class="truncate font-medium">Mock Offline Mode</span>
+        <span id="sidebar-sync-text" class="truncate font-medium">Lưu Cục Bộ (Offline)</span>
       </div>
     </div>
   </aside>
@@ -188,7 +188,7 @@
           <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
           <input 
             type="text" 
-            placeholder="Tìm Merchant, dự án Go-Live, đầu việc..." 
+            placeholder="Tìm đối tác, dự án, đầu việc..." 
             class="w-full pl-9 pr-3 py-1.5 bg-slate-100 hover:bg-slate-200/70 focus:bg-white rounded-xl text-xs border border-transparent focus:border-teal-500 outline-none transition font-medium"
           />
         </div>
@@ -198,12 +198,12 @@
       <div class="flex items-center space-x-3">
         <div class="hidden lg:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600">
           <i data-lucide="clock" class="w-3.5 h-3.5 text-teal-600"></i>
-          <span id="header-clock">Lead B2B PM</span>
+          <span id="header-clock">Điều Hành B2B</span>
         </div>
 
         <button onclick="syncDataFromGoogleSheets()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold transition shadow-xs">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="sync-icon"></i>
-          <span>Đồng Bộ Sheets</span>
+          <span>Đồng Bộ Bảng Tính</span>
         </button>
 
         <button onclick="openNewTaskModal()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition shadow-sm">
@@ -216,21 +216,20 @@
     <!-- Scrollable Workspace Body -->
     <main class="flex-1 overflow-y-auto p-4 md:p-6 pb-28">
 
-      <!-- ================= SCREEN 1: DASHBOARD (CLEAN EXECUTIVE OPS HUB) ================= -->
+      <!-- ================= SCREEN 1: TỔNG QUAN ĐIỀU HÀNH (ƯU TIÊN CÔNG VIỆC HÀNG NGÀY TRÊN ĐẦU) ================= -->
       <div id="view-DASHBOARD" class="space-y-4 max-w-[1440px] mx-auto">
-        <!-- 1. EXECUTIVE GREETING BAR (Gọn, thanh lịch, tính % thật) -->
+        <!-- 1. THANH CHÀO & TÓM TẮT HIỆU SUẤT -->
         <div class="bg-gradient-to-r from-navy-900 via-navy-850 to-teal-900 rounded-2xl px-6 py-4 text-white shadow-sm border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
           <div class="space-y-1 text-center md:text-left">
             <div class="flex items-center justify-center md:justify-start space-x-2">
               <h1 class="text-xl font-black tracking-tight" id="welcome-title">Chào Bryan! ☕</h1>
-              <span class="px-2 py-0.5 rounded-full bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[10px] font-bold">B2B Ops Hub</span>
+              <span class="px-2 py-0.5 rounded-full bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[10px] font-bold">Trạm Điều Hành Cá Nhân</span>
             </div>
             <p class="text-xs text-slate-300" id="banner-summary-text">
-              Đang đồng bộ số liệu vận hành thực tế...
+              Đang tổng hợp lịch trình và tiến độ dự án...
             </p>
           </div>
 
-          <!-- Radial Progress (Tính động theo Task hoàn thành) -->
           <div class="flex items-center space-x-3 shrink-0 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
             <div class="relative w-12 h-12 flex items-center justify-center">
               <svg class="w-12 h-12 transform -rotate-90">
@@ -240,97 +239,136 @@
               <span class="absolute text-[11px] font-black text-white" id="radial-percent">0%</span>
             </div>
             <div class="text-xs">
-              <div class="text-slate-300 font-semibold text-[11px]">Hiệu suất Đầu việc</div>
-              <div class="text-teal-300 font-bold text-xs" id="radial-subtext">0/0 việc hoàn tất</div>
+              <div class="text-slate-300 font-semibold text-[11px]">Tỷ Lệ Hoàn Thành</div>
+              <div class="text-teal-300 font-bold text-xs" id="radial-subtext">0/0 đầu việc xong</div>
             </div>
           </div>
         </div>
 
-        <!-- 2. 4 THẺ KPI CHIẾN LƯỢC (SỐ LIỆU ĐỘNG 100%) -->
+        <!-- 2. 4 CHỈ SỐ CỐT LÕI -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div onclick="navigateTo('PROJECTS')" class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-teal-400 cursor-pointer transition shadow-xs flex items-center justify-between">
+          <div onclick="navigateTo('TASKS')" class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-amber-400 cursor-pointer transition shadow-xs flex items-center justify-between">
             <div>
-              <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Chuỗi Đang Vận Hành</div>
-              <div class="text-2xl font-black text-slate-900 mt-0.5" id="kpi-merchants">0</div>
-              <div class="text-[11px] font-semibold text-teal-700 mt-0.5" id="kpi-projects-sub">0 dự án đang triển khai</div>
+              <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Việc Cần Làm Hôm Nay</div>
+              <div class="text-2xl font-black text-slate-900 mt-0.5" id="kpi-tasks-pending">0</div>
+              <div class="text-[11px] font-semibold text-amber-600 mt-0.5" id="kpi-overdue-sub">Không có việc trễ hạn</div>
             </div>
-            <div class="w-11 h-11 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
-              <i data-lucide="store" class="w-5 h-5"></i>
-            </div>
-          </div>
-
-          <div onclick="navigateTo('ONBOARDING')" class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-blue-400 cursor-pointer transition shadow-xs flex items-center justify-between">
-            <div>
-              <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Đang Onboarding SOP</div>
-              <div class="text-2xl font-black text-blue-700 mt-0.5" id="kpi-onboarding-active">0</div>
-              <div class="text-[11px] font-semibold text-slate-500 mt-0.5" id="kpi-onboarding-sub">0 quy trình hoàn tất</div>
-            </div>
-            <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-              <i data-lucide="list-checks" class="w-5 h-5"></i>
+            <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <i data-lucide="check-square" class="w-5 h-5"></i>
             </div>
           </div>
 
           <div onclick="navigateTo('PROJECTS')" class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-rose-400 cursor-pointer transition shadow-xs flex items-center justify-between" id="kpi-blocker-card">
             <div>
-              <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Blocker Cần Gỡ Gấp</div>
+              <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Vướng Mắc Cần Gỡ</div>
               <div class="text-2xl font-black text-rose-600 mt-0.5" id="kpi-blocker">0</div>
-              <div class="text-[11px] font-semibold text-rose-500 mt-0.5" id="kpi-blocker-sub">Không có điểm nghẽn</div>
+              <div class="text-[11px] font-semibold text-rose-500 mt-0.5" id="kpi-blocker-sub">Mọi dự án thông suốt</div>
             </div>
             <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
               <i data-lucide="alert-triangle" class="w-5 h-5"></i>
             </div>
           </div>
 
-          <div onclick="navigateTo('TASKS')" class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-amber-400 cursor-pointer transition shadow-xs flex items-center justify-between">
+          <div onclick="navigateTo('ONBOARDING')" class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-blue-400 cursor-pointer transition shadow-xs flex items-center justify-between">
             <div>
-              <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Đầu Việc Cần Xử Lý</div>
-              <div class="text-2xl font-black text-slate-900 mt-0.5" id="kpi-tasks-pending">0</div>
-              <div class="text-[11px] font-semibold text-amber-600 mt-0.5" id="kpi-overdue-sub">0 việc quá hạn</div>
+              <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Đang Triển Khai Mới</div>
+              <div class="text-2xl font-black text-blue-700 mt-0.5" id="kpi-onboarding-active">0</div>
+              <div class="text-[11px] font-semibold text-slate-500 mt-0.5" id="kpi-onboarding-sub">0 chuỗi đã bàn giao</div>
             </div>
-            <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-              <i data-lucide="check-square" class="w-5 h-5"></i>
+            <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <i data-lucide="list-checks" class="w-5 h-5"></i>
+            </div>
+          </div>
+
+          <div onclick="navigateTo('PROJECTS')" class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-teal-400 cursor-pointer transition shadow-xs flex items-center justify-between">
+            <div>
+              <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Chuỗi Đang Vận Hành</div>
+              <div class="text-2xl font-black text-slate-900 mt-0.5" id="kpi-merchants">0</div>
+              <div class="text-[11px] font-semibold text-teal-700 mt-0.5" id="kpi-projects-sub">0 dự án đang chạy</div>
+            </div>
+            <div class="w-11 h-11 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+              <i data-lucide="store" class="w-5 h-5"></i>
             </div>
           </div>
         </div>
 
-        <!-- 3. LƯỚI ĐIỀU HÀNH 2x2 CHUẨN LOGIC (DỮ LIỆU ĐỘNG 100%) -->
+        <!-- 3. ƯU TIÊN SỐ 1 (ĐƯA LÊN ĐẦU): LỊCH HỌP HÔM NAY & VIỆC CẦN LÀM -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <!-- Ô 1: ĐIỂM NGHẼN CẦN GỠ GẤP (BLOCKERS THỰC TẾ) -->
+          <!-- Ô 1: LỊCH HỌP HÔM NAY -->
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
             <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
               <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
-                <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-600"></i>
-                <span>Điểm Nghẽn Cần Gỡ Gấp (Blockers)</span>
+                <i data-lucide="calendar" class="w-4 h-4 text-teal-600"></i>
+                <span>Lịch Họp & Sự Kiện Hôm Nay</span>
               </div>
-              <span class="text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full" id="dash-blocker-badge">0 Blocker</span>
+              <button onclick="navigateTo('CALENDAR')" class="text-xs text-teal-600 font-bold hover:underline">Xem lịch tháng →</button>
             </div>
-            <div class="space-y-2.5 flex-1" id="dash-blockers-list">
-              <!-- Rendered dynamically -->
+            <div class="space-y-2.5 flex-1">
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-2">
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <span class="px-2 py-0.5 text-[10px] font-extrabold rounded bg-teal-100 text-teal-800">14:30 - 15:30</span>
+                    <span class="text-xs font-bold text-slate-800">Họp 3 bên: Nghiệm thu lỗi thẻ Ứng dụng</span>
+                  </div>
+                  <div class="text-[11px] text-slate-500 mt-1">Highlands Coffee • Bryan, Anh Tuấn (IT), Chị Mai (Ngân hàng)</div>
+                </div>
+                <button onclick="showToast('Đang mở phòng họp trực tuyến...')" class="p-1.5 text-teal-700 hover:bg-teal-100 rounded-lg transition shrink-0" title="Vào phòng họp"><i data-lucide="video" class="w-4 h-4"></i></button>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-2">
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <span class="px-2 py-0.5 text-[10px] font-extrabold rounded bg-amber-100 text-amber-800">16:00 - 17:00</span>
+                    <span class="text-xs font-bold text-slate-800">Chốt điều khoản hợp đồng & Biểu phí máy quẹt thẻ</span>
+                  </div>
+                  <div class="text-[11px] text-slate-500 mt-1">JDV Chuỗi Bán Lẻ • Bryan, Anh Khoa, Pvcombank</div>
+                </div>
+                <button onclick="showToast('Đang mở phòng họp trực tuyến...')" class="p-1.5 text-teal-700 hover:bg-teal-100 rounded-lg transition shrink-0" title="Vào phòng họp"><i data-lucide="video" class="w-4 h-4"></i></button>
+              </div>
             </div>
           </div>
 
-          <!-- Ô 2: ĐẦU VIỆC ƯU TIÊN CẦN CHỐT -->
+          <!-- Ô 2: VIỆC CẦN LÀM HÔM NAY (TO-DO LIST) -->
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
             <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
               <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
                 <i data-lucide="check-circle-2" class="w-4 h-4 text-teal-600"></i>
-                <span>Đầu Việc Ưu Tiên Cần Xử Lý</span>
+                <span>Việc Cần Làm Hôm Nay (Ưu Tiên)</span>
               </div>
-              <button onclick="navigateTo('TASKS')" class="text-xs text-teal-600 font-bold hover:underline">Xem tất cả →</button>
+              <div class="flex items-center space-x-3">
+                <button onclick="openNewTaskModal()" class="text-xs text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg font-bold hover:bg-teal-100 transition">+ Thêm việc</button>
+                <button onclick="navigateTo('TASKS')" class="text-xs text-slate-500 font-bold hover:text-teal-600">Tất cả →</button>
+              </div>
             </div>
             <div class="space-y-2 flex-1" id="dash-quick-tasks">
               <!-- Rendered dynamically -->
             </div>
           </div>
+        </div>
 
-          <!-- Ô 3: TIẾN ĐỘ ONBOARDING SOP ĐANG CHẠY -->
+        <!-- 4. ƯU TIÊN SỐ 2: VƯỚNG MẮC CẦN XỬ LÝ GẤP -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
+          <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
+            <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
+              <i data-lucide="alert-octagon" class="w-4 h-4 text-rose-600"></i>
+              <span>Vướng Mắc Cần Xử Lý Gấp (Điểm Nghẽn Tiến Độ)</span>
+            </div>
+            <span class="text-[11px] font-bold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full" id="dash-blocker-badge">0 Vướng mắc</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="dash-blockers-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- 5. ƯU TIÊN SỐ 3: QUẢN LÝ DỰ ÁN & QUY TRÌNH TRIỂN KHAI THÁNG -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Ô 3: TIẾN ĐỘ QUY TRÌNH TRIỂN KHAI MỚI -->
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
             <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
               <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
                 <i data-lucide="list-checks" class="w-4 h-4 text-blue-600"></i>
-                <span>Tiến Độ Onboarding SOP</span>
+                <span>Tiến Độ Quy Trình Triển Khai Mới</span>
               </div>
-              <button onclick="navigateTo('ONBOARDING')" class="text-xs text-teal-600 font-bold hover:underline">Mở Kanban SOP →</button>
+              <button onclick="navigateTo('ONBOARDING')" class="text-xs text-teal-600 font-bold hover:underline">Mở bảng quy trình →</button>
             </div>
             <div class="space-y-2.5 flex-1" id="dash-onboarding-summary">
               <!-- Rendered dynamically -->
@@ -344,7 +382,7 @@
                 <i data-lucide="rocket" class="w-4 h-4 text-purple-600"></i>
                 <span>Dự Án Chuỗi Đang Triển Khai</span>
               </div>
-              <button onclick="navigateTo('PROJECTS')" class="text-xs text-teal-600 font-bold hover:underline">Vào Workspace →</button>
+              <button onclick="navigateTo('PROJECTS')" class="text-xs text-teal-600 font-bold hover:underline">Xem chi tiết chuỗi →</button>
             </div>
             <div class="space-y-2.5 flex-1 text-xs" id="dash-projects-progress">
               <!-- Rendered dynamically -->
@@ -352,50 +390,16 @@
           </div>
         </div>
 
-        <!-- 4. HÀNG DƯỚI: LỊCH HỌP TRONG NGÀY & BIỂU ĐỒ VELOCITY -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
-            <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
-              <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
-                <i data-lucide="calendar" class="w-4 h-4 text-teal-600"></i>
-                <span>Lịch Họp Đối Tác Hôm Nay</span>
-              </div>
-              <button onclick="navigateTo('CALENDAR')" class="text-xs text-teal-600 font-bold hover:underline">Lịch Go-Live →</button>
+        <!-- 6. THỐNG KÊ NHỊP ĐỘ CÔNG VIỆC 7 NGÀY QUA -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="text-sm font-bold text-slate-800">Nhịp Độ Hoàn Thành Công Việc 7 Ngày Qua</h3>
+              <p class="text-[11px] text-slate-400">Theo dõi số lượng đầu việc hoàn tất so với các điểm nghẽn phát sinh trong tuần</p>
             </div>
-            <div class="space-y-2.5 flex-1">
-              <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-2">
-                <div>
-                  <div class="flex items-center space-x-2">
-                    <span class="px-2 py-0.5 text-[10px] font-extrabold rounded bg-teal-100 text-teal-800">14:30 - 15:30</span>
-                    <span class="text-xs font-bold text-slate-800">Họp 3 bên: Nghiệm thu lỗi thẻ App</span>
-                  </div>
-                  <div class="text-[11px] text-slate-500 mt-1">Highlands Coffee • Bryan, Anh Tuấn (IT), Chị Mai (Bank)</div>
-                </div>
-                <button onclick="showToast('Đang mở link Google Meet...')" class="p-1.5 text-teal-700 hover:bg-teal-100 rounded-lg transition shrink-0"><i data-lucide="video" class="w-4 h-4"></i></button>
-              </div>
-              <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-2">
-                <div>
-                  <div class="flex items-center space-x-2">
-                    <span class="px-2 py-0.5 text-[10px] font-extrabold rounded bg-amber-100 text-amber-800">16:00 - 17:00</span>
-                    <span class="text-xs font-bold text-slate-800">Chốt điều khoản SLA & Biểu phí SmartPOS</span>
-                  </div>
-                  <div class="text-[11px] text-slate-500 mt-1">JDV Chuỗi Bán Lẻ • Bryan, Anh Khoa, Pvcombank</div>
-                </div>
-                <button onclick="showToast('Đang mở link Google Meet...')" class="p-1.5 text-teal-700 hover:bg-teal-100 rounded-lg transition shrink-0"><i data-lucide="video" class="w-4 h-4"></i></button>
-              </div>
-            </div>
+            <span class="text-[11px] font-semibold px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg">Tuần Này</span>
           </div>
-
-          <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-            <div class="flex items-center justify-between mb-3">
-              <div>
-                <h3 class="text-sm font-bold text-slate-800">Nhịp Độ Xử Lý Công Việc 7 Ngày Qua</h3>
-                <p class="text-[11px] text-slate-400">Số lượng đầu việc hoàn thành so với blocker phát sinh</p>
-              </div>
-              <span class="text-[11px] font-semibold px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg">Tuần Này</span>
-            </div>
-            <div class="h-44"><canvas id="velocityChart"></canvas></div>
-          </div>
+          <div class="h-44"><canvas id="velocityChart"></canvas></div>
         </div>
       </div>
 
@@ -1402,7 +1406,7 @@
 
       const blockedProjects = state.projects.filter(p => p.is_blocked);
       if (badge) {
-        badge.textContent = blockedProjects.length > 0 ? `${blockedProjects.length} Blocker` : "Thông suốt";
+        badge.textContent = blockedProjects.length > 0 ? `${blockedProjects.length} Vướng mắc` : "Thông suốt";
         badge.className = blockedProjects.length > 0
           ? "text-[11px] font-bold text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200"
           : "text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200";
@@ -1410,10 +1414,10 @@
 
       if (blockedProjects.length === 0) {
         container.innerHTML = `
-          <div class="h-full min-h-[120px] rounded-xl bg-emerald-50/50 border border-emerald-200/80 p-4 flex flex-col items-center justify-center text-center space-y-1">
+          <div class="h-full min-h-[100px] rounded-xl bg-emerald-50/50 border border-emerald-200/80 p-4 flex flex-col items-center justify-center text-center space-y-1 col-span-2">
             <i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-600"></i>
-            <div class="text-xs font-bold text-emerald-800">Không có điểm nghẽn SLA nào!</div>
-            <div class="text-[11px] text-emerald-600">Tất cả các dự án chuỗi đều đang chạy đúng tiến độ cam kết.</div>
+            <div class="text-xs font-bold text-emerald-800">Không có vướng mắc nào!</div>
+            <div class="text-[11px] text-emerald-600">Tất cả dự án đều đang chạy đúng tiến độ cam kết.</div>
           </div>
         `;
         lucide.createIcons();
@@ -1430,10 +1434,10 @@
             </div>
             <p class="text-xs text-rose-800">${p.blocker_reason}</p>
             <div class="flex items-center justify-between pt-2 border-t border-rose-200/70">
-              <span class="text-[11px] text-rose-700">PIC: <strong>${p.blocker_owner || 'Đối tác'}</strong></span>
+              <span class="text-[11px] text-rose-700">Phụ trách: <strong>${p.blocker_owner || 'Đối tác'}</strong></span>
               <button onclick="handlePingPIC('${m ? m.name : ''}', '${p.title}', '${p.blocker_reason}')" class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[11px] font-bold transition flex items-center space-x-1 shadow-2xs">
                 <i data-lucide="send" class="w-3 h-3"></i>
-                <span>Ping PIC (Zalo)</span>
+                <span>Nhắc Phụ Trách (Zalo)</span>
               </button>
             </div>
           </div>
@@ -2995,7 +2999,7 @@ Xin cảm ơn sự đồng hành của team!`;
       // Banner summary
       const summaryEl = document.getElementById("banner-summary-text");
       if (summaryEl) {
-        summaryEl.innerHTML = `<strong class="text-white">${state.merchants.length} chuỗi đối tác</strong> đang vận hành • <strong class="text-teal-300">${obActive} quy trình Onboarding</strong> đang chạy • <strong class="${blockerCount > 0 ? 'text-rose-400' : 'text-emerald-300'}">${blockerCount} Blocker SLA</strong>`;
+        summaryEl.innerHTML = `<strong class="text-white">${state.merchants.length} chuỗi đối tác</strong> đang vận hành • <strong class="text-teal-300">${obActive} quy trình triển khai mới</strong> • <strong class="${blockerCount > 0 ? 'text-rose-400' : 'text-emerald-300'}">${blockerCount} vướng mắc tiến độ</strong>`;
       }
 
       // 4 Strategic KPIs
@@ -3010,12 +3014,12 @@ Xin cảm ơn sự đồng hành của team!`;
       const elOverdueSub = document.getElementById("kpi-overdue-sub");
 
       if (elMerchants) elMerchants.textContent = state.merchants.length;
-      if (elProjSub) elProjSub.textContent = `${activeProjs} dự án đang triển khai`;
+      if (elProjSub) elProjSub.textContent = `${activeProjs} dự án đang chạy`;
       if (elObActive) elObActive.textContent = obActive;
-      if (elObSub) elObSub.textContent = `${obGraduated} quy trình đã bàn giao`;
+      if (elObSub) elObSub.textContent = `${obGraduated} chuỗi đã bàn giao`;
       if (elBlocker) elBlocker.textContent = blockerCount;
       if (elBlockerSub) {
-        elBlockerSub.textContent = blockerCount > 0 ? "Cần Ping PIC xử lý ngay" : "Mọi dự án đều thông suốt";
+        elBlockerSub.textContent = blockerCount > 0 ? "Cần nhắc phụ trách xử lý" : "Mọi dự án thông suốt";
         elBlockerSub.className = blockerCount > 0 ? "text-[11px] font-semibold text-rose-600 mt-0.5" : "text-[11px] font-semibold text-emerald-600 mt-0.5";
       }
       if (elBlockerCard) {
@@ -3132,10 +3136,10 @@ Xin cảm ơn sự đồng hành của team!`;
       const text = document.getElementById("sidebar-sync-text");
       if (API_ENDPOINT) {
         dot.className = "w-2 h-2 rounded-full bg-teal-400 animate-pulse shrink-0";
-        text.textContent = "Google Sheets Online";
+        text.textContent = "Đã Kết Nối Bảng Tính";
       } else {
         dot.className = "w-2 h-2 rounded-full bg-amber-400 shrink-0";
-        text.textContent = "Mock Offline Mode";
+        text.textContent = "Lưu Cục Bộ (Offline)";
       }
     }
 
@@ -3354,7 +3358,7 @@ Xin cảm ơn sự đồng hành của team!`;
     function saveOnboardingStorage() {
       localStorage.setItem("bryan_onboarding_list", JSON.stringify(onboardingList));
       const badge = document.getElementById("badge-onboarding-count");
-      if (badge) badge.textContent = onboardingList.length + " SOP";
+      if (badge) badge.textContent = onboardingList.filter(o => !o.graduated).length + " Chuỗi";
     }
 
     function openNewOnboardingModal() {
