@@ -399,39 +399,25 @@
         </div>
       </div>
 
-      <!-- ================= SCREEN 2: DEDICATED MERCHANT WORKSPACE (PHÂN CẤP TỔNG QUAN & DỰ ÁN CON) ================= -->
-      <div id="view-PROJECTS" class="hidden space-y-4 max-w-7xl mx-auto">
-        <!-- UNIFIED MERCHANT NAVIGATION HEADER (Gộp 2 thanh + Flex-wrap chống che khuất) -->
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-          <!-- Hàng 1: Switcher Các Chuỗi Đối Tác + Nút Thêm Mới -->
-          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0" id="merchant-pills-bar"></div>
-            <div class="flex items-center space-x-2 shrink-0">
-              <button onclick="navigateTo('ONBOARDING'); openNewOnboardingModal();" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1 shadow-xs" title="Khởi tạo quy trình Onboarding 15-19 bước trước khi Go-Live">
-                <i data-lucide="list-checks" class="w-3.5 h-3.5"></i>
-                <span>+ Onboarding Mới</span>
-              </button>
-              <button onclick="openNewMerchantModal()" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 rounded-xl text-xs font-semibold transition flex items-center space-x-1" title="Chỉ dùng khi đối tác đã Go-Live sẵn từ trước">
-                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                <span>Đã Go-Live</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Hàng 2: Sub-Navigation Tabs Bên Trong Chuỗi Hiện Tại -->
-          <div class="pt-2.5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div class="flex flex-wrap items-center gap-1.5 flex-1 min-w-0" id="merchant-subtabs-bar">
-              <!-- Tabs: [ 🏢 Tổng Quan Chuỗi ] | [ 📁 Dự Án 1 ] | [ 📁 Dự Án 2 ] -->
-            </div>
-            <button onclick="openNewProjectModal()" class="shrink-0 px-3 py-1 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition flex items-center space-x-1 border border-slate-200">
-              <i data-lucide="folder-plus" class="w-3.5 h-3.5 text-teal-600"></i>
-              <span>+ Thêm Dự Án</span>
+      <!-- ================= SCREEN 2: DEDICATED MERCHANT WORKSPACE (2-COLUMN CLEAN LAYOUT) ================= -->
+      <div id="view-PROJECTS" class="hidden space-y-4 max-w-[1440px] mx-auto">
+        <!-- THANH CHỌN CHUỖI DUY NHẤT (Gọn, thoáng, không chồng chéo) -->
+        <div class="bg-white px-4 py-3 rounded-2xl border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0" id="merchant-pills-bar"></div>
+          <div class="flex items-center space-x-2 shrink-0">
+            <button onclick="navigateTo('ONBOARDING'); openNewOnboardingModal();" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1 shadow-xs" title="Khởi tạo quy trình Onboarding 15-19 bước trước khi Go-Live">
+              <i data-lucide="list-checks" class="w-3.5 h-3.5"></i>
+              <span>+ Onboarding Mới</span>
+            </button>
+            <button onclick="openNewMerchantModal()" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 rounded-xl text-xs font-semibold transition flex items-center space-x-1" title="Thêm nhanh chuỗi đã Go-Live sẵn">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <span>Đã Go-Live</span>
             </button>
           </div>
         </div>
 
-        <!-- 3. Dynamic Merchant Container (Đổi theo Sub-Tab) -->
-        <div id="merchant-workspace-body" class="space-y-6">
+        <!-- BỐ CỤC 2 CỘT (70% TRÁI HÀNH ĐỘNG | 30% PHẢI TRA CỨU CỐ ĐỊNH) -->
+        <div id="merchant-workspace-body" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
           <!-- Rendered dynamically by renderMerchantWorkspaceBody() -->
         </div>
       </div>
@@ -1527,44 +1513,41 @@
       }).join('');
     }
 
+    let showCompletedProjects = false;
+    let showCompletedTasks = false;
+
+    function toggleCompletedProjectsAccordion() {
+      showCompletedProjects = !showCompletedProjects;
+      renderMerchantWorkspaceBody();
+    }
+
+    function toggleCompletedTasksAccordion() {
+      showCompletedTasks = !showCompletedTasks;
+      renderMerchantWorkspaceBody();
+    }
+
+    function archiveProjectToggle(projId, event) {
+      if (event) event.stopPropagation();
+      const proj = state.projects.find(p => p.id === projId);
+      if (!proj) return;
+      if (proj.is_archived || proj.progress >= 100) {
+        proj.is_archived = false;
+        if (proj.progress >= 100) proj.progress = 90;
+        showToast("✓ Đã khôi phục dự án về danh sách Đang Triển Khai.");
+      } else {
+        proj.is_archived = true;
+        proj.progress = 100;
+        proj.stage = "GO-LIVE";
+        proj.gate_step = 5;
+        showToast("✓ Đã đánh dấu Hoàn Tất & chuyển dự án vào mục Lưu Trữ!");
+      }
+      saveStateStorage();
+      updateAllKpis();
+      renderMerchantWorkspaceBody();
+    }
+
     function renderMerchantSubTabs() {
-      const container = document.getElementById("merchant-subtabs-bar");
-      if (!container) return;
-
-      const merchant = state.merchants.find(m => m.id === activeMerchantId) || state.merchants[0];
-      if (!merchant) return;
-
-      const merchantProjects = state.projects.filter(p => p.merchant_id === merchant.id);
-
-      let tabsHtml = `
-        <button onclick="selectSubTab('OVERVIEW')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shrink-0 ${
-          activeSubTab === 'OVERVIEW'
-            ? 'bg-teal-600 text-white shadow-xs'
-            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-        }">
-          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
-          <span>🏢 Tổng Quan ${merchant.name}</span>
-        </button>
-      `;
-
-      merchantProjects.forEach((p, idx) => {
-        const isTabActive = activeSubTab === p.id;
-        tabsHtml += `
-          <button onclick="selectSubTab('${p.id}')" class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shrink-0 ${
-            isTabActive
-              ? 'bg-teal-600 text-white shadow-xs'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-          }">
-            <i data-lucide="folder" class="w-3.5 h-3.5 ${p.is_blocked ? 'text-rose-400 animate-pulse' : ''}"></i>
-            <span>Dự Án: ${p.title}</span>
-            <span class="text-[10px] ${isTabActive ? 'text-teal-100' : 'text-slate-400'} font-medium">(${p.progress}%)</span>
-            ${p.is_blocked ? '<span class="w-2 h-2 rounded-full bg-rose-500"></span>' : ''}
-          </button>
-        `;
-      });
-
-      container.innerHTML = tabsHtml;
-      lucide.createIcons();
+      // Đã tích hợp trực tiếp vào đầu Cột Trái trong renderMerchantWorkspaceBody()
     }
 
     function renderMerchantWorkspaceBody() {
@@ -1574,410 +1557,426 @@
       const merchant = state.merchants.find(m => m.id === activeMerchantId) || state.merchants[0];
       if (!merchant) return;
 
-      // NẾU LÀ TRANG 1: TỔNG QUAN MERCHANT (OVERVIEW)
-      if (activeSubTab === 'OVERVIEW') {
-        const merchantStakeholders = state.stakeholders.filter(s => s.merchant_id === merchant.id);
-        const merchantFolders = state.folders.filter(f => f.merchant_id === merchant.id);
-        const merchantProjects = state.projects.filter(p => p.merchant_id === merchant.id);
-        const merchantTasks = state.tasks.filter(t => {
-          const p = state.projects.find(proj => proj.id === t.project_id);
-          return p && p.merchant_id === merchant.id;
-        });
+      const merchantStakeholders = state.stakeholders.filter(s => s.merchant_id === merchant.id);
+      const merchantFolders = state.folders.filter(f => f.merchant_id === merchant.id);
+      const merchantProjects = state.projects.filter(p => p.merchant_id === merchant.id);
 
-        container.innerHTML = `
-          <!-- CARD HEADER TỔNG QUAN -->
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
-              <div class="flex items-center space-x-4">
-                <div class="w-14 h-14 rounded-2xl ${merchant.color} text-white font-black text-2xl flex items-center justify-center shadow-md">
-                  ${merchant.avatar_letter}
-                </div>
-                <div>
-                  <div class="flex items-center space-x-2">
-                    <h2 class="text-xl font-black text-slate-900 tracking-tight">${merchant.name}</h2>
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200">${merchant.alias}</span>
-                    <button onclick="openEditMerchantModal('${merchant.id}')" class="text-slate-400 hover:text-teal-600 transition p-1" title="Chỉnh sửa thông tin đối tác">
-                      <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                    </button>
-                  </div>
-                  <p class="text-xs text-slate-500 mt-1">${merchant.industry} • GMV kỳ vọng: <strong class="text-teal-700 font-bold">${merchant.expected_gmv}</strong></p>
-                  <div class="text-[11px] text-slate-600 mt-0.5 font-medium">Trạng thái thương mại: <strong class="text-slate-800">${merchant.contract_status}</strong></div>
-                </div>
-              </div>
+      // Build Sub-Tabs HTML (Đặt gọn trong Cột Trái)
+      let subTabsHtml = `
+        <button onclick="selectSubTab('OVERVIEW')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shrink-0 ${
+          activeSubTab === 'OVERVIEW' ? 'bg-teal-600 text-white shadow-2xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+        }">
+          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+          <span>Tổng Quan</span>
+        </button>
+      `;
+      merchantProjects.forEach(p => {
+        const isTabActive = activeSubTab === p.id;
+        const isDoneProj = p.is_archived || p.progress >= 100;
+        subTabsHtml += `
+          <button onclick="selectSubTab('${p.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shrink-0 ${
+            isTabActive ? 'bg-teal-600 text-white shadow-2xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }">
+            <i data-lucide="${isDoneProj ? 'check-circle-2' : 'folder'}" class="w-3.5 h-3.5 ${p.is_blocked ? 'text-rose-400 animate-pulse' : ''}"></i>
+            <span class="max-w-[180px] truncate">${p.title}</span>
+            ${p.is_blocked ? '<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>' : ''}
+          </button>
+        `;
+      });
+      subTabsHtml += `
+        <button onclick="openNewProjectModal()" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-50 hover:bg-slate-100 text-teal-700 border border-dashed border-teal-300 transition flex items-center space-x-1 shrink-0">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Thêm Dự Án</span>
+        </button>
+      `;
 
+      // CỘT PHẢI (4/12 = 33%): NHÂN SỰ 3 BÊN + THƯ MỤC MÁY TÍNH (TRA CỨU CỐ ĐỊNH)
+      const rightColumnHtml = `
+        <div class="lg:col-span-4 space-y-4">
+          <!-- KHỐI TRA CỨU 1: NHÂN SỰ PHỤ TRÁCH 3 BÊN -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
               <div class="flex items-center space-x-2">
-                <button onclick="openNewTaskModalForMerchant('${merchant.id}')" class="px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-sm">
-                  <i data-lucide="plus" class="w-4 h-4"></i>
-                  <span>Tạo Đầu Việc Cho Chuỗi</span>
-                </button>
-                <button onclick="openNewProjectModal()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition flex items-center space-x-1.5">
-                  <i data-lucide="folder-plus" class="w-4 h-4 text-teal-600"></i>
-                  <span>Thêm Dự Án Mới</span>
-                </button>
+                <i data-lucide="users" class="w-4 h-4 text-teal-600"></i>
+                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">Nhân Sự Phụ Trách (${merchantStakeholders.length})</h4>
               </div>
+              <button onclick="openNewStakeholderModal('${merchant.id}')" class="text-[11px] text-teal-600 font-bold hover:underline flex items-center">
+                <i data-lucide="user-plus" class="w-3 h-3 mr-0.5"></i> Thêm
+              </button>
             </div>
 
-            <!-- PHẦN 1: ĐƯỜNG DẪN THƯ MỤC & TÀI NGUYÊN MÁY TÍNH CỦA BRYAN -->
-            <div>
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center space-x-2">
-                  <i data-lucide="folder-git-2" class="w-4 h-4 text-teal-600"></i>
-                  <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Thư Mục Tài Liệu Cục Bộ (Local Folders Trên Máy Bryan)</h4>
-                </div>
-                <button onclick="openNewFolderModal('${merchant.id}')" class="text-xs text-teal-600 font-bold hover:underline flex items-center">
-                  <i data-lucide="plus" class="w-3.5 h-3.5 mr-0.5"></i> Thêm đường dẫn folder
-                </button>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                ${merchantFolders.length > 0 ? merchantFolders.map(f => `
-                  <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex flex-col justify-between space-y-2">
-                    <div>
-                      <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-800 flex items-center truncate">
-                          <i data-lucide="folder" class="w-3.5 h-3.5 text-teal-600 mr-1.5 shrink-0"></i>
-                          <span class="truncate">${f.title}</span>
-                        </span>
-                        <div class="flex items-center space-x-1 shrink-0">
-                          <button onclick="openEditFolderModal('${f.id}')" class="text-slate-400 hover:text-teal-600 p-1" title="Sửa đường dẫn">
-                            <i data-lucide="edit-3" class="w-3 h-3"></i>
-                          </button>
-                          <button onclick="deleteFolder('${f.id}')" class="text-slate-400 hover:text-rose-600 p-1" title="Xóa">
-                            <i data-lucide="trash-2" class="w-3 h-3"></i>
-                          </button>
-                        </div>
-                      </div>
-                      <div class="p-1.5 rounded bg-white border border-slate-200 mt-2 font-mono text-[10px] text-slate-700 truncate select-all" title="${f.path}">
-                        ${f.path}
-                      </div>
-                      <p class="text-[10px] text-slate-400 mt-1">${f.note || ''}</p>
-                    </div>
-
-                    <button onclick="copyLocalPath('${f.path}')" class="w-full py-1.5 px-2 bg-white hover:bg-teal-50 text-teal-700 border border-slate-200 rounded-lg text-[11px] font-bold transition flex items-center justify-center space-x-1 shadow-2xs">
-                      <i data-lucide="copy" class="w-3 h-3"></i>
-                      <span>Copy Đường Dẫn Mở Finder</span>
-                    </button>
-                  </div>
-                `).join('') : `
-                  <div class="col-span-3 p-4 border border-dashed border-slate-300 rounded-xl text-center text-xs text-slate-400">
-                    Chưa gán đường dẫn thư mục nào. Bấm "+ Thêm đường dẫn folder" để lưu vị trí lưu file dự án trên máy.
-                  </div>
-                `}
-              </div>
-            </div>
-
-            <!-- PHẦN 2: DANH BẠ NHÂN SỰ PHỤ TRÁCH 3 BÊN -->
-            <div>
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center space-x-2">
-                  <i data-lucide="users" class="w-4 h-4 text-teal-600"></i>
-                  <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Danh Bạ Nhân Sự Phụ Trách 3 Bên</h4>
-                </div>
-                <button onclick="openNewStakeholderModal('${merchant.id}')" class="text-xs text-teal-600 font-bold hover:underline flex items-center">
-                  <i data-lucide="user-plus" class="w-3.5 h-3.5 mr-0.5"></i> Thêm nhân sự
-                </button>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                ${merchantStakeholders.map(s => `
-                  <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex items-start justify-between">
-                    <div>
-                      <span class="text-[10px] font-extrabold px-2 py-0.5 rounded inline-block mb-1 ${
+            <div class="space-y-2">
+              ${merchantStakeholders.length > 0 ? merchantStakeholders.map(s => `
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2">
+                  <div class="min-w-0">
+                    <div class="flex items-center space-x-1.5">
+                      <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded ${
                         s.group.includes('Chuỗi') ? 'bg-purple-100 text-purple-700' :
                         s.group.includes('Ngân Hàng') ? 'bg-blue-100 text-blue-700' : 'bg-teal-100 text-teal-800'
                       }">${s.group}</span>
-                      <div class="text-xs font-bold text-slate-800">${s.name}</div>
-                      <div class="text-[11px] text-slate-500">${s.role}</div>
-                      <div class="text-[11px] text-slate-700 font-semibold mt-1">${s.phone}</div>
+                      <span class="text-xs font-bold text-slate-800 truncate">${s.name}</span>
                     </div>
-                    <div class="flex items-center space-x-1">
-                      <button onclick="openEditStakeholderModal('${s.id}')" class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-teal-600 transition" title="Chỉnh sửa">
+                    <div class="text-[11px] text-slate-500 truncate mt-0.5">${s.role}</div>
+                    <div class="text-[11px] text-slate-700 font-semibold">${s.phone || 'Chưa có SĐT'}</div>
+                  </div>
+                  <div class="flex items-center space-x-1 shrink-0">
+                    <button onclick="openEditStakeholderModal('${s.id}')" class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-teal-600 transition" title="Sửa">
+                      <i data-lucide="edit-3" class="w-3 h-3"></i>
+                    </button>
+                    ${s.phone ? `<a href="tel:${s.phone}" class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-teal-600 transition" title="Gọi"><i data-lucide="phone" class="w-3 h-3"></i></a>` : ''}
+                  </div>
+                </div>
+              `).join('') : `
+                <div class="p-3 border border-dashed border-slate-300 rounded-xl text-center text-[11px] text-slate-400">
+                  Chưa có nhân sự. Bấm "+ Thêm" để lưu danh bạ 3 bên.
+                </div>
+              `}
+            </div>
+          </div>
+
+          <!-- KHỐI TRA CỨU 2: THƯ MỤC TÀI LIỆU MÁY TÍNH -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="folder-git-2" class="w-4 h-4 text-teal-600"></i>
+                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">Thư Mục Trên Máy (${merchantFolders.length})</h4>
+              </div>
+              <button onclick="openNewFolderModal('${merchant.id}')" class="text-[11px] text-teal-600 font-bold hover:underline flex items-center">
+                <i data-lucide="plus" class="w-3 h-3 mr-0.5"></i> Thêm
+              </button>
+            </div>
+
+            <div class="space-y-2">
+              ${merchantFolders.length > 0 ? merchantFolders.map(f => `
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-bold text-slate-800 truncate flex items-center">
+                      <i data-lucide="folder" class="w-3.5 h-3.5 text-teal-600 mr-1.5 shrink-0"></i>
+                      <span class="truncate">${f.title}</span>
+                    </span>
+                    <div class="flex items-center space-x-1 shrink-0">
+                      <button onclick="copyLocalPath('${f.path}')" class="px-2 py-0.5 bg-white hover:bg-teal-50 text-teal-700 border border-slate-200 rounded text-[10px] font-bold transition" title="Copy đường dẫn">
+                        Copy
+                      </button>
+                      <button onclick="openEditFolderModal('${f.id}')" class="p-1 text-slate-400 hover:text-teal-600" title="Sửa">
                         <i data-lucide="edit-3" class="w-3 h-3"></i>
                       </button>
-                      <a href="tel:${s.phone}" title="Gọi điện" class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-teal-600 transition">
-                        <i data-lucide="phone" class="w-3 h-3"></i>
-                      </a>
-                      <a href="mailto:${s.email}" title="Gửi mail" class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-teal-600 transition">
-                        <i data-lucide="mail" class="w-3 h-3"></i>
-                      </a>
+                      <button onclick="deleteFolder('${f.id}')" class="p-1 text-slate-400 hover:text-rose-600" title="Xóa">
+                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                      </button>
                     </div>
                   </div>
-                `).join('')}
-              </div>
-            </div>
-
-            <!-- PHẦN 3: TỔNG HỢP CÁC DỰ ÁN & ĐẦU VIỆC CỦA CHUỖI NÀY -->
-            <div>
-              <div class="flex items-center justify-between mb-3">
-                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Các Dự Án Phối Hợp Kỹ Thuật Đang Chạy (${merchantProjects.length})</h4>
-                <span class="text-[11px] text-slate-400">Click vào dự án để xem trang chi tiết & quản lý task</span>
-              </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                ${merchantProjects.map(p => `
-                  <div onclick="selectSubTab('${p.id}')" class="p-4 rounded-2xl border ${p.is_blocked ? 'border-rose-300 ring-2 ring-rose-500/10' : 'border-slate-200'} bg-white hover:border-teal-500 cursor-pointer transition shadow-xs space-y-3">
-                    <div class="flex items-center justify-between">
-                      <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${p.stage.includes('UAT') ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">
-                        CỘT MỐC: ${p.stage}
-                      </span>
-                      <span class="text-xs font-bold text-teal-700">${p.progress}%</span>
-                    </div>
-
-                    <h4 class="font-bold text-sm text-slate-900">${p.title}</h4>
-                    <p class="text-xs text-slate-500">Đang làm: <strong class="text-slate-700">${p.milestone_name}</strong> • Hạn: <strong>${p.due_date}</strong></p>
-
-                    <div class="w-full bg-slate-100 rounded-full h-1.5">
-                      <div class="bg-teal-600 h-1.5 rounded-full" style="width: ${p.progress}%"></div>
-                    </div>
-
-                    ${p.is_blocked ? `
-                      <div class="p-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-[11px] flex items-center justify-between">
-                        <span class="font-bold">Blocker: ${p.blocker_reason}</span>
-                        <span class="underline font-bold">Mở xem →</span>
-                      </div>
-                    ` : `
-                      <div class="text-[11px] text-teal-600 font-semibold flex items-center justify-between">
-                        <span>Đang đúng tiến độ</span>
-                        <span>Mở trang chi tiết dự án →</span>
-                      </div>
-                    `}
+                  <div class="font-mono text-[10px] text-slate-500 truncate select-all bg-white px-2 py-1 rounded border border-slate-200/70" title="${f.path}">
+                    ${f.path}
                   </div>
-                `).join('')}
-              </div>
+                </div>
+              `).join('') : `
+                <div class="p-3 border border-dashed border-slate-300 rounded-xl text-center text-[11px] text-slate-400">
+                  Chưa gán đường dẫn folder. Bấm "+ Thêm" để lưu.
+                </div>
+              `}
             </div>
+          </div>
+        </div>
+      `;
 
-            <!-- PHẦN 4: TOÀN BỘ ĐẦU VIỆC CỦA CHUỖI NÀY -->
-            <div>
-              <div class="flex items-center justify-between mb-3">
-                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Toàn Bộ Đầu Việc Của Chuỗi (${merchantTasks.length})</h4>
-                <button onclick="openNewTaskModalForMerchant('${merchant.id}')" class="text-xs text-teal-600 font-bold hover:underline flex items-center">
-                  <i data-lucide="plus" class="w-3.5 h-3.5 mr-0.5"></i> Thêm đầu việc
+      // CỘT TRÁI (8/12 = 67%): HÀNH ĐỘNG & TIẾN ĐỘ
+      let leftColumnHtml = "";
+
+      if (activeSubTab === 'OVERVIEW') {
+        const activeProjects = merchantProjects.filter(p => !p.is_archived && p.progress < 100);
+        const completedProjects = merchantProjects.filter(p => p.is_archived || p.progress >= 100);
+
+        const allMerchantTasks = state.tasks.filter(t => {
+          const p = state.projects.find(proj => proj.id === t.project_id);
+          return p && p.merchant_id === merchant.id;
+        });
+        const activeTasks = allMerchantTasks.filter(t => t.stage !== 'STAGE_DONE');
+        const completedTasks = allMerchantTasks.filter(t => t.stage === 'STAGE_DONE');
+
+        leftColumnHtml = `
+          <div class="lg:col-span-8 space-y-4">
+            <!-- HEADER CHUỖI + SUB-TABS TÍCH HỢP -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center space-x-3.5">
+                  <div class="w-12 h-12 rounded-2xl ${merchant.color} text-white font-black text-xl flex items-center justify-center shadow-sm shrink-0">
+                    ${merchant.avatar_letter}
+                  </div>
+                  <div>
+                    <div class="flex items-center space-x-2">
+                      <h2 class="text-lg font-black text-slate-900 tracking-tight">${merchant.name}</h2>
+                      <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-teal-50 text-teal-800 border border-teal-200">${merchant.alias}</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">${merchant.industry} • <strong class="text-teal-700">${merchant.expected_gmv}</strong></p>
+                  </div>
+                </div>
+                <button onclick="openNewTaskModalForMerchant('${merchant.id}')" class="px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-xs shrink-0">
+                  <i data-lucide="plus" class="w-4 h-4"></i>
+                  <span>Tạo Đầu Việc</span>
                 </button>
               </div>
 
+              <!-- Sub-Tabs nội bộ Chuỗi -->
+              <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center gap-1.5">
+                ${subTabsHtml}
+              </div>
+            </div>
+
+            <!-- KHỐI 1: DỰ ÁN ĐANG TRIỂN KHAI -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center space-x-2">
+                  <i data-lucide="rocket" class="w-4 h-4 text-teal-600"></i>
+                  <span>Dự Án Đang Triển Khai (${activeProjects.length})</span>
+                </h4>
+                <span class="text-[11px] text-slate-400">Click vào dự án để mở trang quản lý riêng</span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                ${activeProjects.length > 0 ? activeProjects.map(p => `
+                  <div onclick="selectSubTab('${p.id}')" class="p-4 rounded-xl border ${p.is_blocked ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-slate-50/50'} hover:border-teal-500 cursor-pointer transition space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${p.stage.includes('UAT') ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">
+                        ${p.stage}
+                      </span>
+                      <div class="flex items-center space-x-2">
+                        <span class="text-xs font-black text-teal-700">${p.progress}%</span>
+                        <button onclick="archiveProjectToggle('${p.id}', event)" class="text-[10px] px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-500 hover:text-emerald-700 hover:border-emerald-300 font-bold transition" title="Đánh dấu dự án đã Go-Live hoàn tất">
+                          ✓ Xong
+                        </button>
+                      </div>
+                    </div>
+                    <h4 class="font-bold text-xs text-slate-900 leading-snug">${p.title}</h4>
+                    <div class="w-full bg-slate-200 rounded-full h-1.5">
+                      <div class="bg-teal-600 h-1.5 rounded-full" style="width: ${p.progress}%"></div>
+                    </div>
+                    <div class="text-[11px] text-slate-500 flex items-center justify-between">
+                      <span class="truncate mr-2">${p.milestone_name}</span>
+                      <span class="shrink-0 font-semibold">${p.due_date}</span>
+                    </div>
+                    ${p.is_blocked ? `<div class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-1 rounded border border-rose-200 truncate">⚠ ${p.blocker_reason}</div>` : ''}
+                  </div>
+                `).join('') : `
+                  <div class="col-span-2 p-4 border border-dashed border-slate-200 rounded-xl text-center text-xs text-slate-400">
+                    Tất cả dự án của chuỗi này đã Go-Live hoàn tất! (Xem bên dưới)
+                  </div>
+                `}
+              </div>
+
+              <!-- NGĂN THU GỌN DỰ ÁN ĐÃ HOÀN THÀNH / GO-LIVE -->
+              ${completedProjects.length > 0 ? `
+                <div class="pt-2 border-t border-slate-100">
+                  <button onclick="toggleCompletedProjectsAccordion()" class="text-xs font-bold text-slate-500 hover:text-emerald-700 flex items-center space-x-1.5 transition">
+                    <i data-lucide="${showCompletedProjects ? 'chevron-down' : 'chevron-right'}" class="w-3.5 h-3.5"></i>
+                    <span>✓ Dự án đã Go-Live / Hoàn thành (${completedProjects.length})</span>
+                  </button>
+                  ${showCompletedProjects ? `
+                    <div class="mt-2.5 grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                      ${completedProjects.map(p => `
+                        <div onclick="selectSubTab('${p.id}')" class="p-3 rounded-xl border border-emerald-200 bg-emerald-50/40 hover:border-emerald-400 cursor-pointer flex items-center justify-between gap-2">
+                          <div class="min-w-0">
+                            <div class="text-xs font-bold text-emerald-900 truncate">${p.title}</div>
+                            <div class="text-[10px] text-emerald-700">100% Go-Live • ${p.due_date}</div>
+                          </div>
+                          <button onclick="archiveProjectToggle('${p.id}', event)" class="shrink-0 text-[10px] px-2 py-1 bg-white border border-emerald-200 text-slate-600 hover:text-amber-700 rounded-lg font-bold">
+                            Mở lại
+                          </button>
+                        </div>
+                      `).join('')}
+                    </div>
+                  ` : ''}
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- KHỐI 2: ĐẦU VIỆC CẦN XỬ LÝ (TÁCH RÕ ACTIVE VS COMPLETED) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center space-x-2">
+                  <i data-lucide="check-square" class="w-4 h-4 text-teal-600"></i>
+                  <span>Đầu Việc Cần Xử Lý (${activeTasks.length})</span>
+                </h4>
+                <button onclick="openNewTaskModalForMerchant('${merchant.id}')" class="text-xs text-teal-600 font-bold hover:underline">+ Thêm việc</button>
+              </div>
+
               <div class="space-y-2">
-                ${merchantTasks.map(t => {
+                ${activeTasks.length > 0 ? activeTasks.map(t => {
                   const proj = state.projects.find(p => p.id === t.project_id);
                   return `
-                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                      <div class="flex items-center space-x-3 overflow-hidden">
-                        <input type="checkbox" onchange="toggleTaskDone('${t.id}')" ${t.stage === 'STAGE_DONE' ? 'checked' : ''} class="w-4 h-4 text-teal-600 rounded cursor-pointer">
-                        <div class="truncate">
-                          <div class="text-xs font-bold text-slate-800 ${t.stage === 'STAGE_DONE' ? 'line-through text-slate-400' : ''}">
-                            ${t.title}
-                          </div>
-                          <div class="text-[10px] text-slate-400 mt-0.5">
-                            ${proj ? proj.title : 'Chung'} • PIC: <strong>${t.pic}</strong> • Hạn: <strong class="${t.is_overdue ? 'text-rose-600' : 'text-slate-600'}">${t.due_date}</strong>
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 hover:border-teal-300 transition">
+                      <div class="flex items-center space-x-3 min-w-0">
+                        <input type="checkbox" onchange="toggleTaskDone('${t.id}')" class="w-4 h-4 accent-teal-600 rounded cursor-pointer shrink-0">
+                        <div class="min-w-0">
+                          <div class="text-xs font-bold text-slate-800 truncate">${t.title}</div>
+                          <div class="text-[10px] text-slate-400 mt-0.5 truncate">
+                            ${proj ? proj.title : 'Chung'} • PIC: <strong class="text-slate-600">${t.pic}</strong> • Hạn: <strong class="${t.is_overdue ? 'text-rose-600' : 'text-slate-600'}">${t.due_date}</strong>
                           </div>
                         </div>
                       </div>
-
-                      <div class="flex items-center space-x-2 shrink-0">
-                        <button onclick="openEditTaskModal('${t.id}')" class="p-1 text-slate-400 hover:text-teal-600" title="Chỉnh sửa task">
-                          <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                        </button>
-                        <button onclick="deleteTask('${t.id}')" class="p-1 text-slate-400 hover:text-rose-600" title="Xóa task">
-                          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                        </button>
+                      <div class="flex items-center space-x-1.5 shrink-0">
                         <span class="px-2 py-0.5 rounded text-[9px] font-extrabold ${
                           t.priority === 'KHẨN CẤP' ? 'bg-rose-100 text-rose-700' :
                           t.priority === 'CAO' ? 'bg-amber-100 text-amber-700' : 'bg-slate-200 text-slate-700'
                         }">${t.priority}</span>
+                        <button onclick="openEditTaskModal('${t.id}')" class="p-1 text-slate-400 hover:text-teal-600" title="Sửa"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="deleteTask('${t.id}')" class="p-1 text-slate-400 hover:text-rose-600" title="Xóa"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                       </div>
                     </div>
                   `;
-                }).join('')}
+                }).join('') : `
+                  <div class="p-4 border border-dashed border-slate-200 rounded-xl text-center text-xs text-slate-400">
+                    Không có đầu việc nào đang chờ xử lý!
+                  </div>
+                `}
               </div>
-            </div>
 
+              <!-- NGĂN THU GỌN ĐẦU VIỆC ĐÃ HOÀN THÀNH -->
+              ${completedTasks.length > 0 ? `
+                <div class="pt-2 border-t border-slate-100">
+                  <button onclick="toggleCompletedTasksAccordion()" class="text-xs font-bold text-slate-500 hover:text-emerald-700 flex items-center space-x-1.5 transition">
+                    <i data-lucide="${showCompletedTasks ? 'chevron-down' : 'chevron-right'}" class="w-3.5 h-3.5"></i>
+                    <span>✓ Đã hoàn thành (${completedTasks.length})</span>
+                  </button>
+                  ${showCompletedTasks ? `
+                    <div class="mt-2 space-y-1.5">
+                      ${completedTasks.map(t => `
+                        <div class="px-3 py-2 rounded-xl bg-emerald-50/40 border border-emerald-200/70 flex items-center justify-between gap-2">
+                          <div class="flex items-center space-x-2.5 min-w-0">
+                            <input type="checkbox" checked onchange="toggleTaskDone('${t.id}')" class="w-3.5 h-3.5 accent-emerald-600 rounded cursor-pointer shrink-0">
+                            <span class="text-xs font-semibold text-slate-400 line-through truncate">${t.title}</span>
+                          </div>
+                          <button onclick="deleteTask('${t.id}')" class="p-1 text-slate-400 hover:text-rose-600 shrink-0" title="Xóa"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                        </div>
+                      `).join('')}
+                    </div>
+                  ` : ''}
+                </div>
+              ` : ''}
+            </div>
           </div>
         `;
-      } 
-      // NẾU LÀ TRANG RIÊNG BIỆT CỦA MỘT DỰ ÁN CỤ THỂ
-      else {
+      } else {
+        // TRANG RIÊNG CỦA 1 DỰ ÁN CỤ THỂ
         const project = state.projects.find(p => p.id === activeSubTab);
         if (!project) return;
 
         const projectTasks = state.tasks.filter(t => t.project_id === project.id);
-        const merchantStakeholders = state.stakeholders.filter(s => s.merchant_id === merchant.id);
+        const activeProjTasks = projectTasks.filter(t => t.stage !== 'STAGE_DONE');
+        const completedProjTasks = projectTasks.filter(t => t.stage === 'STAGE_DONE');
+        const isDoneProj = project.is_archived || project.progress >= 100;
 
-        container.innerHTML = `
-          <!-- BREADCRUMB & HEADER DỰ ÁN -->
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div class="flex items-center space-x-2 text-xs">
-                <button onclick="selectSubTab('OVERVIEW')" class="text-slate-500 hover:text-teal-600 font-bold flex items-center">
-                  <i data-lucide="chevron-left" class="w-4 h-4 mr-0.5"></i> ${merchant.name} (Tổng Quan)
-                </button>
-                <span class="text-slate-300">/</span>
-                <span class="text-teal-700 font-bold">Trang Riêng Dự Án: ${project.title}</span>
-              </div>
-
-              <div class="flex items-center space-x-2">
-                <button onclick="openEditProjectModal('${project.id}')" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition flex items-center space-x-1">
-                  <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                  <span>Chỉnh Sửa Dự Án Này</span>
-                </button>
-                <button onclick="openNewTaskModalForProject('${project.id}')" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1 shadow-sm">
-                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-                  <span>+ Tạo Task Cho Dự Án Này</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- THÔNG TIN DỰ ÁN, CỘT MỐC & TIẾN ĐỘ -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
+        leftColumnHtml = `
+          <div class="lg:col-span-8 space-y-4">
+            <!-- HEADER & SUB-TABS -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  ${subTabsHtml}
+                </div>
                 <div class="flex items-center space-x-2">
-                  <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${project.stage.includes('UAT') ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'}">
-                    CỘT MỐC: ${project.stage}
+                  <button onclick="archiveProjectToggle('${project.id}', event)" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                    isDoneProj ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-emerald-50 hover:text-emerald-700'
+                  }">
+                    ${isDoneProj ? '✓ Đã Go-Live (Mở lại)' : '✓ Đánh Dấu Hoàn Tất'}
+                  </button>
+                  <button onclick="openEditProjectModal('${project.id}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+                    Sửa Dự Án
+                  </button>
+                </div>
+              </div>
+
+              <!-- CHI TIẾT DỰ ÁN -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${isDoneProj ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}">
+                    ${project.stage}
                   </span>
-                  <h3 class="text-lg font-black text-slate-900">${project.title}</h3>
+                  <h3 class="text-base font-black text-slate-900 mt-1">${project.title}</h3>
+                  <p class="text-xs text-slate-500 mt-0.5">Mốc hiện tại: <strong class="text-slate-700">${project.milestone_name}</strong> • Hạn: <strong>${project.due_date}</strong></p>
                 </div>
-                <p class="text-xs text-slate-500 mt-1">Đang triển khai: <strong class="text-slate-800">${project.milestone_name}</strong> • Hạn chót cam kết: <strong>${project.due_date}</strong></p>
+                <div class="flex items-center space-x-3 shrink-0">
+                  <div class="text-right">
+                    <div class="text-xs font-black text-teal-700">${project.progress}%</div>
+                    <div class="w-24 bg-slate-100 rounded-full h-2 mt-1"><div class="bg-teal-600 h-2 rounded-full" style="width: ${project.progress}%"></div></div>
+                  </div>
+                  <button onclick="toggleBlocker('${project.id}')" class="px-2.5 py-1.5 rounded-xl text-xs font-bold border transition ${
+                    project.is_blocked ? 'bg-rose-100 text-rose-700 border-rose-300' : 'bg-slate-100 text-slate-600 border-slate-200'
+                  }">
+                    ${project.is_blocked ? 'Bật Blocker' : 'Gắn Blocker'}
+                  </button>
+                </div>
               </div>
 
-              <div class="flex items-center space-x-4">
-                <div class="text-right">
-                  <div class="text-xs font-bold text-slate-800">${project.progress}% Hoàn Thành</div>
-                  <div class="w-32 bg-slate-100 rounded-full h-2 mt-1">
-                    <div class="bg-teal-600 h-2 rounded-full" style="width: ${project.progress}%"></div>
-                  </div>
+              ${project.is_blocked ? `
+                <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div class="text-xs text-rose-800 font-semibold">⚠ Blocker: ${project.blocker_reason} (${project.blocker_owner})</div>
+                  <button onclick="handlePingPIC('${merchant.name}', '${project.title}', '${project.blocker_reason}')" class="shrink-0 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition">
+                    Ping PIC (Zalo)
+                  </button>
                 </div>
-                <button onclick="toggleBlocker('${project.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
-                  project.is_blocked ? 'bg-rose-100 text-rose-700 border-rose-300' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
-                }">
-                  ${project.is_blocked ? 'Bật Cờ Blocker' : 'Gắn Blocker'}
-                </button>
-              </div>
+              ` : ''}
             </div>
 
-            <!-- STEPPER 5 CỘT MỐC DELIVERY -->
-            <div class="pt-2 pb-1 border-t border-slate-100">
-              <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Tiến Trình 5 Cột Mốc Cam Kết:</div>
-              <div class="grid grid-cols-5 gap-2 text-center text-[10px]">
-                <div class="p-2 rounded-lg ${project.gate_step >= 1 ? 'bg-teal-50 text-teal-800 font-bold border border-teal-200' : 'bg-slate-50 text-slate-400'}">
-                  1. Khảo sát & Ký HĐ
-                </div>
-                <div class="p-2 rounded-lg ${project.gate_step >= 2 ? 'bg-teal-50 text-teal-800 font-bold border border-teal-200' : 'bg-slate-50 text-slate-400'}">
-                  2. Cấp Sandbox & Tích Hợp
-                </div>
-                <div class="p-2 rounded-lg ${project.gate_step >= 3 ? 'bg-teal-50 text-teal-800 font-bold border border-teal-200' : 'bg-slate-50 text-slate-400'}">
-                  3. UAT & Nghiệm Thu
-                </div>
-                <div class="p-2 rounded-lg ${project.gate_step >= 4 ? 'bg-teal-50 text-teal-800 font-bold border border-teal-200' : 'bg-slate-50 text-slate-400'}">
-                  4. Pilot & Đào Tạo
-                </div>
-                <div class="p-2 rounded-lg ${project.gate_step >= 5 ? 'bg-emerald-50 text-emerald-800 font-bold border border-emerald-200' : 'bg-slate-50 text-slate-400'}">
-                  5. Go-Live Chuỗi
-                </div>
-              </div>
-            </div>
-
-            <!-- BLOCKER SLA NẾU CÓ -->
-            ${project.is_blocked ? `
-              <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="flex items-start space-x-2.5">
-                  <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-600 shrink-0 mt-0.5"></i>
-                  <div>
-                    <div class="text-xs font-bold text-rose-800">BLOCKER CAM KẾT: ${project.blocker_reason}</div>
-                    <div class="text-[11px] text-rose-600 mt-0.5">PIC đối tác cần đôn đốc: <strong>${project.blocker_owner}</strong></div>
-                  </div>
-                </div>
-
-                <button onclick="handlePingPIC('${merchant.name}', '${project.title}', '${project.blocker_reason}')" class="shrink-0 px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-sm">
-                  <i data-lucide="send" class="w-3.5 h-3.5"></i>
-                  <span>Bắn Nhắc Hẹn (Ping PIC)</span>
-                </button>
-              </div>
-            ` : ''}
-
-            <!-- DANH SÁCH TASKS CHI TIẾT CỦA RIÊNG DỰ ÁN NÀY (CÓ THỂ SỬA TRỰC TIẾP) -->
-            <div>
-              <div class="flex items-center justify-between mb-3">
-                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Danh Sách Đầu Việc (Tasks) Riêng Của Dự Án Này (${projectTasks.length})</h4>
-                <button onclick="openNewTaskModalForProject('${project.id}')" class="text-xs text-teal-600 font-bold hover:underline flex items-center">
-                  <i data-lucide="plus" class="w-3.5 h-3.5 mr-0.5"></i> Thêm Task Mới
+            <!-- TASKS RIÊNG CỦA DỰ ÁN -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">Đầu Việc Cần Làm (${activeProjTasks.length})</h4>
+                <button onclick="openNewTaskModalForProject('${project.id}')" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition">
+                  + Thêm Task
                 </button>
               </div>
 
-              <div class="overflow-x-auto rounded-xl border border-slate-200">
-                <table class="w-full text-left text-xs">
-                  <thead class="bg-slate-100/80 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
-                    <tr>
-                      <th class="py-3 px-4">Tên Đầu Việc</th>
-                      <th class="py-3 px-4">Phân Loại</th>
-                      <th class="py-3 px-4">PIC Phụ Trách</th>
-                      <th class="py-3 px-4">Độ Ưu Tiên</th>
-                      <th class="py-3 px-4">Hạn Chót</th>
-                      <th class="py-3 px-4">Trạng Thái</th>
-                      <th class="py-3 px-4 text-right">Thao Tác</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-slate-200 bg-white">
-                    ${projectTasks.length > 0 ? projectTasks.map(t => `
-                      <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3 px-4">
-                          <div class="font-bold text-slate-800 ${t.stage === 'STAGE_DONE' ? 'line-through text-slate-400' : ''}">${t.title}</div>
-                        </td>
-                        <td class="py-3 px-4">
-                          <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${t.type === 'COMMERCIAL' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}">
-                            ${t.type === 'COMMERCIAL' ? '📋 Thương Mại' : '⚙️ Kỹ Thuật'}
-                          </span>
-                        </td>
-                        <td class="py-3 px-4 font-semibold text-slate-700">${t.pic}</td>
-                        <td class="py-3 px-4">
-                          <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${
-                            t.priority === 'KHẨN CẤP' ? 'bg-rose-100 text-rose-700' :
-                            t.priority === 'CAO' ? 'bg-amber-100 text-amber-700' : 'bg-slate-200 text-slate-700'
-                          }">${t.priority}</span>
-                        </td>
-                        <td class="py-3 px-4 font-medium ${t.is_overdue ? 'text-rose-600 font-bold' : 'text-slate-600'}">${t.due_date}</td>
-                        <td class="py-3 px-4">
-                          <select onchange="updateTaskStage('${t.id}', this.value)" class="text-[11px] font-semibold bg-slate-50 border border-slate-300 rounded px-2 py-1 outline-none">
-                            <option value="STAGE_TODO" ${t.stage === 'STAGE_TODO' ? 'selected' : ''}>Cần làm</option>
-                            <option value="STAGE_DOING" ${t.stage === 'STAGE_DOING' ? 'selected' : ''}>Đang làm</option>
-                            <option value="STAGE_DONE" ${t.stage === 'STAGE_DONE' ? 'selected' : ''}>Hoàn tất</option>
-                          </select>
-                        </td>
-                        <td class="py-3 px-4 text-right space-x-1">
-                          <button onclick="openEditTaskModal('${t.id}')" class="p-1 text-slate-400 hover:text-teal-600 transition" title="Sửa task">
-                            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
-                          </button>
-                          <button onclick="deleteTask('${t.id}')" class="p-1 text-slate-400 hover:text-rose-600 transition" title="Xóa task">
-                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                          </button>
-                        </td>
-                      </tr>
-                    `).join('') : `
-                      <tr>
-                        <td colspan="7" class="py-6 text-center text-slate-400">Chưa có task nào trong dự án này. Bấm "+ Tạo Task Cho Dự Án Này" ở trên để thêm.</td>
-                      </tr>
-                    `}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- NHÂN SỰ PHỐI HỢP CỦA CHUỖI NÀY -->
-            <div class="pt-4 border-t border-slate-100">
-              <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nhân Sự Phối Hợp Chính Cho Dự Án</h4>
-              <div class="flex flex-wrap gap-2 text-xs">
-                ${merchantStakeholders.map(s => `
-                  <div class="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center space-x-2">
-                    <span class="w-2 h-2 rounded-full bg-teal-500"></span>
-                    <span class="font-bold text-slate-800">${s.name}</span>
-                    <span class="text-slate-400 text-[10px]">(${s.role})</span>
-                    <a href="tel:${s.phone}" class="text-teal-600 hover:underline text-[10px] ml-1 font-semibold">${s.phone}</a>
+              <div class="space-y-2">
+                ${activeProjTasks.length > 0 ? activeProjTasks.map(t => `
+                  <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3">
+                    <div class="flex items-center space-x-3 min-w-0">
+                      <input type="checkbox" onchange="toggleTaskDone('${t.id}')" class="w-4 h-4 accent-teal-600 rounded cursor-pointer shrink-0">
+                      <div class="min-w-0">
+                        <div class="text-xs font-bold text-slate-800 truncate">${t.title}</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">PIC: <strong class="text-slate-600">${t.pic}</strong> • Hạn: <strong class="${t.is_overdue ? 'text-rose-600' : 'text-slate-600'}">${t.due_date}</strong></div>
+                      </div>
+                    </div>
+                    <div class="flex items-center space-x-1.5 shrink-0">
+                      <span class="px-2 py-0.5 rounded text-[9px] font-extrabold ${t.priority === 'KHẨN CẤP' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}">${t.priority}</span>
+                      <button onclick="openEditTaskModal('${t.id}')" class="p-1 text-slate-400 hover:text-teal-600"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                      <button onclick="deleteTask('${t.id}')" class="p-1 text-slate-400 hover:text-rose-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    </div>
                   </div>
-                `).join('')}
+                `).join('') : `
+                  <div class="p-4 border border-dashed border-slate-200 rounded-xl text-center text-xs text-slate-400">
+                    Chưa có task nào đang chờ xử lý trong dự án này.
+                  </div>
+                `}
               </div>
-            </div>
 
+              ${completedProjTasks.length > 0 ? `
+                <div class="pt-2 border-t border-slate-100">
+                  <button onclick="toggleCompletedTasksAccordion()" class="text-xs font-bold text-slate-500 hover:text-emerald-700 flex items-center space-x-1.5">
+                    <i data-lucide="${showCompletedTasks ? 'chevron-down' : 'chevron-right'}" class="w-3.5 h-3.5"></i>
+                    <span>✓ Đã hoàn thành (${completedProjTasks.length})</span>
+                  </button>
+                  ${showCompletedTasks ? `
+                    <div class="mt-2 space-y-1.5">
+                      ${completedProjTasks.map(t => `
+                        <div class="px-3 py-2 rounded-xl bg-emerald-50/40 border border-emerald-200/70 flex items-center justify-between gap-2">
+                          <div class="flex items-center space-x-2.5 min-w-0">
+                            <input type="checkbox" checked onchange="toggleTaskDone('${t.id}')" class="w-3.5 h-3.5 accent-emerald-600 rounded cursor-pointer shrink-0">
+                            <span class="text-xs font-semibold text-slate-400 line-through truncate">${t.title}</span>
+                          </div>
+                          <button onclick="deleteTask('${t.id}')" class="p-1 text-slate-400 hover:text-rose-600 shrink-0"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                        </div>
+                      `).join('')}
+                    </div>
+                  ` : ''}
+                </div>
+              ` : ''}
+            </div>
           </div>
         `;
       }
 
+      container.innerHTML = leftColumnHtml + rightColumnHtml;
       lucide.createIcons();
     }
 
