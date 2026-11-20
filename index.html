@@ -294,36 +294,20 @@
 
         <!-- 3. ƯU TIÊN SỐ 1 (ĐƯA LÊN ĐẦU): LỊCH HỌP HÔM NAY & VIỆC CẦN LÀM -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <!-- Ô 1: LỊCH HỌP HÔM NAY -->
+          <!-- Ô 1: LỊCH HỌP HÔM NAY (ĐỘNG 100%) -->
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
             <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
               <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
                 <i data-lucide="calendar" class="w-4 h-4 text-teal-600"></i>
                 <span>Lịch Họp & Sự Kiện Hôm Nay</span>
               </div>
-              <button onclick="navigateTo('CALENDAR')" class="text-xs text-teal-600 font-bold hover:underline">Xem lịch tháng →</button>
+              <div class="flex items-center space-x-3">
+                <button onclick="openNewMeetingModal()" class="text-xs text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg font-bold hover:bg-teal-100 transition">+ Thêm lịch</button>
+                <button onclick="navigateTo('CALENDAR')" class="text-xs text-slate-500 font-bold hover:text-teal-600">Lịch tháng →</button>
+              </div>
             </div>
-            <div class="space-y-2.5 flex-1">
-              <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-2">
-                <div>
-                  <div class="flex items-center space-x-2">
-                    <span class="px-2 py-0.5 text-[10px] font-extrabold rounded bg-teal-100 text-teal-800">14:30 - 15:30</span>
-                    <span class="text-xs font-bold text-slate-800">Họp 3 bên: Nghiệm thu lỗi thẻ Ứng dụng</span>
-                  </div>
-                  <div class="text-[11px] text-slate-500 mt-1">Highlands Coffee • Bryan, Anh Tuấn (IT), Chị Mai (Ngân hàng)</div>
-                </div>
-                <button onclick="showToast('Đang mở phòng họp trực tuyến...')" class="p-1.5 text-teal-700 hover:bg-teal-100 rounded-lg transition shrink-0" title="Vào phòng họp"><i data-lucide="video" class="w-4 h-4"></i></button>
-              </div>
-              <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-2">
-                <div>
-                  <div class="flex items-center space-x-2">
-                    <span class="px-2 py-0.5 text-[10px] font-extrabold rounded bg-amber-100 text-amber-800">16:00 - 17:00</span>
-                    <span class="text-xs font-bold text-slate-800">Chốt điều khoản hợp đồng & Biểu phí máy quẹt thẻ</span>
-                  </div>
-                  <div class="text-[11px] text-slate-500 mt-1">JDV Chuỗi Bán Lẻ • Bryan, Anh Khoa, Pvcombank</div>
-                </div>
-                <button onclick="showToast('Đang mở phòng họp trực tuyến...')" class="p-1.5 text-teal-700 hover:bg-teal-100 rounded-lg transition shrink-0" title="Vào phòng họp"><i data-lucide="video" class="w-4 h-4"></i></button>
-              </div>
+            <div class="space-y-2.5 flex-1" id="dash-meetings-list">
+              <!-- Rendered dynamically -->
             </div>
           </div>
 
@@ -390,16 +374,18 @@
           </div>
         </div>
 
-        <!-- 6. THỐNG KÊ NHỊP ĐỘ CÔNG VIỆC 7 NGÀY QUA -->
+        <!-- 6. TẦM NHÌN TUẦN / THÁNG: CỘT MỐC & HẠN CHÓT SẮP TỚI -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <div class="flex items-center justify-between mb-3">
-            <div>
-              <h3 class="text-sm font-bold text-slate-800">Nhịp Độ Hoàn Thành Công Việc 7 Ngày Qua</h3>
-              <p class="text-[11px] text-slate-400">Theo dõi số lượng đầu việc hoàn tất so với các điểm nghẽn phát sinh trong tuần</p>
+          <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
+            <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
+              <i data-lucide="calendar-clock" class="w-4 h-4 text-teal-600"></i>
+              <span>Cột Mốc & Hạn Chót Sắp Tới (Tuần / Tháng Này)</span>
             </div>
-            <span class="text-[11px] font-semibold px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg">Tuần Này</span>
+            <span class="text-[11px] font-semibold px-2.5 py-0.5 bg-slate-100 text-slate-600 rounded-full">Tự động gom từ Dự án & Đầu việc</span>
           </div>
-          <div class="h-44"><canvas id="velocityChart"></canvas></div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" id="dash-upcoming-deadlines">
+            <!-- Rendered dynamically -->
+          </div>
         </div>
       </div>
 
@@ -1193,6 +1179,41 @@
     </div>
   </div>
 
+  <!-- Modal: Thêm Lịch Họp Mới -->
+  <div id="modal-new-meeting" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+        <h3 class="text-base font-bold text-slate-900">Thêm Lịch Họp Mới</h3>
+        <button onclick="closeNewMeetingModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form onsubmit="handleSaveMeeting(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Nội Dung Cuộc Họp *</label>
+          <input type="text" id="meet-title" required placeholder="VD: Họp chốt biểu phí MDR & Quy trình đối soát..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-teal-500">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Thời Gian *</label>
+            <input type="text" id="meet-time" required placeholder="VD: 10:00 - 11:00" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Đối Tác</label>
+            <input type="text" id="meet-partner" placeholder="VD: Highlands Coffee" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Thành Phần Tham Gia</label>
+          <input type="text" id="meet-attendees" placeholder="VD: Bryan, Anh Tuấn (IT), Chị Mai (Ngân hàng)" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none">
+        </div>
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeNewMeetingModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-sm">Lưu Lịch Họp</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast Notification -->
   <div id="toast" class="fixed top-6 right-6 bg-slate-900 text-white text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 transition-all duration-300 opacity-0 pointer-events-none z-50 max-w-sm border border-slate-700">
     <i data-lucide="check" class="w-4 h-4 text-teal-400 shrink-0" id="toast-icon"></i>
@@ -1330,6 +1351,10 @@
         { id: "t-4", type: "COMMERCIAL", project_id: "p-jdv-1", title: "Thống nhất quy trình đối soát hoàn tiền (Refund) giữa JDV và Pvcombank", pic: "Bryan", stage: "STAGE_TODO", priority: "CAO", due_date: "2026-12-02", is_overdue: false },
         { id: "t-5", type: "COMMERCIAL", project_id: "p-vt-1", title: "Ký biên bản nghiệm thu pilot đợt 1 tại 5 showroom với anh Thanh CEO", pic: "Bryan", stage: "STAGE_DONE", priority: "TRUNG BÌNH", due_date: "2026-11-18", is_overdue: false },
         { id: "t-6", type: "PERSONAL", project_id: "", title: "Cafe trưa trao đổi kế hoạch mở rộng chuỗi miền Nam với anh Khoa JDV", pic: "Bryan", stage: "STAGE_DONE", priority: "TRUNG BÌNH", due_date: "2026-11-20", is_overdue: false }
+      ],
+      meetings: [
+        { id: "mt-1", time: "14:30 - 15:30", title: "Họp 3 bên: Nghiệm thu lỗi thẻ Ứng dụng", partner: "Highlands Coffee", attendees: "Bryan, Anh Tuấn (IT), Chị Mai (Ngân hàng)" },
+        { id: "mt-2", time: "16:00 - 17:00", title: "Chốt điều khoản hợp đồng & Biểu phí máy quẹt thẻ", partner: "JDV Chuỗi Bán Lẻ", attendees: "Bryan, Anh Khoa, Pvcombank" }
       ]
     };
 
@@ -1340,6 +1365,12 @@
         const parsed = JSON.parse(savedStateRaw);
         if (parsed && Array.isArray(parsed.merchants)) {
           state = parsed;
+          if (!Array.isArray(state.meetings)) {
+            state.meetings = [
+              { id: "mt-1", time: "14:30 - 15:30", title: "Họp 3 bên: Nghiệm thu lỗi thẻ Ứng dụng", partner: "Highlands Coffee", attendees: "Bryan, Anh Tuấn (IT), Chị Mai (Ngân hàng)" },
+              { id: "mt-2", time: "16:00 - 17:00", title: "Chốt điều khoản hợp đồng & Biểu phí máy quẹt thẻ", partner: "JDV Chuỗi Bán Lẻ", attendees: "Bryan, Anh Khoa, Pvcombank" }
+            ];
+          }
         }
       } catch (e) { console.warn("Lỗi đọc state localStorage:", e); }
     }
@@ -1380,11 +1411,12 @@
 
       if (screenId === 'DASHBOARD') {
         updateAllKpis();
+        renderDashboardMeetings();
         renderDashboardBlockers();
         renderDashboardQuickTasks();
         renderDashboardOnboardingSummary();
         renderDashboardProjectsProgress();
-        renderCharts();
+        renderDashboardUpcomingDeadlines();
       } else if (screenId === 'PROJECTS') {
         renderMerchantPillsBar();
         renderMerchantSubTabs();
@@ -1532,13 +1564,143 @@
       lucide.createIcons();
     }
 
+    function renderDashboardMeetings() {
+      const container = document.getElementById("dash-meetings-list");
+      if (!container) return;
+
+      if (!state.meetings || state.meetings.length === 0) {
+        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">Hôm nay chưa có lịch họp nào. Bấm "+ Thêm lịch" hoặc gõ "Họp với ... lúc ...".</div>`;
+        return;
+      }
+
+      container.innerHTML = state.meetings.map((mt, idx) => `
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start justify-between gap-2 group">
+          <div class="min-w-0">
+            <div class="flex items-center space-x-2">
+              <span class="px-2 py-0.5 text-[10px] font-extrabold rounded ${idx % 2 === 0 ? 'bg-teal-100 text-teal-800' : 'bg-amber-100 text-amber-800'} shrink-0">${mt.time}</span>
+              <span class="text-xs font-bold text-slate-800 truncate">${mt.title}</span>
+            </div>
+            <div class="text-[11px] text-slate-500 mt-1 truncate">${mt.partner ? mt.partner + ' • ' : ''}${mt.attendees || 'Bryan'}</div>
+          </div>
+          <div class="flex items-center space-x-1 shrink-0">
+            <button onclick="showToast('Đang mở phòng họp trực tuyến...')" class="p-1.5 text-teal-700 hover:bg-teal-100 rounded-lg transition" title="Vào phòng họp"><i data-lucide="video" class="w-4 h-4"></i></button>
+            <button onclick="deleteMeeting('${mt.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg transition opacity-0 group-hover:opacity-100" title="Xóa lịch"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function openNewMeetingModal() {
+      document.getElementById("meet-title").value = "";
+      document.getElementById("meet-time").value = "10:00 - 11:00";
+      document.getElementById("meet-partner").value = "";
+      document.getElementById("meet-attendees").value = "";
+      document.getElementById("modal-new-meeting").classList.remove("hidden");
+    }
+
+    function closeNewMeetingModal() {
+      document.getElementById("modal-new-meeting").classList.add("hidden");
+    }
+
+    function handleSaveMeeting(e) {
+      e.preventDefault();
+      const title = document.getElementById("meet-title").value.trim();
+      const time = document.getElementById("meet-time").value.trim() || "Trong ngày";
+      const partner = document.getElementById("meet-partner").value.trim();
+      const attendees = document.getElementById("meet-attendees").value.trim() || "Bryan";
+
+      state.meetings.push({
+        id: "mt-" + Date.now().toString().slice(-4),
+        time: time,
+        title: title,
+        partner: partner,
+        attendees: attendees
+      });
+      saveStateStorage();
+      closeNewMeetingModal();
+      renderDashboardMeetings();
+      showToast("✓ Đã thêm lịch họp hôm nay!");
+    }
+
+    function deleteMeeting(mtId) {
+      state.meetings = state.meetings.filter(m => m.id !== mtId);
+      saveStateStorage();
+      renderDashboardMeetings();
+      showToast("✓ Đã xóa lịch họp.");
+    }
+
+    function renderDashboardUpcomingDeadlines() {
+      const container = document.getElementById("dash-upcoming-deadlines");
+      if (!container) return;
+
+      const items = [];
+      // Gom dự án đang chạy có due_date
+      state.projects.filter(p => !p.is_archived && p.progress < 100 && p.due_date).forEach(p => {
+        const m = state.merchants.find(item => item.id === p.merchant_id);
+        items.push({
+          kind: "DỰ ÁN",
+          title: p.title,
+          sub: m ? m.name : "Chuỗi",
+          due_date: p.due_date,
+          action: `selectMerchant('${p.merchant_id}'); selectSubTab('${p.id}'); navigateTo('PROJECTS');`
+        });
+      });
+
+      // Gom đầu việc chưa xong có due_date
+      state.tasks.filter(t => t.stage !== 'STAGE_DONE' && t.due_date).forEach(t => {
+        const p = state.projects.find(proj => proj.id === t.project_id);
+        const m = p ? state.merchants.find(item => item.id === p.merchant_id) : null;
+        items.push({
+          kind: "ĐẦU VIỆC",
+          title: t.title,
+          sub: m ? m.name : "Nội bộ",
+          due_date: t.due_date,
+          action: `navigateTo('TASKS');`
+        });
+      });
+
+      items.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+      const topItems = items.slice(0, 6);
+
+      if (topItems.length === 0) {
+        container.innerHTML = `<div class="col-span-3 p-4 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">Không có cột mốc hay hạn chót nào sắp tới!</div>`;
+        return;
+      }
+
+      const today = new Date("2026-11-21");
+      container.innerHTML = topItems.map(it => {
+        const diffDays = Math.ceil((new Date(it.due_date) - today) / (1000 * 60 * 60 * 24));
+        let badge = `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-50 text-teal-700">Còn ${diffDays} ngày</span>`;
+        if (diffDays < 0) {
+          badge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-rose-100 text-rose-700">Quá hạn ${Math.abs(diffDays)} ngày</span>`;
+        } else if (diffDays <= 3) {
+          badge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800">Sắp tới (${diffDays} ngày)</span>`;
+        }
+
+        return `
+          <div onclick="${it.action}" class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-teal-400 cursor-pointer transition space-y-1.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded ${it.kind === 'DỰ ÁN' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}">${it.kind}</span>
+              ${badge}
+            </div>
+            <div class="text-xs font-bold text-slate-800 truncate" title="${it.title}">${it.title}</div>
+            <div class="text-[11px] text-slate-500 flex items-center justify-between">
+              <span>${it.sub}</span>
+              <span class="font-mono font-semibold text-slate-600">${it.due_date}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     function renderDashboardProjectsProgress() {
       const container = document.getElementById("dash-projects-progress");
       if (!container) return;
 
       const activeProjs = state.projects.filter(p => !p.is_archived && p.progress < 100).slice(0, 4);
       if (activeProjs.length === 0) {
-        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">Tất cả dự án đã Go-Live hoàn tất!</div>`;
+        container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">Tất cả dự án đã vận hành chính thức!</div>`;
         return;
       }
 
@@ -1555,7 +1717,7 @@
             </div>
             <div class="text-[11px] text-slate-500 flex items-center justify-between">
               <span class="truncate mr-2">${p.milestone_name}</span>
-              <span class="shrink-0 ${p.is_blocked ? 'text-rose-600 font-bold' : 'text-slate-500'}">${p.is_blocked ? '⚠ Blocker' : p.due_date}</span>
+              <span class="shrink-0 ${p.is_blocked ? 'text-rose-600 font-bold' : 'text-slate-500'}">${p.is_blocked ? '⚠ Vướng mắc' : p.due_date}</span>
             </div>
           </div>
         `;
@@ -2932,6 +3094,26 @@ Xin cảm ơn sự đồng hành của team!`;
         }
       }
 
+      // 2B. Tạo Lịch Họp Nhanh Qua NLP (VD: "Họp với GS25 10h30 chốt biểu phí")
+      if ((lower.startsWith("họp") || lower.includes("lịch họp")) && !lower.includes("tạo task")) {
+        const timeMatch = cmd.match(/\b(\d{1,2}[:h]\d{0,2})\b/i);
+        const meetTime = timeMatch ? timeMatch[1].replace(/h/i, ":") + (timeMatch[1].endsWith("h") ? "00" : "") : "Trong ngày";
+        const meetTitle = cmd.replace(/\b(lịch họp|lúc)\b/gi, "").trim();
+
+        state.meetings.push({
+          id: "mt-" + Date.now().toString().slice(-4),
+          time: meetTime,
+          title: meetTitle,
+          partner: "",
+          attendees: "Bryan"
+        });
+        saveStateStorage();
+        renderDashboardMeetings();
+        navigateTo("DASHBOARD");
+        showToast(`✓ Đã thêm lịch họp lúc ${meetTime}: "${meetTitle}"`);
+        return;
+      }
+
       // 3. Tạo Task mới
       if (lower.includes("tạo task") || lower.includes("task") || lower.includes("họp")) {
         let matchedProj = state.projects.find(p => p.merchant_id === activeMerchantId) || state.projects[0];
@@ -3863,10 +4045,12 @@ Xin cảm ơn sự đồng hành của team!`;
       lucide.createIcons();
       updateSyncStatusUI();
       updateAllKpis();
+      renderDashboardMeetings();
       renderDashboardBlockers();
       renderDashboardQuickTasks();
       renderDashboardOnboardingSummary();
       renderDashboardProjectsProgress();
+      renderDashboardUpcomingDeadlines();
       renderMerchantPillsBar();
       renderMerchantSubTabs();
       renderMerchantWorkspaceBody();
