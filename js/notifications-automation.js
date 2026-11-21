@@ -553,14 +553,9 @@ function renderTopbarNotifPopover() {
   }).join('') + (alerts.length > 6 ? `<div class="text-center text-[11px] text-slate-400 pt-1">Và ${alerts.length - 6} nhắc hẹn khác...</div>` : '');
 }
 
-function sendAlertsDigestEmail() {
-  const savedEmail = localStorage.getItem("bryan_portal_user_email") || "bryan.nguyen@payoo.vn";
-  const email = prompt("Nhập địa chỉ Email nhận thông báo tổng hợp:", savedEmail);
-  if (email === null) return;
-  const trimmed = email.trim();
-  if (!trimmed) return;
-  localStorage.setItem("bryan_portal_user_email", trimmed);
+const BRYAN_ALERT_RECIPIENTS = "quantritc1805@gmail.com,tri.nguyen2@vietunion.com.vn";
 
+function sendAlertsDigestEmail() {
   const alerts = getActiveAlerts();
   const today = new Date().toLocaleDateString('vi-VN');
   const lines = [
@@ -578,9 +573,9 @@ function sendAlertsDigestEmail() {
   const subject = `[Bryan Portal] Nhắc lịch họp & Đầu việc cần xử lý (${today})`;
   const body = lines.join("\n");
   if (navigator.clipboard) navigator.clipboard.writeText(`${subject}\n\n${body}`).catch(() => {});
-  window.location.href = `mailto:${encodeURIComponent(trimmed)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  addNotificationLog(`Đã tạo Email nhắc việc gửi tới ${trimmed} (${alerts.length} mục)`);
-  showToast(`Đã mở ứng dụng Email & sao chép nội dung nhắc việc!`);
+  window.location.href = `mailto:${BRYAN_ALERT_RECIPIENTS}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  addNotificationLog(`Đã tạo Email nhắc việc gửi tới ${BRYAN_ALERT_RECIPIENTS} (${alerts.length} mục)`);
+  showToast(`Đã soạn Email gửi ${BRYAN_ALERT_RECIPIENTS}!`);
 }
 
 function runDesktopNotificationCheck(forceShowSummary = false) {
