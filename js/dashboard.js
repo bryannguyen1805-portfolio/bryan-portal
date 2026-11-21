@@ -21,7 +21,19 @@ function toggleSidebarCollapse() {
   applySidebarCollapseState();
 }
 
-window.addEventListener("DOMContentLoaded", applySidebarCollapseState);
+function syncWelcomeAccountGreeting() {
+  const titleEl = document.getElementById("welcome-title");
+  const nameEl = document.getElementById("sidebar-user-name");
+  if (!titleEl) return;
+  const fullName = (nameEl?.textContent || "Bryan").trim();
+  const shortName = fullName.split(/\s+/)[0] || "Bryan";
+  titleEl.textContent = `Chào ${shortName}`;
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  applySidebarCollapseState();
+  syncWelcomeAccountGreeting();
+});
 
 function navigateTo(screenId) {
   const views = ['DASHBOARD', 'PROJECTS', 'ONBOARDING', 'PIPELINE', 'TASKS', 'CALENDAR', 'NOTIFICATIONS', 'AUTOMATION'];
