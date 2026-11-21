@@ -215,7 +215,7 @@ function scheduleFullCloudSync() {
         onboarding: typeof onboardingList !== "undefined" ? onboardingList : []
       })
     }).catch(() => {});
-  }, 1200);
+  }, 400);
 }
 
 function saveStateStorage() {
