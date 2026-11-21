@@ -68,24 +68,16 @@ function handleOmnibarLivePreview(raw) {
     const mFound = state.merchants.find(m => lower.includes(m.name.toLowerCase()) || lower.includes(m.alias.replace("@","").toLowerCase()));
     if (mFound) chips.push(`<span class="px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 font-bold">🏢 ${mFound.name}</span>`);
   }
-  // 3. Tick bước Onboarding (Context-Aware)
-  else if (/\b(xong|hoàn thành|done|đã duyệt|duyệt|tới)\b/i.test(lower) || /\bb\d{1,2}\b/i.test(lower) || /\bbước\s*\d{1,2}\b/i.test(lower)) {
-    chips.push(`<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold">✓ Cập nhật tiến độ</span>`);
-    let targetOb = onboardingList.find(o => lower.includes(o.merchant_name.toLowerCase()))
-      || onboardingList.find(o => o.id === activeOnboardingId)
-      || onboardingList[0];
+  // 3. Tick bước Onboarding (Context-Aware + Attio NLP Aliases)
+  else if (/\b(xong|hoàn thành|done|đã duyệt|duyệt|tới)\b/i.test(lower) || /\bb\d{1,2}\b/i.test(lower) || /\bbước\s*\d{1,2}\b/i.test(lower) || (typeof resolveAttioCommandTarget === "function" && resolveAttioCommandTarget(val).targetStepNo !== null)) {
+    chips.push(`<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold">✓ Cập nhật tiến độ (Attio)</span>`);
+    const resolved = typeof resolveAttioCommandTarget === "function" ? resolveAttioCommandTarget(val) : null;
+    const targetOb = resolved?.targetOb;
     if (targetOb) {
       chips.push(`<span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 font-bold">🏢 ${targetOb.merchant_name}</span>`);
-      const sMatch = lower.match(/\b(?:b|bước|step)\s*(\d{1,2})\b/i);
-      if (sMatch) {
-        const st = targetOb.tasks.find(t => t.step_no === parseInt(sMatch[1], 10));
+      if (resolved.targetStepNo) {
+        const st = targetOb.tasks.find(t => t.step_no === resolved.targetStepNo);
         if (st) chips.push(`<span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 font-semibold">B${st.step_no}: ${st.title}</span>`);
-      } else {
-        let kw = lower.replace(targetOb.merchant_name.toLowerCase(), "").replace(/\b(xong|hoàn thành|done|đã|tới|cho|của|bước|b)\b/gi, "").trim();
-        if (kw.length >= 2) {
-          const st = targetOb.tasks.find(t => t.title.toLowerCase().includes(kw));
-          if (st) chips.push(`<span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 font-semibold">B${st.step_no}: ${st.title}</span>`);
-        }
       }
     }
   }
@@ -157,70 +149,37 @@ async function handleCommandSubmit(e) {
     return;
   }
 
-  // 0B. TỰ ĐỘNG TICK XONG TỚI BƯỚC ONBOARDING: "xong B3 cho Swee Lee", "TBP duyệt cho Swee Lee"...
-  const hasOnboardingDoneCue = /\b(xong|hoàn thành|done|đã duyệt|duyệt|đã trình|đã gửi|đã làm|tới)\b/i.test(lower) || /\bb\d{1,2}\b/i.test(lower) || /\bbước\s*\d{1,2}\b/i.test(lower);
-  if (hasOnboardingDoneCue && !lower.includes("tạo task") && !lower.includes("khẩn cấp") && !lower.includes("blocker")) {
-    // Tìm đối tác Onboarding được nhắc tên trong câu (hoặc lấy đối tác đang mở)
-    let targetOb = onboardingList.find(o => lower.includes(o.merchant_name.toLowerCase()));
-    if (!targetOb) {
-      targetOb = onboardingList.find(o => o.id === activeOnboardingId) || onboardingList[0];
-    }
+  // 0B. TỰ ĐỘNG TICK XONG TỚI BƯỚC ONBOARDING (ATTIO CONTEXT & ROLLUP ENGINE)
+  const attioPrecheck = typeof resolveAttioCommandTarget === "function" ? resolveAttioCommandTarget(cmd) : null;
+  const hasOnboardingDoneCue = /\b(xong|hoàn thành|done|đã duyệt|duyệt|đã trình|đã gửi|đã làm|tới)\b/i.test(lower) || /\bb\d{1,2}\b/i.test(lower) || /\bbước\s*\d{1,2}\b/i.test(lower) || (attioPrecheck && attioPrecheck.targetStepNo !== null);
+  if (hasOnboardingDoneCue && !lower.includes("tạo task") && !lower.includes("khẩn cấp") && !lower.includes("blocker") && !lower.startsWith("họp")) {
+    const resolved = attioPrecheck || { targetOb: null, targetStepNo: null };
+    if (resolved.targetOb && resolved.targetStepNo) {
+      const targetOb = resolved.targetOb;
+      const targetStep = resolved.targetStepNo;
+      const ev = typeof mutateAttioDeploymentStep === "function"
+        ? mutateAttioDeploymentStep(targetOb, targetStep, cmd)
+        : null;
 
-    if (targetOb) {
-      let targetStep = null;
+      activeOnboardingId = targetOb.id;
+      saveOnboardingStorage();
+      updateAllKpis();
+      navigateTo("ONBOARDING");
 
-      // Cách 1: Match theo số bước (B3, bước 3, step 3...)
-      const stepMatches = [...lower.matchAll(/\b(?:b|bước|step)\s*(\d{1,2})\b/gi)];
-      if (stepMatches.length > 0) {
-        const stepNums = stepMatches.map(m => parseInt(m[1], 10));
-        targetStep = Math.max(...stepNums);
+      if (ev?.data?.toast_notification?.message) {
+        showToast("✓ " + ev.data.toast_notification.message);
+        if (typeof addNotificationLog === "function") {
+          addNotificationLog(`[Attio Automation] ${ev.data.toast_notification.message}`);
+        }
       } else {
-        // Cách 2: Match theo nội dung từ khóa bước (VD: "TBP duyệt cho Swee Lee", "trình CMS", "FC duyệt"...)
-        let kw = lower
-          .replace(new RegExp(`\\b(cho|của|bên|đối tác)\\s+${targetOb.merchant_name.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, "gi"), "")
-          .replace(targetOb.merchant_name.toLowerCase(), "")
-          .replace(/\b(xong|hoàn thành|done|đã|tới|cho tôi|nhé|nha|rồi|bước|b|cho|của)\b/gi, "")
-          .trim();
-
-        if (kw.length >= 2) {
-          // Tìm các bước khớp cụm từ khóa
-          let candidates = targetOb.tasks.filter(t => t.title.toLowerCase().includes(kw));
-          if (candidates.length === 0) {
-            const tokens = kw.split(/\s+/).filter(w => w.length >= 2);
-            if (tokens.length > 0) {
-              candidates = targetOb.tasks.filter(t =>
-                tokens.every(tok => t.title.toLowerCase().includes(tok))
-              );
-            }
-          }
-          if (candidates.length > 0) {
-            // Ưu tiên bước chưa DONE đầu tiên, nếu không có lấy bước đầu tiên khớp
-            const firstPending = candidates.find(c => c.status !== "DONE") || candidates[0];
-            targetStep = firstPending.step_no;
-          }
-        }
-      }
-
-      if (targetStep !== null && targetStep >= 1) {
-        // Tick xong TẤT CẢ các bước từ B1 đến targetStep (tuần tự)
-        targetOb.tasks.forEach(t => {
-          if (t.step_no <= targetStep) {
-            t.status = "DONE";
-          }
-        });
-
-        activeOnboardingId = targetOb.id;
-        saveOnboardingStorage();
-        navigateTo("ONBOARDING");
-
         showToast(`✓ Đã tự động tick xong từ B1 đến B${targetStep} cho ${targetOb.merchant_name}!`);
-
-        const is100 = targetOb.tasks.length > 0 && targetOb.tasks.every(item => item.status === "DONE");
-        if (is100 && !targetOb.graduated) {
-          setTimeout(() => openGraduateModal(targetOb.id), 450);
-        }
-        return;
       }
+
+      const is100 = targetOb.tasks.length > 0 && targetOb.tasks.every(item => item.status === "DONE");
+      if (is100 && !targetOb.graduated) {
+        setTimeout(() => openGraduateModal(targetOb.id), 450);
+      }
+      return;
     }
   }
 

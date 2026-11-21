@@ -351,6 +351,9 @@ function toggleOnboardingTaskDone(taskId) {
   const t = ob.tasks.find(item => item.id === taskId);
   if (t) {
     t.status = t.status === "DONE" ? "IN_PROGRESS" : "DONE";
+    t.completed_at = t.status === "DONE" ? new Date().toISOString() : null;
+    t.completed_by = t.status === "DONE" ? "Manual" : null;
+    if (typeof computeAttioProjectRollup === "function") computeAttioProjectRollup(ob);
     saveOnboardingStorage();
     renderOnboardingView();
 
@@ -476,10 +479,19 @@ function renderOnboardingView() {
     return;
   }
 
-  // 2. Tính tiến độ % chuẩn xác 100% theo số bước đã tích DONE
-  const completedCount = activeOb.tasks.filter(t => t.status === "DONE").length;
+  // 2. Tính tiến độ % chuẩn xác 100% + Rollup Stage theo cơ chế Attio
+  const rollup = typeof computeAttioProjectRollup === "function"
+    ? computeAttioProjectRollup(activeOb)
+    : {
+        completed_steps: activeOb.tasks.filter(t => t.status === "DONE").length,
+        total_steps: activeOb.total_steps,
+        progress_rate: Math.round((activeOb.tasks.filter(t => t.status === "DONE").length / activeOb.total_steps) * 100),
+        current_stage: "LEGAL_AND_CMS"
+      };
+  const completedCount = rollup.completed_steps;
   const pendingCount = activeOb.total_steps - completedCount;
-  const progressPct = Math.round((completedCount / activeOb.total_steps) * 100);
+  const progressPct = rollup.progress_rate;
+  const stageLabel = (typeof ATTIO_STAGE_LABELS !== "undefined" && ATTIO_STAGE_LABELS[rollup.current_stage]) || rollup.current_stage;
   const chInfo = SOP_CHANNELS[activeOb.channel]?.label || activeOb.channel;
 
   // Tìm bước tiếp theo cần làm (Next Action Step - số thứ tự nhỏ nhất chưa DONE)
@@ -494,6 +506,7 @@ function renderOnboardingView() {
           <div class="flex items-center space-x-2">
             <h3 class="text-sm font-black text-slate-900">${activeOb.merchant_name}</h3>
             <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200">${chInfo}</span>
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200" title="Giai đoạn tự động tính theo Attio Rollup">${stageLabel}</span>
           </div>
 
           <div class="flex items-center space-x-2 bg-slate-50 px-3 py-1 rounded-xl border border-slate-200">
