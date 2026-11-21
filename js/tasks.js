@@ -81,14 +81,24 @@ function refreshTasksOverdueFlags() {
 
 function updateNotificationDot() {
   const badge = document.getElementById("badge-notif-count");
-  if (!badge) return;
+  const topBellCount = document.getElementById("topbar-bell-count");
   const alerts = typeof getActiveAlerts === "function" ? getActiveAlerts() : [];
   const count = alerts.length;
-  badge.textContent = count;
-  if (count > 0) {
-    badge.className = "sidebar-badge px-1.5 py-0.5 text-[10px] bg-rose-500/20 text-rose-300 rounded font-bold whitespace-nowrap shrink-0";
-  } else {
-    badge.className = "sidebar-badge px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-bold whitespace-nowrap shrink-0";
+  if (badge) {
+    badge.textContent = count;
+    if (count > 0) {
+      badge.className = "sidebar-badge px-1.5 py-0.5 text-[10px] bg-rose-500/20 text-rose-300 rounded font-bold whitespace-nowrap shrink-0";
+    } else {
+      badge.className = "sidebar-badge px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-bold whitespace-nowrap shrink-0";
+    }
+  }
+  if (topBellCount) {
+    topBellCount.textContent = count;
+    topBellCount.classList.toggle("hidden", count === 0);
+  }
+  if (typeof renderTopbarNotifPopover === "function") {
+    const pop = document.getElementById("topbar-notif-popover");
+    if (pop && !pop.classList.contains("hidden")) renderTopbarNotifPopover();
   }
   const notifView = document.getElementById("view-NOTIFICATIONS");
   if (notifView && !notifView.classList.contains("hidden") && typeof renderNotificationsView === "function") {

@@ -500,21 +500,132 @@ function resolveProjectBlockerFromAlert(projectId) {
 
 function requestBrowserNotificationPermission() {
   if (!("Notification" in window)) {
-    showToast("Trình duyệt hiện tại không hỗ trợ thông báo đẩy.");
+    showToast("Trình duyệt hiện tại không hỗ trợ thông báo trên laptop.");
     return;
   }
   Notification.requestPermission().then(perm => {
     if (perm === "granted") {
-      const alerts = getActiveAlerts();
-      new Notification("Bryan Portal", {
-        body: alerts.length > 0 ? `Hiện có ${alerts.length} cảnh báo & nhắc hẹn cần chú ý.` : "Hệ thống thông báo đã sẵn sàng!"
-      });
-      showToast("✓ Đã bật thông báo trên trình duyệt!");
+      runDesktopNotificationCheck(true);
+      showToast("Đã bật thông báo Pop-up trên Laptop!");
     } else {
-      showToast("Bạn đã từ chối quyền thông báo trên trình duyệt.");
+      showToast("Bạn đã từ chối quyền thông báo trên trình duyệt.", true);
     }
   });
 }
+
+function toggleTopbarNotifPopover() {
+  const pop = document.getElementById("topbar-notif-popover");
+  if (!pop) return;
+  const isHidden = pop.classList.contains("hidden");
+  if (isHidden) {
+    renderTopbarNotifPopover();
+    pop.classList.remove("hidden");
+  } else {
+    pop.classList.add("hidden");
+  }
+}
+
+function closeTopbarNotifPopover() {
+  document.getElementById("topbar-notif-popover")?.classList.add("hidden");
+}
+
+function renderTopbarNotifPopover() {
+  const list = document.getElementById("topbar-notif-list");
+  if (!list) return;
+  const alerts = getActiveAlerts();
+  if (alerts.length === 0) {
+    list.innerHTML = `<div class="py-6 text-center text-slate-400">Không có lịch họp hay đầu việc nào sắp đến hạn.</div>`;
+    return;
+  }
+  list.innerHTML = alerts.slice(0, 6).map(a => {
+    const isUrgent = a.category === 'URGENT';
+    const badge = a.kind === 'BLOCKER' ? 'VƯỚNG MẮC' : (a.kind === 'TASK_OVERDUE' ? 'QUÁ HẠN' : (a.kind === 'MEETING' ? 'LỊCH HỌP' : (a.kind === 'CONTRACT_RENEWAL' ? 'GIA HẠN HĐ' : 'SẮP HẠN')));
+    return `
+      <div class="p-2.5 rounded-xl border ${isUrgent ? 'border-rose-200 bg-rose-50/40' : 'border-amber-200 bg-amber-50/40'} space-y-1">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${isUrgent ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}">${badge}</span>
+          ${a.taskId ? `<button onclick="toggleTaskQuickDone('${a.taskId}')" class="text-[10px] font-bold text-emerald-700 hover:underline">✓ Hoàn tất</button>` : ''}
+        </div>
+        <div class="font-bold text-slate-800 truncate">${a.title}</div>
+        <div class="text-[11px] text-slate-500 truncate">${a.detail}</div>
+      </div>
+    `;
+  }).join('') + (alerts.length > 6 ? `<div class="text-center text-[11px] text-slate-400 pt-1">Và ${alerts.length - 6} nhắc hẹn khác...</div>` : '');
+}
+
+function sendAlertsDigestEmail() {
+  const savedEmail = localStorage.getItem("bryan_portal_user_email") || "bryan.nguyen@payoo.vn";
+  const email = prompt("Nhập địa chỉ Email nhận thông báo tổng hợp:", savedEmail);
+  if (email === null) return;
+  const trimmed = email.trim();
+  if (!trimmed) return;
+  localStorage.setItem("bryan_portal_user_email", trimmed);
+
+  const alerts = getActiveAlerts();
+  const today = new Date().toLocaleDateString('vi-VN');
+  const lines = [
+    `Xin chào Bryan,`,
+    `Dưới đây là tổng hợp ${alerts.length} lịch họp, đầu việc sắp đến hạn và cảnh báo ngày ${today}:`,
+    ``
+  ];
+  if (alerts.length === 0) {
+    lines.push("- Hiện tại mọi đầu việc và hợp đồng đều đúng tiến độ.");
+  } else {
+    alerts.forEach((a, i) => {
+      lines.push(`${i + 1}. [${a.kind}] ${a.title} — ${a.detail}`);
+    });
+  }
+  const subject = `[Bryan Portal] Nhắc lịch họp & Đầu việc cần xử lý (${today})`;
+  const body = lines.join("\n");
+  if (navigator.clipboard) navigator.clipboard.writeText(`${subject}\n\n${body}`).catch(() => {});
+  window.location.href = `mailto:${encodeURIComponent(trimmed)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  addNotificationLog(`Đã tạo Email nhắc việc gửi tới ${trimmed} (${alerts.length} mục)`);
+  showToast(`Đã mở ứng dụng Email & sao chép nội dung nhắc việc!`);
+}
+
+function runDesktopNotificationCheck(forceShowSummary = false) {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  const alerts = getActiveAlerts();
+  const todayKey = "bryan_portal_popped_" + getTodayIsoDate();
+  let poppedIds = [];
+  try {
+    poppedIds = JSON.parse(localStorage.getItem(todayKey) || "[]");
+  } catch (e) {}
+
+  if (forceShowSummary) {
+    new Notification("Bryan Portal — Thông Báo Đã Bật", {
+      body: alerts.length > 0
+        ? `Hiện có ${alerts.length} lịch họp / đầu việc sắp đến hạn cần chú ý.`
+        : "Hệ thống đang theo dõi lịch họp & hạn chót cho bạn."
+    });
+    return;
+  }
+
+  const newAlerts = alerts.filter(a => !poppedIds.includes(a.id));
+  if (newAlerts.length > 0) {
+    const first = newAlerts[0];
+    new Notification(`Bryan Portal: ${first.title}`, {
+      body: newAlerts.length > 1
+        ? `${first.detail} (+${newAlerts.length - 1} nhắc hẹn khác)`
+        : first.detail
+    });
+    poppedIds.push(...newAlerts.map(a => a.id));
+    localStorage.setItem(todayKey, JSON.stringify(Array.from(new Set(poppedIds))));
+  }
+}
+
+document.addEventListener("click", (e) => {
+  const pop = document.getElementById("topbar-notif-popover");
+  const btn = document.getElementById("topbar-bell-btn");
+  if (pop && !pop.classList.contains("hidden") && !pop.contains(e.target) && (!btn || !btn.contains(e.target))) {
+    pop.classList.add("hidden");
+  }
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  setTimeout(() => runDesktopNotificationCheck(false), 1500);
+  setInterval(() => runDesktopNotificationCheck(false), 60000);
+});
 
 function renderNotificationsView() {
   const container = document.getElementById("active-alerts-container");
