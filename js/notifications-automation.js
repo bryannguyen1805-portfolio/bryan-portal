@@ -429,11 +429,21 @@ function filterAlertsView(filter) {
   renderNotificationsView();
 }
 
-function copyAlertZalo(encodedMsg, title) {
+function copyAlertZalo(encodedMsg, title, merchantId = "", picName = "") {
   const msg = decodeURIComponent(encodedMsg);
-  if (navigator.clipboard) navigator.clipboard.writeText(msg);
-  addNotificationLog(`Đã sao chép tin nhắn nhắc Zalo: "${title}"`);
-  showToast("✓ Đã sao chép mẫu tin nhắn nhắc Zalo!");
+  if (navigator.clipboard) navigator.clipboard.writeText(msg).catch(() => {});
+
+  const picLower = (picName || "").toLowerCase();
+  const matchedStakeholder =
+    state.stakeholders.find(s => s.phone && picLower && (picLower.includes((s.name || "").toLowerCase()) || (s.name || "").toLowerCase().includes(picLower))) ||
+    (merchantId ? state.stakeholders.find(s => s.merchant_id === merchantId && s.phone) : null);
+
+  const phone = matchedStakeholder ? matchedStakeholder.phone.replace(/[^0-9]/g, "") : "";
+  const zaloUrl = phone ? `https://zalo.me/${phone}` : "https://zalo.me";
+  window.open(zaloUrl, "_blank", "noopener");
+
+  addNotificationLog(`Đã sao chép tin nhắn & mở Zalo nhắc "${title}"${phone ? ' (' + phone + ')' : ''}`);
+  showToast(phone ? `Đã sao chép tin nhắn & mở Zalo (${phone})!` : "Đã sao chép tin nhắn & mở Zalo!");
 }
 
 function resolveProjectBlockerFromAlert(projectId) {
@@ -521,7 +531,7 @@ function renderNotificationsView() {
           </div>
           <div class="flex flex-wrap items-center gap-2 shrink-0">
             ${(a.kind !== 'BLOCKER' || automationSettings.autoZaloBlocker) ? `
-              <button onclick="copyAlertZalo('${encodeURIComponent(a.zaloText)}', '${a.title.replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-xl text-xs font-bold flex items-center space-x-1 transition">
+              <button onclick="copyAlertZalo('${encodeURIComponent(a.zaloText)}', '${a.title.replace(/'/g, "\\'")}', '${a.merchantId || ''}', '${(a.pic || '').replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-xl text-xs font-bold flex items-center space-x-1 transition">
                 <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                 <span>Nhắc Zalo</span>
               </button>
