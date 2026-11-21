@@ -95,7 +95,7 @@ async function handleAuthLoginSubmit(e) {
   let authenticatedUser = null;
 
   // Nếu đã kết nối Google Sheets API -> Xác thực trực tiếp với tab Users trên Server
-  const apiUrl = localStorage.getItem("bryan_portal_api") || "";
+  const apiUrl = (typeof API_ENDPOINT !== "undefined" && API_ENDPOINT) ? API_ENDPOINT : (localStorage.getItem("bryan_portal_api") || "");
   if (apiUrl) {
     try {
       const sep = apiUrl.includes("?") ? "&" : "?";
@@ -131,6 +131,20 @@ async function handleAuthLoginSubmit(e) {
   localStorage.setItem(AUTH_NAME_KEY, authenticatedUser.name || "Nhân sự Omni");
   localStorage.setItem(AUTH_PIN_KEY, pin);
   localStorage.setItem(AUTH_ROLE_KEY, authenticatedUser.role || "USER");
+
+  // Đồng bộ lại local whitelist với PIN vừa xác thực thành công từ Server (tránh PIN mặc định 180526 đá văng khi reload)
+  const localUsers = getLocalOmniUsers();
+  const uIdx = localUsers.findIndex(u => u.email.toLowerCase() === authenticatedUser.email.toLowerCase());
+  const syncedUser = {
+    email: authenticatedUser.email.toLowerCase(),
+    name: authenticatedUser.name || "Nhân sự Omni",
+    role: authenticatedUser.role || "USER",
+    pin: pin,
+    active: true
+  };
+  if (uIdx !== -1) localUsers[uIdx] = { ...localUsers[uIdx], ...syncedUser };
+  else localUsers.push(syncedUser);
+  saveLocalOmniUsers(localUsers);
 
   document.getElementById("auth-login-overlay")?.classList.add("hidden");
   applyAuthenticatedUserToUI();
@@ -443,8 +457,9 @@ function adminPurgeUserNow(email) {
 window.addEventListener("DOMContentLoaded", () => {
   const existingEmail = localStorage.getItem(AUTH_EMAIL_KEY);
   const existingPin = localStorage.getItem(AUTH_PIN_KEY);
+  const hasCloudApi = typeof API_ENDPOINT !== "undefined" && !!API_ENDPOINT;
   const localU = existingEmail ? findLocalOmniUser(existingEmail) : null;
-  if (!existingEmail || !existingPin || (localU && String(localU.pin) !== String(existingPin))) {
+  if (!existingEmail || !existingPin || (!hasCloudApi && (!localU || String(localU.pin) !== String(existingPin)))) {
     openAuthLoginModal();
   } else {
     applyAuthenticatedUserToUI();
