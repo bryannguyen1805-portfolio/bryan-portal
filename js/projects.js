@@ -4,7 +4,6 @@
 let showMerchantDirectory = false;
 let merchantDirSearch = "";
 let merchantDirFilter = "ALL"; // ALL | BLOCKED | ACTIVE | LIVE
-let recentMerchantIds = [];
 
 function toggleMerchantDirectory() {
   showMerchantDirectory = !showMerchantDirectory;
@@ -16,11 +15,16 @@ function selectMerchant(mId) {
   activeMerchantId = mId;
   activeSubTab = "OVERVIEW";
   showMerchantDirectory = false;
-  recentMerchantIds = [mId, ...recentMerchantIds.filter(id => id !== mId)].slice(0, 4);
   renderMerchantPillsBar();
   renderMerchantDirectoryPanel();
   renderMerchantSubTabs();
   renderMerchantWorkspaceBody();
+}
+
+function closeActiveMerchantToDirectory() {
+  showMerchantDirectory = true;
+  renderMerchantPillsBar();
+  renderMerchantDirectoryPanel();
 }
 
 function selectSubTab(subTabId) {
@@ -33,12 +37,6 @@ function renderMerchantPillsBar() {
   const container = document.getElementById("merchant-pills-bar");
   if (!container) return;
 
-  // Khi số chuỗi <= 5, hiển thị gọn trên 1 dòng; khi >= 6 (hoặc 50+), dùng Danh sách chuỗi + Chuyển nhanh + 3 chuỗi gần nhất
-  const useCompactSwitcher = state.merchants.length >= 6;
-  const pinnedList = useCompactSwitcher
-    ? state.merchants.filter(m => m.id === activeMerchantId || recentMerchantIds.includes(m.id)).slice(0, 3)
-    : state.merchants;
-
   const dirBtnHtml = `
     <button onclick="toggleMerchantDirectory()" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shrink-0 border ${
       showMerchantDirectory ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
@@ -48,35 +46,23 @@ function renderMerchantPillsBar() {
     </button>
   `;
 
-  const quickSelectHtml = useCompactSwitcher ? `
-    <select onchange="if(this.value) selectMerchant(this.value)" class="px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-teal-500 max-w-[200px] shrink-0" title="Chuyển nhanh sang bất kỳ chuỗi đối tác nào">
-      ${state.merchants.map(m => {
-        const hasBlk = state.projects.some(p => p.merchant_id === m.id && p.is_blocked);
-        return `<option value="${m.id}" ${m.id === activeMerchantId ? 'selected' : ''}>${hasBlk ? '⚠ ' : ''}${m.name}</option>`;
-      }).join('')}
-    </select>
+  const activeMerchant = state.merchants.find(m => m.id === activeMerchantId);
+  const singleSwitcherHtml = !showMerchantDirectory && activeMerchant ? `
+    <div class="flex items-center gap-1.5 bg-teal-50/70 border border-teal-200 rounded-full pl-2 pr-1.5 py-1 shrink-0">
+      <span class="w-5 h-5 rounded-full ${activeMerchant.color} text-white text-[10px] flex items-center justify-center font-black shrink-0">
+        ${activeMerchant.avatar_letter}
+      </span>
+      <select onchange="if(this.value) selectMerchant(this.value)" class="bg-transparent border-none text-xs font-extrabold text-slate-900 outline-none cursor-pointer pr-1 max-w-[220px]" title="Chọn chuỗi đối tác đang xem">
+        ${state.merchants.map(m => {
+          const hasBlk = state.projects.some(p => p.merchant_id === m.id && p.is_blocked);
+          return `<option value="${m.id}" ${m.id === activeMerchantId ? 'selected' : ''}>${hasBlk ? '⚠ ' : ''}${m.name}</option>`;
+        }).join('')}
+      </select>
+      <button onclick="closeActiveMerchantToDirectory()" class="w-5 h-5 rounded-full hover:bg-teal-200/70 text-slate-500 hover:text-slate-800 flex items-center justify-center text-xs font-bold transition" title="Đóng chuỗi này để về Danh sách chuỗi">×</button>
+    </div>
   ` : '';
 
-  const pillsHtml = pinnedList.map(m => {
-    const isActive = m.id === activeMerchantId && !showMerchantDirectory;
-    const hasBlocker = state.projects.some(p => p.merchant_id === m.id && p.is_blocked);
-
-    return `
-      <button onclick="selectMerchant('${m.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 shrink-0 ${
-        isActive 
-          ? 'bg-teal-700 text-white shadow-sm' 
-          : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/70'
-      }">
-        <span class="w-5 h-5 rounded-lg ${m.color} text-white text-[10px] flex items-center justify-center font-black">
-          ${m.avatar_letter}
-        </span>
-        <span class="whitespace-nowrap">${m.name}</span>
-        ${hasBlocker ? `<span class="w-2 h-2 rounded-full bg-rose-500 animate-ping" title="Đang có vướng mắc"></span>` : ''}
-      </button>
-    `;
-  }).join('');
-
-  container.innerHTML = dirBtnHtml + quickSelectHtml + pillsHtml;
+  container.innerHTML = dirBtnHtml + singleSwitcherHtml;
   lucide.createIcons();
 }
 
