@@ -160,45 +160,71 @@ function renderMerchantWorkspaceBody() {
         </div>
       </div>
 
-      <!-- KHỐI TRA CỨU 2: THƯ MỤC TÀI LIỆU MÁY TÍNH -->
+      <!-- KHỐI TRA CỨU 2: THÔNG SỐ KỸ THUẬT THANH TOÁN B2B & HỒ SƠ TÀI LIỆU SỐ -->
       <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
           <div class="flex items-center space-x-2">
-            <i data-lucide="folder-git-2" class="w-4 h-4 text-teal-600"></i>
-            <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">Thư Mục Trên Máy (${merchantFolders.length})</h4>
+            <i data-lucide="credit-card" class="w-4 h-4 text-teal-600"></i>
+            <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">Thông Số Kỹ Thuật Thanh Toán</h4>
+          </div>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">${merchant.settlement_cycle || 'T+1 Tự động'}</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-[11px]">
+          <div class="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
+            <div class="text-[10px] text-slate-400 font-semibold">Mã Merchant ID (MID)</div>
+            <div class="font-mono font-bold text-slate-800 mt-0.5 truncate">${merchant.mid || ('MID_' + merchant.id.replace('m-','').toUpperCase() + '_2026')}</div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
+            <div class="text-[10px] text-slate-400 font-semibold">Ngân hàng liên kết</div>
+            <div class="font-bold text-slate-800 mt-0.5 truncate">${merchant.acquiring_bank || 'VietinBank / Pvcombank'}</div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
+            <div class="text-[10px] text-slate-400 font-semibold">Chu kỳ đối soát</div>
+            <div class="font-bold text-teal-700 mt-0.5">${merchant.settlement_cycle || 'T+1 Tự động'}</div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
+            <div class="text-[10px] text-slate-400 font-semibold">Biểu phí dịch vụ (MDR)</div>
+            <div class="font-bold text-slate-800 mt-0.5 truncate">${merchant.mdr_rate || 'Nội địa 0.9% • Quốc tế 2.2%'}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="file-text" class="w-4 h-4 text-teal-600"></i>
+            <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">Hồ Sơ & Tài Liệu Dự Án (${merchantFolders.length})</h4>
           </div>
           <button onclick="openNewFolderModal('${merchant.id}')" class="text-[11px] text-teal-600 font-bold hover:underline flex items-center">
-            <i data-lucide="plus" class="w-3 h-3 mr-0.5"></i> Thêm
+            <i data-lucide="plus" class="w-3 h-3 mr-0.5"></i> Đính kèm liên kết tài liệu
           </button>
         </div>
 
         <div class="space-y-2">
           ${merchantFolders.length > 0 ? merchantFolders.map(f => `
-            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-xs font-bold text-slate-800 truncate flex items-center">
-                  <i data-lucide="folder" class="w-3.5 h-3.5 text-teal-600 mr-1.5 shrink-0"></i>
-                  <span class="truncate">${f.title}</span>
-                </span>
-                <div class="flex items-center space-x-1 shrink-0">
-                  <button onclick="copyLocalPath('${f.path}')" class="px-2 py-0.5 bg-white hover:bg-teal-50 text-teal-700 border border-slate-200 rounded text-[10px] font-bold transition" title="Copy đường dẫn">
-                    Copy
-                  </button>
-                  <button onclick="openEditFolderModal('${f.id}')" class="p-1 text-slate-400 hover:text-teal-600" title="Sửa">
-                    <i data-lucide="edit-3" class="w-3 h-3"></i>
-                  </button>
-                  <button onclick="deleteFolder('${f.id}')" class="p-1 text-slate-400 hover:text-rose-600" title="Xóa">
-                    <i data-lucide="trash-2" class="w-3 h-3"></i>
-                  </button>
+            <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs font-bold text-slate-800 truncate">${f.title}</span>
+                  ${f.badge ? `<span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-teal-50 text-teal-700 border border-teal-200 shrink-0">${f.badge}</span>` : ''}
                 </div>
+                <div class="text-[10px] font-mono text-slate-500 truncate mt-0.5">${f.file_name || f.path}</div>
               </div>
-              <div class="font-mono text-[10px] text-slate-500 truncate select-all bg-white px-2 py-1 rounded border border-slate-200/70" title="${f.path}">
-                ${f.path}
+              <div class="flex items-center space-x-1 shrink-0">
+                <a href="${f.path}" target="_blank" rel="noopener" class="px-2.5 py-1 bg-white hover:bg-teal-50 text-teal-700 border border-slate-200 rounded-lg text-[10px] font-bold transition whitespace-nowrap">
+                  ${f.action_label || 'Mở tài liệu'}
+                </a>
+                <button onclick="openEditFolderModal('${f.id}')" class="p-1 text-slate-400 hover:text-teal-600" title="Sửa">
+                  <i data-lucide="edit-3" class="w-3 h-3"></i>
+                </button>
+                <button onclick="deleteFolder('${f.id}')" class="p-1 text-slate-400 hover:text-rose-600" title="Xóa">
+                  <i data-lucide="trash-2" class="w-3 h-3"></i>
+                </button>
               </div>
             </div>
           `).join('') : `
             <div class="p-3 border border-dashed border-slate-300 rounded-xl text-center text-[11px] text-slate-400">
-              Chưa gán đường dẫn folder. Bấm "+ Thêm" để lưu.
+              Chưa có tài liệu số nào. Bấm "+ Đính kèm liên kết tài liệu" để thêm.
             </div>
           `}
         </div>
@@ -437,8 +463,8 @@ function renderMerchantWorkspaceBody() {
           ${project.is_blocked ? `
             <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div class="text-xs text-rose-800 font-semibold">⚠ Blocker: ${project.blocker_reason} (${project.blocker_owner})</div>
-              <button onclick="handlePingPIC('${merchant.name}', '${project.title}', '${project.blocker_reason}')" class="shrink-0 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition">
-                Ping PIC (Zalo)
+              <button onclick="handlePingPIC('${merchant.name}', '${project.title}', '${project.blocker_reason}')" class="shrink-0 px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition">
+                Liên hệ Zalo
               </button>
             </div>
           ` : ''}
@@ -519,21 +545,21 @@ function copyLocalPath(path) {
 // 5. PING PIC SLA LOGIC
 // -------------------------------------------------------------
 function handlePingPIC(merchantName, projectTitle, reason) {
-  const template = `[BRYAN PORTAL - CẢNH BÁO TIẾN ĐỘ DỰ ÁN]
-Kính gửi PIC phụ trách dự án ${merchantName},
-Dự án "${projectTitle}" hiện đang gặp vướng mắc cần giải quyết gấp:
-- Điểm nghẽn: ${reason}
-- Tác động: Nguy cơ chậm trễ mốc Go-Live và ảnh hưởng cam kết thương mại chung.
-Bryan nhờ team đối tác phối hợp hỗ trợ xử lý sớm trong ngày hôm nay.
-Xin cảm ơn sự đồng hành của team!`;
+  const m = state.merchants.find(item => item.name === merchantName);
+  const pic = m ? state.stakeholders.find(s => s.merchant_id === m.id && s.phone) : null;
+  const phone = pic ? pic.phone.replace(/[^0-9]/g, "") : "";
+  const zaloUrl = phone ? `https://zalo.me/${phone}` : "https://zalo.me";
 
-  navigator.clipboard.writeText(template).then(() => {
-    showToast("✓ Đã copy mẫu tin nhắn nhắc hẹn SLA vào Clipboard! Hãy dán vào Zalo/Email gửi PIC.");
-    addNotificationLog(`Đã bắn Ping PIC tới đối tác ${merchantName}: "${reason}"`);
-  }).catch(err => {
-    console.error("Lỗi clipboard:", err);
-    showToast("Không thể tự động copy, vui lòng thử lại!");
-  });
+  const template = `[BRYAN PORTAL - TRAO ĐỔI TIẾN ĐỘ DỰ ÁN]
+Kính gửi anh/chị phụ trách dự án ${merchantName},
+Dự án "${projectTitle}" hiện đang có điểm nghẽn cần phối hợp xử lý:
+- Nội dung: ${reason}
+Nhờ team hỗ trợ kiểm tra sớm giúp Bryan trong hôm nay để kịp tiến độ chung nhé!`;
+
+  if (navigator.clipboard) navigator.clipboard.writeText(template).catch(() => {});
+  window.open(zaloUrl, "_blank", "noopener");
+  if (typeof addNotificationLog === "function") addNotificationLog(`Đã mở liên hệ Zalo đối tác ${merchantName}: "${reason}"`);
+  showToast("Đã mở Zalo & sao chép sẵn nội dung trao đổi!");
 }
 
 
@@ -816,11 +842,11 @@ function handleSaveStakeholder(e) {
 
 // FOLDER MODAL
 function openNewFolderModal(mId) {
-  document.getElementById("modal-folder-title-text").textContent = "Thêm Thư Mục Máy Tính";
+  document.getElementById("modal-folder-title-text").textContent = "Đính Kèm Liên Kết Tài Liệu";
   document.getElementById("folder-id-hidden").value = "";
   document.getElementById("folder-merchant-id-hidden").value = mId || activeMerchantId;
   document.getElementById("folder-title-input").value = "";
-  document.getElementById("folder-path-input").value = "/Users/quangtri/Documents/";
+  document.getElementById("folder-path-input").value = "https://drive.google.com/";
   document.getElementById("folder-note-input").value = "";
   document.getElementById("modal-folder").classList.remove("hidden");
 }
@@ -829,7 +855,7 @@ function openEditFolderModal(fId) {
   const f = state.folders.find(item => item.id === fId);
   if (!f) return;
 
-  document.getElementById("modal-folder-title-text").textContent = "Sửa Thư Mục Máy Tính";
+  document.getElementById("modal-folder-title-text").textContent = "Sửa Liên Kết Tài Liệu";
   document.getElementById("folder-id-hidden").value = f.id;
   document.getElementById("folder-merchant-id-hidden").value = f.merchant_id;
   document.getElementById("folder-title-input").value = f.title;

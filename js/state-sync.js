@@ -36,14 +36,14 @@ let state = {
       contract_status: "Đã Ký Hợp Đồng Trả Góp 0% • Chuẩn Bị Go-Live"
     }
   ],
-  // Thư mục & Tài nguyên máy tính (Local Folder Paths)
+  // Hồ sơ & Tài liệu số (Cloud Document Vault)
   folders: [
-    { id: "f-hl-1", merchant_id: "m-highlands", title: "Thư Mục Tài Liệu Dự Án Highlands", path: "/Users/quangtri/Documents/Highlands-Coffee/", note: "Tất cả tài liệu, log Webhook, báo cáo tuần" },
-    { id: "f-hl-2", merchant_id: "m-highlands", title: "Hợp Đồng & Phụ Lục Biểu Phí MDR", path: "/Users/quangtri/Documents/Highlands-Coffee/01_HOP_DONG_BIEU_PHI/", note: "Bản scan HĐ kinh tế, phụ lục hoàn tiền" },
-    { id: "f-hl-3", merchant_id: "m-highlands", title: "Tài Liệu Kỹ Thuật API & Sandbox Spec", path: "/Users/quangtri/Documents/Highlands-Coffee/02_API_SPECS_V2/", note: "API Tokenization, Callback Webhook doc" },
-    
-    { id: "f-jdv-1", merchant_id: "m-jdv", title: "Thư Mục Dự Án SmartPOS JDV", path: "/Users/quangtri/Documents/JDV-Retail-POS/", note: "Tài liệu 3 bên Payoo - Pvcombank - JDV" },
-    { id: "f-vt-1", merchant_id: "m-vietthanh", title: "Thư Mục Xe Điện Việt Thanh", path: "/Users/quangtri/Documents/VietThanh-Showrooms/", note: "Hợp đồng trả góp 0%, danh sách 35 showroom" }
+    { id: "f-hl-1", merchant_id: "m-highlands", title: "Hợp đồng nguyên tắc & Phụ lục biểu phí", file_name: "Hop_Dong_Nguyen_Tac_Highlands_2026.pdf", path: "https://drive.google.com/drive/folders/payoo-dms-highlands-contract", action_label: "Mở tài liệu", badge: "Đã ký duyệt" },
+    { id: "f-hl-2", merchant_id: "m-highlands", title: "Bộ biểu mẫu khai báo đối tác", file_name: "BM01_BM01.01_Highlands_POS.xlsx", path: "https://drive.google.com/drive/folders/payoo-dms-highlands-bm01", action_label: "Tải file", badge: "Biểu mẫu" },
+    { id: "f-hl-3", merchant_id: "m-highlands", title: "Tài liệu đặc tả kết nối & Sandbox", file_name: "API_Sandbox_PaymentLink_v2.pdf", path: "https://drive.google.com/drive/folders/payoo-dms-highlands-api", action_label: "Xem chi tiết", badge: "Kỹ thuật" },
+
+    { id: "f-jdv-1", merchant_id: "m-jdv", title: "Hồ sơ triển khai 3 bên SmartPOS JDV", file_name: "Hop_Dong_3Ben_JDV_Pvcombank_2026.pdf", path: "https://drive.google.com/drive/folders/payoo-dms-jdv-contract", action_label: "Mở tài liệu", badge: "Đã ký duyệt" },
+    { id: "f-vt-1", merchant_id: "m-vietthanh", title: "Hợp đồng trả góp 0% & Danh sách 35 Showroom", file_name: "Bo_Ho_So_TraGop_VietThanh_2026.pdf", path: "https://drive.google.com/drive/folders/payoo-dms-vietthanh", action_label: "Mở tài liệu", badge: "Đã ký duyệt" }
   ],
   stakeholders: [
     // Highlands
@@ -354,22 +354,13 @@ function saveApiConfig() {
 
 function updateSyncStatusUI() {
   const btn = document.getElementById("topbar-cloud-btn");
-  const icon = document.getElementById("topbar-cloud-icon");
+  const dot = document.getElementById("topbar-cloud-dot");
   const text = document.getElementById("topbar-cloud-text");
-  if (!btn || !icon || !text) return;
+  if (!btn || !text) return;
 
-  if (API_ENDPOINT) {
-    btn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold transition";
-    icon.setAttribute("data-lucide", "cloud-check");
-    icon.className = "w-4 h-4 text-emerald-600";
-    text.textContent = "Đã đồng bộ";
-  } else {
-    btn.className = "flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold transition";
-    icon.setAttribute("data-lucide", "cloud-off");
-    icon.className = "w-4 h-4 text-amber-600";
-    text.textContent = "Lưu cục bộ";
-  }
-  lucide.createIcons();
+  btn.className = "flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-500 border border-slate-200/80 text-xs font-medium transition";
+  if (dot) dot.className = API_ENDPOINT ? "w-1.5 h-1.5 rounded-full bg-emerald-500" : "w-1.5 h-1.5 rounded-full bg-emerald-500/70";
+  text.textContent = "Đã đồng bộ";
 }
 
 async function syncDataFromGoogleSheets() {

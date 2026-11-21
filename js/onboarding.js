@@ -13,8 +13,8 @@ const SOP_CHANNELS = {
       { step_no: 6, title: "LC duyệt", stage: "STAGE_LEGAL_CMS", dept: "Duyệt" },
       { step_no: 7, title: "Gửi Ban Giám Đốc (BGĐ) ký tên và đóng mộc", stage: "STAGE_SIGN_HANDOVER", dept: "BGĐ" },
       { step_no: 8, title: "Gửi đến Đối tác", stage: "STAGE_SIGN_HANDOVER", dept: "Đối tác" },
-      { step_no: 9, title: "Làm BM03 gửi mail ASM", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
-      { step_no: 10, title: "Gửi mail Request Cấu Hình Mới xin thông số (BM03)", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
+      { step_no: 9, title: "Làm BM_03 gửi mail ASM & Vận hành (Cấp máy SmartPOS)", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
+      { step_no: 10, title: "Gửi mail Request Cấu Hình Mới xin thông số đối tác", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
       { step_no: 11, title: "Gửi mail Cài đặt TK và lắp đặt TBTT (BM01, BM01.01, file payoopos)", stage: "STAGE_CONFIG_DEVICE", dept: "Nội bộ" },
       { step_no: 12, title: "Mail team DevOps mapping Cấu hình trả góp", stage: "STAGE_CONFIG_DEVICE", dept: "DevOps" },
       { step_no: 13, title: "ASM trả lại BM01 và BM01.01 có ký nháy ASM", stage: "STAGE_GOLIVE", dept: "ASM" },
@@ -33,8 +33,8 @@ const SOP_CHANNELS = {
       { step_no: 6, title: "LC duyệt", stage: "STAGE_LEGAL_CMS", dept: "Duyệt" },
       { step_no: 7, title: "Gửi Ban Giám Đốc (BGĐ) ký tên và đóng mộc", stage: "STAGE_SIGN_HANDOVER", dept: "BGĐ" },
       { step_no: 8, title: "Gửi đến Đối tác", stage: "STAGE_SIGN_HANDOVER", dept: "Đối tác" },
-      { step_no: 9, title: "Làm BM03 gửi mail ASM", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
-      { step_no: 10, title: "Gửi mail Request Cấu Hình Mới xin thông số (BM03)", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
+      { step_no: 9, title: "Làm BM_03 gửi mail ASM & Vận hành (Cấp máy SmartPOS)", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
+      { step_no: 10, title: "Gửi mail Request Cấu Hình Mới xin thông số đối tác", stage: "STAGE_CONFIG_DEVICE", dept: "ASM" },
       { step_no: 11, title: "Gửi mail Cài đặt TK và lắp đặt TBTT (BM01, BM01.01, file payoopos)", stage: "STAGE_CONFIG_DEVICE", dept: "Nội bộ" },
       { step_no: 12, title: "Mail team core Go-live ShopID", stage: "STAGE_CONFIG_DEVICE", dept: "Core" },
       { step_no: 13, title: "Mail mở Phí dịch vụ số 5 nếu đối tác cần", stage: "STAGE_CONFIG_DEVICE", dept: "Core" },
@@ -610,10 +610,10 @@ function renderOnboardingView() {
     : { dotColor: "green", dotLabel: "Đúng tiến độ", stepSla: {}, capWarning: null, elapsedWorkingDays: 0, overdueCount: 0, warningCount: 0 };
 
   const stages = [
-    { id: "STAGE_LEGAL_CMS", short: "1. Pháp Lý & CMS", title: "1. Pháp Lý & Phê Duyệt Hệ Thống (CMS)" },
-    { id: "STAGE_SIGN_HANDOVER", short: "2. Ký Kết & BG", title: "2. Ký Kết & Bàn Giao Hồ Sơ" },
-    { id: "STAGE_CONFIG_DEVICE", short: "3. Cấu Hình & TB", title: "3. Cấu Hình Kỹ Thuật & Cấp Thiết Bị" },
-    { id: "STAGE_GOLIVE", short: "4. Nghiệm Thu", title: "4. Nghiệm Thu & Chính Thức Hoạt Động (Go-Live)" }
+    { id: "STAGE_LEGAL_CMS", short: "Chặng 1: Pháp Lý & CMS Phê Duyệt", title: "Chặng 1: Pháp Lý & CMS Phê Duyệt" },
+    { id: "STAGE_SIGN_HANDOVER", short: "Chặng 2: Ký Kết & Bàn Giao Hồ Sơ", title: "Chặng 2: Ký Kết & Bàn Giao Hồ Sơ" },
+    { id: "STAGE_CONFIG_DEVICE", short: "Chặng 3: Cấu Hình Kỹ Thuật & Cấp Thiết Bị", title: "Chặng 3: Cấu Hình Kỹ Thuật & Cấp Thiết Bị" },
+    { id: "STAGE_GOLIVE", short: "Chặng 4: Nghiệm Thu & Chính Thức Hoạt Động (Go-Live)", title: "Chặng 4: Nghiệm Thu & Chính Thức Hoạt Động (Go-Live)" }
   ];
 
   const deptBadgeColor = (dept) => {
@@ -732,7 +732,7 @@ function renderOnboardingView() {
                     <div class="flex items-center gap-2 shrink-0 sm:pl-4">
                       ${[9, 10, 12].includes(t.step_no) ? `
                         <button type="button" onclick="openOnboardingEmailModal('${activeOb.id}', ${t.step_no})" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-lg text-[11px] font-bold flex items-center space-x-1 transition whitespace-nowrap" title="Mở mẫu thư điều phối đã điền sẵn dữ liệu đối tác">
-                          <span>✉ Soạn Thư</span>
+                          <span>✉ Soạn mail</span>
                         </button>
                       ` : ''}
                       ${slaText ? `<span class="text-[11px] px-2.5 py-1 rounded-lg ${slaPillClass} whitespace-nowrap">${slaText}</span>` : ''}

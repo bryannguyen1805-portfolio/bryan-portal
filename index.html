@@ -70,6 +70,12 @@
       }
     }
   </style>
+  <style>
+    .custom-slim-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-slim-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-slim-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+    .custom-slim-scroll::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+  </style>
 </head>
 <body class="h-full flex overflow-hidden bg-slate-900 text-slate-800">
 
@@ -186,7 +192,7 @@
             autocomplete="off"
             oninput="handleOmnibarLivePreview(this.value)"
             onfocus="handleOmnibarLivePreview(this.value)"
-            placeholder="Nhập công việc, lịch họp hoặc gõ tắt quy trình (VD: xong B3, Họp Highlands 13h 23/11)..." 
+            placeholder="Tìm kiếm đối tác, dự án hoặc nhập lệnh nhanh (Ctrl + K)..." 
             class="w-full pl-10 pr-16 py-2 bg-slate-100/90 hover:bg-slate-100 focus:bg-white text-slate-800 text-xs rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition font-medium"
           />
           <div class="absolute right-2.5 flex items-center space-x-1 pointer-events-none">
@@ -206,9 +212,9 @@
 
       <!-- Góc phải Topbar: Cloud Sync Icon + Tạo Đầu Việc -->
       <div class="flex items-center space-x-2.5 shrink-0">
-        <button onclick="openApiConfigModal()" id="topbar-cloud-btn" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold transition" title="Cài đặt đồng bộ máy chủ & Google Sheets">
-          <i data-lucide="cloud-off" class="w-4 h-4 text-amber-600" id="topbar-cloud-icon"></i>
-          <span class="hidden sm:inline" id="topbar-cloud-text">Lưu cục bộ</span>
+        <button onclick="openApiConfigModal()" id="topbar-cloud-btn" class="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-500 border border-slate-200/80 text-xs font-medium transition" title="Cài đặt đồng bộ máy chủ & Google Sheets">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500" id="topbar-cloud-dot"></span>
+          <span class="hidden sm:inline" id="topbar-cloud-text">Đã đồng bộ</span>
         </button>
 
         <button onclick="syncDataFromGoogleSheets()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition" title="Đồng bộ dữ liệu ngay">
@@ -231,7 +237,7 @@
         <div class="bg-gradient-to-r from-navy-900 via-navy-850 to-teal-900 rounded-2xl px-5 py-3 text-white shadow-sm border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3">
           <div class="space-y-1.5 text-center md:text-left">
             <div class="flex items-center justify-center md:justify-start space-x-2">
-              <h1 class="text-lg font-black tracking-tight" id="welcome-title">Chào Bryan! ☕</h1>
+              <h1 class="text-base font-black tracking-tight uppercase" id="welcome-title">BẢNG ĐIỀU HÀNH TRIỂN KHAI & ĐỐI TÁC B2B</h1>
               <span class="px-2 py-0.5 rounded-full bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[10px] font-bold">Payoo B2B</span>
             </div>
             <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs" id="banner-summary-text">
@@ -315,7 +321,7 @@
                 <button onclick="navigateTo('CALENDAR')" class="text-xs text-slate-500 font-bold hover:text-teal-600">Lịch tháng →</button>
               </div>
             </div>
-            <div class="space-y-2.5 flex-1" id="dash-meetings-list">
+            <div class="space-y-2.5 h-[270px] overflow-y-auto pr-1 custom-slim-scroll" id="dash-meetings-list">
               <!-- Rendered dynamically -->
             </div>
           </div>
@@ -332,7 +338,7 @@
                 <button onclick="navigateTo('TASKS')" class="text-xs text-slate-500 font-bold hover:text-teal-600">Tất cả →</button>
               </div>
             </div>
-            <div class="space-y-2 flex-1" id="dash-quick-tasks">
+            <div class="space-y-2 h-[270px] overflow-y-auto pr-1 custom-slim-scroll" id="dash-quick-tasks">
               <!-- Rendered dynamically -->
             </div>
           </div>
@@ -633,10 +639,10 @@
           </div>
         </div>
 
-        <!-- CHẾ ĐỘ 1: LỊCH THÁNG 2 CỘT (70% Lưới Calendar | 30% Chi Tiết Ngày Đang Chọn) -->
-        <div id="cal-view-month" class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+        <!-- CHẾ ĐỘ 1: LỊCH THÁNG 2 CỘT (65% Lưới Calendar | 35% Chi Tiết Ngày Đang Chọn) -->
+        <div id="cal-view-month" class="grid grid-cols-1 lg:grid-cols-[65fr_35fr] gap-4 items-start">
           <!-- Lưới Calendar 7 Cột -->
-          <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
             <div class="grid grid-cols-7 bg-slate-50 border-b border-slate-200 text-center text-[11px] font-black text-slate-500 py-2.5">
               <div>Thứ 2</div>
               <div>Thứ 3</div>
@@ -652,7 +658,7 @@
           </div>
 
           <!-- Bảng Chi Tiết Ngày Đang Chọn -->
-          <div class="lg:col-span-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
                 <div class="text-[11px] font-bold text-slate-400 uppercase">Chi Tiết Trong Ngày</div>
@@ -725,8 +731,8 @@
       <div id="view-AUTOMATION" class="hidden space-y-6 max-w-7xl mx-auto">
         <!-- Phần 1: Quy Tắc Nền Tảng -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h2 class="text-lg font-black text-slate-900 tracking-tight mb-1">Tự Động Hóa Vận Hành (Không Cần Code)</h2>
-          <p class="text-xs text-slate-500 mb-5">Tự thiết lập các quy tắc "KHI ... THÌ TỰ ĐỘNG ..." chạy trực tiếp trên Bryan Portal</p>
+          <h2 class="text-lg font-black text-slate-900 tracking-tight mb-1 uppercase">QUY TẮC TỰ ĐỘNG & KÍCH HOẠT CẢNH BÁO VẬN HÀNH</h2>
+          <p class="text-xs text-slate-500 mb-5">Thiết lập các quy tắc xử lý tự động khi phát sinh sự kiện, điểm nghẽn hoặc mốc thời gian trên hệ thống.</p>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <label class="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex items-start justify-between gap-3 cursor-pointer hover:border-teal-300 transition">
               <div>

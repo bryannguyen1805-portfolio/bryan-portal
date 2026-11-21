@@ -56,18 +56,17 @@ function renderDashboardBlockers() {
 
   const blockedProjects = state.projects.filter(p => p.is_blocked);
 
-  // AC-06: Khi không có vướng mắc -> Thu gọn thành Slim Banner <= 52px
+  // Khi không có vướng mắc -> Thu gọn thành dải trạng thái mảnh cao tối đa 32px
   if (blockedProjects.length === 0) {
     section.innerHTML = `
-      <div class="h-[48px] px-5 rounded-2xl bg-emerald-50/80 border border-emerald-200 flex items-center justify-between text-xs shadow-2xs">
-        <div class="flex items-center space-x-2.5 text-emerald-800 font-bold">
-          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-          <span>Tất cả các dự án đối tác đang vận hành theo đúng cam kết tiến độ.</span>
+      <div class="h-8 px-4 rounded-xl bg-emerald-50/70 border border-emerald-200/80 flex items-center justify-between text-xs">
+        <div class="flex items-center space-x-2 text-emerald-800 font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+          <span>Tiến độ toàn hệ thống thông suốt</span>
         </div>
-        <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-extrabold text-[10px]">Thông suốt</span>
+        <span class="text-[11px] text-emerald-700 font-bold">0 vướng mắc</span>
       </div>
     `;
-    lucide.createIcons();
     return;
   }
 
@@ -93,9 +92,9 @@ function renderDashboardBlockers() {
               <p class="text-xs text-rose-800">${p.blocker_reason}</p>
               <div class="flex items-center justify-between pt-2 border-t border-rose-200/70">
                 <span class="text-[11px] text-rose-700">Phụ trách: <strong>${p.blocker_owner || 'Đối tác'}</strong></span>
-                <button onclick="handlePingPIC('${m ? m.name : ''}', '${p.title}', '${p.blocker_reason}')" class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[11px] font-bold transition flex items-center space-x-1 shadow-2xs">
-                  <i data-lucide="send" class="w-3 h-3"></i>
-                  <span>Nhắc Phụ Trách (Zalo)</span>
+                <button onclick="handlePingPIC('${m ? m.name : ''}', '${p.title}', '${p.blocker_reason}')" class="px-3 py-1 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-[11px] font-bold transition flex items-center space-x-1 shadow-2xs">
+                  <i data-lucide="message-circle" class="w-3 h-3"></i>
+                  <span>Liên hệ Zalo</span>
                 </button>
               </div>
             </div>
