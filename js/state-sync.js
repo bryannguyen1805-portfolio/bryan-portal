@@ -1,7 +1,8 @@
 // -------------------------------------------------------------
 // 1. DATA STATE (MERCHANTS + SUB-PROJECTS + LOCAL FOLDERS + STAKEHOLDERS + TASKS)
 // -------------------------------------------------------------
-let API_ENDPOINT = localStorage.getItem("bryan_portal_api") || "";
+const DEFAULT_API_ENDPOINT = "https://script.google.com/macros/s/AKfycbzMPVdAPbLAXb39_JtY-ko_puNSIE3CTeb4fQVaiqQaa8-ZkXV6sjJFrysfkxQr_SchWQ/exec";
+let API_ENDPOINT = localStorage.getItem("bryan_portal_api") || DEFAULT_API_ENDPOINT;
 
 let state = {
   merchants: [
