@@ -786,23 +786,33 @@ function openNewTaskModal() {
   document.getElementById("task-due-date-input").value = "2026-11-30";
   
   const sel = document.getElementById("task-project-select");
-  sel.innerHTML = state.projects.map(p => {
+  const activeProjs = state.projects.filter(p => !p.is_archived && (p.progress || 0) < 100);
+  sel.innerHTML = `<option value="">[Nội bộ Bryan] Việc cá nhân / Nội bộ</option>` + activeProjs.map(p => {
     const m = state.merchants.find(item => item.id === p.merchant_id);
     return `<option value="${p.id}">[${m ? m.name : 'Nội bộ'}] ${p.title}</option>`;
   }).join('');
+  if (activeProjs.length > 0) sel.value = activeProjs[0].id;
   
   document.getElementById("modal-task").classList.remove("hidden");
 }
 
 function openNewTaskModalForMerchant(mId) {
   openNewTaskModal();
-  const p = state.projects.find(proj => proj.merchant_id === mId);
+  const p = state.projects.find(proj => proj.merchant_id === mId && !proj.is_archived && (proj.progress || 0) < 100);
   if (p) document.getElementById("task-project-select").value = p.id;
 }
 
 function openNewTaskModalForProject(projId) {
   openNewTaskModal();
-  document.getElementById("task-project-select").value = projId;
+  const sel = document.getElementById("task-project-select");
+  if (!Array.from(sel.options).some(o => o.value === projId)) {
+    const p = state.projects.find(item => item.id === projId);
+    if (p) {
+      const m = state.merchants.find(item => item.id === p.merchant_id);
+      sel.insertAdjacentHTML("beforeend", `<option value="${p.id}">[${m ? m.name : 'Nội bộ'}] ${p.title} (Đã xong)</option>`);
+    }
+  }
+  sel.value = projId;
 }
 
 function openEditTaskModal(taskId) {
@@ -822,10 +832,13 @@ function openEditTaskModal(taskId) {
   radios.forEach(r => { r.checked = (r.value === t.type); });
 
   const sel = document.getElementById("task-project-select");
-  sel.innerHTML = state.projects.map(p => {
+  const visibleProjs = state.projects.filter(p => (!p.is_archived && (p.progress || 0) < 100) || p.id === t.project_id);
+  sel.innerHTML = `<option value="">[Nội bộ Bryan] Việc cá nhân / Nội bộ</option>` + visibleProjs.map(p => {
     const m = state.merchants.find(item => item.id === p.merchant_id);
-    return `<option value="${p.id}" ${p.id === t.project_id ? 'selected' : ''}>[${m ? m.name : 'Nội bộ'}] ${p.title}</option>`;
+    const doneTag = (p.is_archived || (p.progress || 0) >= 100) ? " (Đã hoàn thành)" : "";
+    return `<option value="${p.id}" ${p.id === t.project_id ? 'selected' : ''}>[${m ? m.name : 'Nội bộ'}] ${p.title}${doneTag}</option>`;
   }).join('');
+  sel.value = t.project_id || "";
 
   document.getElementById("modal-task").classList.remove("hidden");
 }
