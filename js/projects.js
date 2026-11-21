@@ -250,6 +250,25 @@ let showMerchantDirectory = false;
 let merchantDirSearch = "";
 let merchantDirFilter = "ALL"; // ALL | BLOCKED | ACTIVE | LIVE
 
+function getMerchantTkvhCode(m, projs = []) {
+  if (m?.tkvh) return m.tkvh;
+  const cleanName = (m?.name || "MERCHANT")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toUpperCase() || "MERCHANT";
+
+  const textPool = `${m?.contract_status || ""} ${projs.map(p => p.title).join(" ")}`.toLowerCase();
+  const hasPos = /\bpos\b|smart\s*pos|quẹt thẻ/i.test(textPool);
+  const hasPgw = /\bpgw\b|paylink|cổng thanh toán|tokenization|apple pay|online/i.test(textPool);
+
+  // Nếu có POS (kể cả chạy song song POS + PGW/Paylink) -> chỉ hiện kênh POS; nếu chỉ có PGW/Paylink -> hiện PGW
+  const suffix = hasPos ? "POS" : (hasPgw ? "PGW" : "POS");
+  return `PY7_${cleanName}_${suffix}`;
+}
+
 function toggleMerchantDirectory() {
   showMerchantDirectory = !showMerchantDirectory;
   renderMerchantPillsBar();
@@ -334,7 +353,8 @@ function renderMerchantDirectoryPanel() {
     if (merchantDirFilter === "ACTIVE" && !hasActive) return false;
     if (merchantDirFilter === "LIVE" && (hasActive || projs.length === 0)) return false;
     if (q) {
-      const hay = `${m.name} ${m.industry || ''} ${m.mid || ''} ${m.acquiring_bank || ''}`.toLowerCase();
+      const tkvh = getMerchantTkvhCode(m, projs);
+      const hay = `${m.name} ${m.industry || ''} ${tkvh} ${m.acquiring_bank || ''}`.toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -348,7 +368,7 @@ function renderMerchantDirectoryPanel() {
           <p class="text-xs text-slate-400">Tìm kiếm nhanh và theo dõi trạng thái toàn bộ chuỗi đang quản lý</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <input value="${merchantDirSearch}" oninput="merchantDirSearch=this.value; renderMerchantDirectoryPanel()" type="text" placeholder="Tìm tên chuỗi, MID, ngân hàng..." class="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-teal-500 w-56" />
+          <input value="${merchantDirSearch}" oninput="merchantDirSearch=this.value; renderMerchantDirectoryPanel()" type="text" placeholder="Tìm tên chuỗi, TKVH, ngân hàng..." class="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-teal-500 w-56" />
           <div class="flex items-center gap-1 text-xs">
             ${[
               { id: "ALL", label: "Tất cả" },
@@ -370,7 +390,7 @@ function renderMerchantDirectoryPanel() {
           <thead>
             <tr class="border-b border-slate-200 text-[11px] font-extrabold text-slate-500 uppercase">
               <th class="py-2.5 pr-3">Chuỗi Đối Tác</th>
-              <th class="py-2.5 px-3">Mã MID & Ngân Hàng</th>
+              <th class="py-2.5 px-3">TKVH & Ngân Hàng</th>
               <th class="py-2.5 px-3">Số Dự Án</th>
               <th class="py-2.5 px-3">Tiến Độ TB</th>
               <th class="py-2.5 px-3">Trạng Thái</th>
@@ -394,7 +414,7 @@ function renderMerchantDirectoryPanel() {
                     </div>
                   </td>
                   <td class="py-3 px-3">
-                    <div class="font-mono text-[11px] text-slate-700">${m.mid || ('MID_' + m.id.replace('m-','').toUpperCase())}</div>
+                    <div class="font-mono text-[11px] font-bold text-slate-800">${getMerchantTkvhCode(m, projs)}</div>
                     <div class="text-[10px] text-slate-400">${m.acquiring_bank || 'VietinBank / Pvcombank'}</div>
                   </td>
                   <td class="py-3 px-3 font-semibold text-slate-700">${projs.length} dự án</td>
