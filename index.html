@@ -809,55 +809,54 @@
           </div>
         </div>
 
-        <!-- Phần 2: Trình Tạo Quy Tắc Tự Động (No-Code Rule Builder) -->
+        <!-- Phần 2: Kho Lệnh Tắt Có Sẵn + Tự Tạo Quy Tắc Dễ Hiểu -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div>
-              <h3 class="text-sm font-black text-slate-900">Tạo Quy Tắc Tự Động Mới</h3>
-              <p class="text-xs text-slate-400">Chọn sự kiện kích hoạt, điều kiện từ khóa và hành động tự động thực thi</p>
+              <h3 class="text-sm font-black text-slate-900">Lệnh Tắt Nhanh & Tự Động Hóa Theo Ý Bạn</h3>
+              <p class="text-xs text-slate-400">Gõ thẳng các câu lệnh ngắn lên thanh tìm kiếm trên cùng để hệ thống tự xử lý</p>
             </div>
             <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
-              <span class="text-slate-400 font-semibold mr-1">Mẫu nhanh:</span>
-              <button type="button" onclick="addPresetAutomationRule('BLOCKER_TASK')" class="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-lg font-bold transition">+ Gắn vướng mắc → Tạo việc gỡ nghẽn</button>
-              <button type="button" onclick="addPresetAutomationRule('HIGHLANDS_URGENT')" class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg font-bold transition">+ Việc Highlands → Khẩn cấp</button>
-              <button type="button" onclick="addPresetAutomationRule('DONE_MEETING')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded-lg font-bold transition">+ Hoàn tất việc → Thêm lịch rà soát</button>
+              <span class="text-slate-400 font-semibold mr-1">Thử lệnh mẫu:</span>
+              <button type="button" onclick="setNlpCommand('go live Katinat')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg font-bold transition">go live [Tên Thương Hiệu]</button>
+              <button type="button" onclick="setNlpCommand('xong B3')" class="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-lg font-bold transition">xong B3 [Tên]</button>
+              <button type="button" onclick="setNlpCommand('Họp Highlands 14h 25/11')" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 rounded-lg font-bold transition">Họp [Tên] [Giờ] [Ngày]</button>
             </div>
           </div>
 
           <form onsubmit="createCustomAutomationRule(event)" class="p-4 rounded-2xl bg-slate-50 border border-slate-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3 items-end text-xs">
             <div class="lg:col-span-3">
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Tên quy tắc</label>
-              <input id="auto-new-name" required type="text" placeholder="VD: Tự nâng ưu tiên việc UAT" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500" />
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">1. Tên tự động hóa</label>
+              <input id="auto-new-name" required type="text" placeholder="VD: Chốt kèo -> Go-Live luôn" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500" />
             </div>
-            <div class="lg:col-span-2">
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Khi phát sinh</label>
+            <div class="lg:col-span-3">
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">2. Khi nào chạy?</label>
               <select id="auto-new-trigger" class="w-full px-2.5 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500 font-semibold">
-                <option value="TASK_CREATED">Tạo đầu việc mới</option>
-                <option value="TASK_DONE">Hoàn tất đầu việc</option>
-                <option value="PROJECT_BLOCKED">Dự án gắn vướng mắc</option>
-                <option value="MEETING_CREATED">Thêm lịch họp mới</option>
+                <option value="COMMAND">Khi tôi gõ từ khóa lệnh...</option>
+                <option value="TASK_CREATED">Khi tạo đầu việc mới</option>
+                <option value="TASK_DONE">Khi hoàn tất đầu việc</option>
+                <option value="PROJECT_BLOCKED">Khi dự án bị vướng mắc</option>
+                <option value="MEETING_CREATED">Khi thêm lịch họp mới</option>
               </select>
             </div>
             <div class="lg:col-span-2">
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Điều kiện từ khóa</label>
-              <input id="auto-new-keyword" type="text" placeholder="Để trống = tất cả" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500" />
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">3. Từ khóa kích hoạt</label>
+              <input id="auto-new-keyword" type="text" placeholder="VD: chốt kèo (hoặc trống)" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500" />
             </div>
-            <div class="lg:col-span-2">
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Hành động tự động</label>
+            <div class="lg:col-span-3">
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">4. Hệ thống tự động làm gì?</label>
               <select id="auto-new-action" class="w-full px-2.5 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500 font-semibold">
-                <option value="SET_PRIORITY_URGENT">Nâng mức Khẩn cấp</option>
-                <option value="CREATE_FOLLOWUP_TASK">Tạo đầu việc nối tiếp</option>
+                <option value="COMPLETE_AND_GRADUATE">Xong toàn bộ bước & Chuyển sang Chuỗi</option>
+                <option value="CREATE_FOLLOWUP_TASK">Tạo đầu việc nối tiếp (+1 ngày)</option>
                 <option value="CREATE_MEETING">Thêm lịch họp (+1 ngày)</option>
+                <option value="SET_PRIORITY_URGENT">Nâng mức Khẩn cấp</option>
                 <option value="LOG_AND_TOAST">Ghi nhật ký & Nhắc nổi</option>
               </select>
             </div>
-            <div class="lg:col-span-2">
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Nội dung / Mẫu tạo</label>
-              <input id="auto-new-payload" type="text" placeholder="VD: Kiểm tra lại sau xử lý" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500" />
-            </div>
             <div class="lg:col-span-1">
-              <button type="submit" class="w-full py-2 px-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-xs transition">+ Lưu</button>
+              <button type="submit" class="w-full py-2 px-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-xs transition">+ Tạo</button>
             </div>
+            <input id="auto-new-payload" type="hidden" value="" />
           </form>
 
           <div>

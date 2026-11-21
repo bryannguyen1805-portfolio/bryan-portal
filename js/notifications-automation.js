@@ -222,6 +222,8 @@ function executeSingleAutomationRule(rule, ctx, isManualTest = false) {
     saveStateStorage();
     renderDashboardMeetings();
     if (typeof renderCalendarView === "function") renderCalendarView();
+  } else if (rule.action === "COMPLETE_AND_GRADUATE") {
+    if (typeof executeAutoGoLiveByName === "function") executeAutoGoLiveByName(ctx.title || "");
   } else if (rule.action === "LOG_AND_TOAST") {
     showToast(`⚡ ${rule.payload || rule.name}`);
   }
@@ -247,12 +249,14 @@ function renderCustomAutomationRules() {
   if (!list) return;
 
   const triggerLabels = {
+    COMMAND: "Khi gõ lệnh",
     TASK_CREATED: "Khi tạo đầu việc mới",
     TASK_DONE: "Khi hoàn tất đầu việc",
     PROJECT_BLOCKED: "Khi dự án gắn vướng mắc",
     MEETING_CREATED: "Khi thêm lịch họp mới"
   };
   const actionLabels = {
+    COMPLETE_AND_GRADUATE: "Xong 18 bước & Chuyển sang Chuỗi",
     SET_PRIORITY_URGENT: "Nâng mức Khẩn cấp",
     CREATE_FOLLOWUP_TASK: "Tạo đầu việc nối tiếp",
     CREATE_MEETING: "Thêm lịch họp (+1 ngày)",

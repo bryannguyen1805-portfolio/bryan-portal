@@ -51,8 +51,19 @@ function handleOmnibarLivePreview(raw) {
   const lower = val.toLowerCase();
   const chips = [];
 
+  // 0. Lệnh GO LIVE nhanh: "go live [Tên thương hiệu / Tên đối tác]"
+  if (/^(go\s*-?\s*live|golive|bàn giao)\b/i.test(lower)) {
+    const qName = val.replace(/^(go\s*-?\s*live|golive|bàn giao)\s*/i, "").trim();
+    const matchedOb = findOnboardingByBrandOrName(qName);
+    chips.push(`<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold">🚀 Hoàn tất toàn bộ bước & Chuyển sang Chuỗi Đối Tác</span>`);
+    if (matchedOb) {
+      chips.push(`<span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 font-bold">🏢 ${matchedOb.brand_name || matchedOb.merchant_name}</span>`);
+    } else if (qName) {
+      chips.push(`<span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 font-bold">Tìm đối tác: ${qName}</span>`);
+    }
+  }
   // 1. Tạo quy trình mới
-  if (lower.includes("triển khai mới") || lower.includes("onboard mới")) {
+  else if (lower.includes("triển khai mới") || lower.includes("onboard mới")) {
     chips.push(`<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold">🚀 Khởi tạo quy trình mới</span>`);
     let ch = "POS (15 bước)";
     if (lower.includes("paylink")) ch = "POS & Paylink (18 bước)";
@@ -102,6 +113,86 @@ function handleOmnibarLivePreview(raw) {
   box.classList.remove("hidden");
 }
 
+function findOnboardingByBrandOrName(query) {
+  const q = (query || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+  const candidates = onboardingList.filter(o => !o.graduated);
+  const pool = candidates.length > 0 ? candidates : onboardingList;
+  if (!q) return pool.find(o => o.id === activeOnboardingId) || pool[0] || null;
+  return pool.find(o => {
+    const b = (o.brand_name || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+    const n = (o.merchant_name || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+    return (b && (b.includes(q) || q.includes(b))) || (n && (n.includes(q) || q.includes(n)));
+  }) || null;
+}
+
+function executeAutoGoLiveByName(queryName) {
+  const ob = findOnboardingByBrandOrName(queryName);
+  if (!ob) {
+    showToast(`Không tìm thấy đối tác đang triển khai khớp với "${queryName}".`, true);
+    return false;
+  }
+
+  const nowIso = new Date().toISOString();
+  ob.tasks.forEach(t => {
+    t.status = "DONE";
+    t.completed_at = t.completed_at || nowIso;
+    t.completed_by = t.completed_by || "ANTIGRAVITY_AUTOMATION";
+  });
+  if (typeof computeAttioProjectRollup === "function") computeAttioProjectRollup(ob);
+
+  const brand = ob.brand_name || ob.merchant_name;
+  const chLabel = (typeof SOP_CHANNELS !== "undefined" && SOP_CHANNELS[ob.channel]?.label) || ob.channel;
+  const nextYear = new Date();
+  nextYear.setFullYear(nextYear.getFullYear() + 1);
+
+  if (!ob.graduated) {
+    const newMId = "m-" + Date.now().toString().slice(-5);
+    const aliasBase = brand.toLowerCase().replace(/[^a-z0-9]/g, "") || "partner";
+    state.merchants.push({
+      id: newMId,
+      name: ob.merchant_name,
+      brand_name: brand,
+      alias: "@" + aliasBase,
+      industry: "Chuỗi B2B Enterprise",
+      expected_gmv: "~500M VNĐ/tháng",
+      avatar_letter: brand.charAt(0).toUpperCase(),
+      color: "bg-teal-700",
+      contract_expiry_date: nextYear.toISOString().split("T")[0],
+      contract_status: `Đã Hoàn Tất Triển Khai (${chLabel}) • Đang Vận Hành`
+    });
+    state.projects.push({
+      id: "p-" + Date.now().toString().slice(-5),
+      merchant_id: newMId,
+      title: `Triển Khai & Vận Hành Kênh ${ob.channel.replace("_", " & ")}`,
+      stage: "GO-LIVE",
+      due_date: nowIso.split("T")[0],
+      progress: 100,
+      milestone_name: "5. Go-Live Chuỗi & Khai Thác GMV",
+      gate_step: 5,
+      is_blocked: false,
+      blocker_reason: "",
+      blocker_owner: ""
+    });
+    ob.graduated = true;
+    ob.linked_merchant_id = newMId;
+  }
+
+  saveOnboardingStorage();
+  saveStateStorage();
+  updateAllKpis();
+  if (typeof renderDashboardOnboardingSummary === "function") renderDashboardOnboardingSummary();
+  if (typeof renderDashboardProjectsProgress === "function") renderDashboardProjectsProgress();
+  if (ob.linked_merchant_id && typeof selectMerchant === "function") {
+    selectMerchant(ob.linked_merchant_id);
+    navigateTo("PROJECTS");
+  }
+  if (typeof addNotificationLog === "function") {
+    addNotificationLog(`Đã tự động Go-Live toàn bộ ${ob.total_steps} bước cho ${brand} và chuyển sang Chuỗi Đối Tác!`);
+  }
+  showToast(`Đã hoàn tất ${ob.total_steps}/${ob.total_steps} bước và chuyển "${brand}" sang Chuỗi Đối Tác!`);
+  return true;
+}
+
 async function handleCommandSubmit(e) {
   e.preventDefault();
   hideOmnibarPreview();
@@ -111,6 +202,29 @@ async function handleCommandSubmit(e) {
 
   input.value = "";
   const lower = cmd.toLowerCase();
+
+  // 0. LỆNH GO LIVE TỰ ĐỘNG: "go live [Tên thương hiệu / Tên đối tác]"
+  if (/^(go\s*-?\s*live|golive|bàn giao)\b/i.test(lower)) {
+    const qName = cmd.replace(/^(go\s*-?\s*live|golive|bàn giao)\s*/i, "").trim();
+    executeAutoGoLiveByName(qName);
+    return;
+  }
+
+  // 0-CUSTOM. KIỂM TRA LỆNH TẮT DO NGƯỜI DÙNG TỰ TẠO TRONG MỤC TỰ ĐỘNG HÓA
+  if (typeof customAutomationRules !== "undefined" && Array.isArray(customAutomationRules)) {
+    const matchedCmdRule = customAutomationRules.find(r =>
+      r.enabled && r.trigger === "COMMAND" && r.keyword && lower.startsWith(r.keyword.toLowerCase().trim())
+    );
+    if (matchedCmdRule) {
+      const argText = cmd.slice(matchedCmdRule.keyword.trim().length).trim();
+      if (matchedCmdRule.action === "COMPLETE_AND_GRADUATE") {
+        executeAutoGoLiveByName(argText);
+      } else {
+        executeSingleAutomationRule(matchedCmdRule, { title: argText || cmd, pic: "Bryan" }, true);
+      }
+      return;
+    }
+  }
 
   // 0A. TỰ ĐỘNG HÓA ONBOARDING SOP: "Triển khai mới [Tên] kênh [Kênh]"
   if (lower.includes("triển khai mới") || lower.includes("onboard mới") || lower.includes("onboarding mới")) {
