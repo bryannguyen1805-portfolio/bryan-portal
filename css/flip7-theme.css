@@ -56,7 +56,7 @@ aside .nav-item.bg-teal-600\/90 i,
 aside .nav-item.bg-teal-600\/90 svg {
   color: var(--f7-teal-deep) !important;
 }
-aside .nav-item.bg-teal-600\/90 span:last-child:not(:first-child) {
+aside .nav-item.bg-teal-600\/90 .sidebar-badge {
   background-color: rgba(19, 78, 75, 0.18) !important;
   color: #134E4B !important;
   font-weight: 800 !important;
@@ -65,7 +65,7 @@ aside .nav-item:not(.bg-teal-600\/90) {
   color: #ECFEFC !important;
   border-radius: 999px !important;
 }
-aside .nav-item:not(.bg-teal-600\/90) span:last-child:not(:first-child) {
+aside .nav-item:not(.bg-teal-600\/90) .sidebar-badge {
   background-color: rgba(10, 46, 44, 0.55) !important;
   color: #FFFFFF !important;
 }
