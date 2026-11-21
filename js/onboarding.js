@@ -106,8 +106,11 @@ function generateSopTasks(channelKey, doneUntilStep = 0) {
   }));
 }
 
-// Load từ localStorage hoặc khởi tạo 2 mẫu thực tế
-let onboardingList = JSON.parse(localStorage.getItem("bryan_onboarding_list") || "null") || [
+// Load cô lập theo email người dùng hiện tại
+const _obEmail = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "tri.nguyen2@vietunion.com.vn";
+const _obUserRaw = localStorage.getItem(`bryan_onboarding_list_${_obEmail}`);
+const _isBryanOb = _obEmail === "tri.nguyen2@vietunion.com.vn" || _obEmail === "quantritc1805@gmail.com";
+let onboardingList = JSON.parse(_obUserRaw || (_isBryanOb ? localStorage.getItem("bryan_onboarding_list") : null) || "null") || (_isBryanOb ? [
   {
     id: "ob-gs25",
     merchant_name: "GS25 Vietnam",
@@ -122,7 +125,7 @@ let onboardingList = JSON.parse(localStorage.getItem("bryan_onboarding_list") ||
     total_steps: 18,
     tasks: generateSopTasks("POS_PAYLINK", 2)
   }
-];
+] : []);
 
 let showGraduatedOnboarding = false;
 let showOnboardingPipelineTier1 = false;
@@ -150,8 +153,13 @@ function toggleShowGraduatedOnboarding() {
   renderOnboardingView();
 }
 
+function getOnboardingStorageKey() {
+  const email = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "tri.nguyen2@vietunion.com.vn";
+  return `bryan_onboarding_list_${email}`;
+}
+
 function saveOnboardingStorage() {
-  localStorage.setItem("bryan_onboarding_list", JSON.stringify(onboardingList));
+  localStorage.setItem(getOnboardingStorageKey(), JSON.stringify(onboardingList));
   const badge = document.getElementById("badge-onboarding-count");
   if (badge) badge.textContent = onboardingList.filter(o => !o.graduated).length;
 }

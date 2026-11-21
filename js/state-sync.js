@@ -134,9 +134,28 @@ let state = {
   ]
 };
 
-// Nạp state từ localStorage nếu đã lưu
-const savedStateRaw = localStorage.getItem("bryan_portal_state_v2");
-if (savedStateRaw) {
+function getUserStateStorageKey() {
+  const email = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "tri.nguyen2@vietunion.com.vn";
+  return `bryan_portal_state_v2_${email}`;
+}
+
+function isBryanLegacyUser() {
+  const email = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "tri.nguyen2@vietunion.com.vn";
+  return email === "tri.nguyen2@vietunion.com.vn" || email === "quantritc1805@gmail.com";
+}
+
+// Nạp state cô lập theo email người dùng
+const userStateKey = getUserStateStorageKey();
+const savedStateRaw = localStorage.getItem(userStateKey) || (isBryanLegacyUser() ? localStorage.getItem("bryan_portal_state_v2") : null);
+if (!savedStateRaw && !isBryanLegacyUser()) {
+  // Nhân sự mới phòng Omni khởi đầu với workspace trống sạch sẽ
+  state.merchants = [];
+  state.folders = [];
+  state.stakeholders = [];
+  state.projects = [];
+  state.tasks = [];
+  state.meetings = [];
+} else if (savedStateRaw) {
   try {
     const parsed = JSON.parse(savedStateRaw);
     if (parsed && Array.isArray(parsed.merchants)) {
@@ -174,6 +193,8 @@ let cloudSyncTimer = null;
 
 function scheduleFullCloudSync() {
   if (!API_ENDPOINT) return;
+  const userEmail = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "";
+  if (!userEmail) return;
   clearTimeout(cloudSyncTimer);
   cloudSyncTimer = setTimeout(() => {
     fetch(API_ENDPOINT, {
@@ -182,6 +203,7 @@ function scheduleFullCloudSync() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "SYNC_FULL_STATE",
+        owner_email: userEmail,
         merchants: state.merchants,
         stakeholders: state.stakeholders,
         projects: state.projects,
@@ -195,7 +217,7 @@ function scheduleFullCloudSync() {
 }
 
 function saveStateStorage() {
-  localStorage.setItem("bryan_portal_state_v2", JSON.stringify(state));
+  localStorage.setItem(getUserStateStorageKey(), JSON.stringify(state));
   scheduleFullCloudSync();
 }
 
@@ -418,20 +440,26 @@ async function syncDataFromGoogleSheets() {
   if (syncIcon) syncIcon.classList.add("animate-spin");
 
   try {
-    const res = await fetch(API_ENDPOINT);
+    const userEmail = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "";
+    const sep = API_ENDPOINT.includes("?") ? "&" : "?";
+    const res = await fetch(`${API_ENDPOINT}${sep}action=getData&user_email=${encodeURIComponent(userEmail)}`);
     const data = await res.json();
+    if (data && data.status === 403) {
+      showToast(data.error || "Tài khoản không có quyền truy cập.", true);
+      return;
+    }
 
-    if (data.merchants && data.merchants.length > 0) state.merchants = data.merchants;
-    if (data.stakeholders && data.stakeholders.length > 0) state.stakeholders = data.stakeholders;
-    if (data.projects && data.projects.length > 0) state.projects = data.projects;
-    if (data.tasks && data.tasks.length > 0) state.tasks = data.tasks;
-    if (data.meetings && data.meetings.length > 0) state.meetings = data.meetings;
-    if (data.folders && data.folders.length > 0) state.folders = data.folders;
-    if (data.onboarding && data.onboarding.length > 0 && typeof onboardingList !== "undefined") {
+    if (Array.isArray(data.merchants)) state.merchants = data.merchants;
+    if (Array.isArray(data.stakeholders)) state.stakeholders = data.stakeholders;
+    if (Array.isArray(data.projects)) state.projects = data.projects;
+    if (Array.isArray(data.tasks)) state.tasks = data.tasks;
+    if (Array.isArray(data.meetings)) state.meetings = data.meetings;
+    if (Array.isArray(data.folders)) state.folders = data.folders;
+    if (Array.isArray(data.onboarding) && typeof onboardingList !== "undefined") {
       onboardingList = data.onboarding;
       if (typeof saveOnboardingStorage === "function") saveOnboardingStorage();
     }
-    localStorage.setItem("bryan_portal_state_v2", JSON.stringify(state));
+    localStorage.setItem(getUserStateStorageKey(), JSON.stringify(state));
 
     updateAllKpis();
     renderDashboardQuickTasks();
@@ -453,12 +481,13 @@ async function syncDataFromGoogleSheets() {
 
 async function postDataToGoogleSheets(payload) {
   if (!API_ENDPOINT) return;
+  const userEmail = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "";
   try {
     await fetch(API_ENDPOINT, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ owner_email: userEmail, ...payload })
     });
     setTimeout(syncDataFromGoogleSheets, 1500);
   } catch (err) {
