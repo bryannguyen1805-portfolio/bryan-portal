@@ -192,6 +192,42 @@ function editMerchantName(mId) {
   showToast(`Đã đổi tên chuỗi thành "${trimmed}"!`);
 }
 
+function deleteMerchant(mId, event) {
+  if (event) event.stopPropagation();
+  const m = state.merchants.find(item => item.id === mId);
+  if (!m) return;
+
+  if (!confirm(`Bạn có chắc muốn xóa chuỗi "${m.name}" cùng toàn bộ dự án, đầu việc và hồ sơ liên quan?`)) {
+    return;
+  }
+
+  const projIds = new Set(state.projects.filter(p => p.merchant_id === mId).map(p => p.id));
+  state.merchants = state.merchants.filter(item => item.id !== mId);
+  state.projects = state.projects.filter(p => p.merchant_id !== mId);
+  state.tasks = state.tasks.filter(t => !projIds.has(t.project_id));
+  state.stakeholders = state.stakeholders.filter(s => s.merchant_id !== mId);
+  state.folders = state.folders.filter(f => f.merchant_id !== mId);
+
+  if (activeMerchantId === mId) {
+    activeMerchantId = state.merchants[0]?.id || "";
+    activeSubTab = "OVERVIEW";
+  }
+
+  saveStateStorage();
+  updateAllKpis();
+  renderMerchantPillsBar();
+  renderMerchantDirectoryPanel();
+  renderMerchantWorkspaceBody();
+  if (typeof renderDashboardProjectsProgress === "function") renderDashboardProjectsProgress();
+  if (typeof renderDashboardBlockers === "function") renderDashboardBlockers();
+  if (typeof renderDashboardQuickTasks === "function") renderDashboardQuickTasks();
+  if (typeof renderTasksMainView === "function") renderTasksMainView();
+  if (typeof renderCalendarView === "function") renderCalendarView();
+  if (typeof updateNotificationDot === "function") updateNotificationDot();
+  if (typeof addNotificationLog === "function") addNotificationLog(`Đã xóa chuỗi đối tác "${m.name}"`);
+  showToast(`Đã xóa chuỗi đối tác "${m.name}".`);
+}
+
 function editMerchantContractExpiry(mId) {
   const m = state.merchants.find(item => item.id === mId);
   if (!m) return;
@@ -373,7 +409,14 @@ function renderMerchantDirectoryPanel() {
                       ? `<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-bold">Có vướng mắc</span>`
                       : `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">Thông suốt</span>`}
                   </td>
-                  <td class="py-3 pl-3 text-right font-bold text-teal-700">Mở chi tiết →</td>
+                  <td class="py-3 pl-3 text-right font-bold text-teal-700">
+                    <div class="inline-flex items-center space-x-2">
+                      <span>Mở chi tiết →</span>
+                      <button type="button" onclick="deleteMerchant('${m.id}', event)" class="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition" title="Xóa chuỗi đối tác">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               `;
             }).join('')}
@@ -614,6 +657,9 @@ function renderMerchantWorkspaceBody() {
                   <h2 class="text-lg font-black text-slate-900 tracking-tight">${merchant.name}</h2>
                   <button type="button" onclick="editMerchantName('${merchant.id}')" class="p-1 rounded-lg text-slate-400 hover:text-teal-700 hover:bg-teal-50 transition" title="Đổi tên chuỗi đối tác">
                     <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <button type="button" onclick="deleteMerchant('${merchant.id}')" class="p-1 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition" title="Xóa chuỗi đối tác này">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                   </button>
                   <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-teal-50 text-teal-800 border border-teal-200">${merchant.alias}</span>
                   <button type="button" onclick="editMerchantContractExpiry('${merchant.id}')" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition ${
