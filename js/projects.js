@@ -974,19 +974,27 @@ function toggleBlocker(projId) {
   const proj = state.projects.find(p => p.id === projId);
   if (!proj) return;
 
+  const beforeProjects = JSON.parse(JSON.stringify(state.projects));
+  let changed = false;
+
   if (!proj.is_blocked) {
-    const reason = prompt("Nhập lý do Blocker làm chậm tiến độ cam kết:", "Chưa mở IP whitelist Webhook Callback");
+    const reason = prompt("Nhập lý do vướng mắc làm chậm tiến độ cam kết:", "Chưa mở IP whitelist Webhook Callback");
     if (reason) {
       proj.is_blocked = true;
       proj.blocker_reason = reason;
       proj.blocker_owner = "Đội ngũ Đối tác";
+      changed = true;
     }
   } else {
     proj.is_blocked = false;
     proj.blocker_reason = "";
     proj.blocker_owner = "";
+    changed = true;
   }
 
+  if (!changed) return;
+
+  saveStateStorage();
   postDataToGoogleSheets({
     action: "UPDATE_BLOCKER",
     project_id: proj.id,
@@ -996,9 +1004,27 @@ function toggleBlocker(projId) {
   });
 
   renderMerchantWorkspaceBody();
+  if (typeof renderDashboardBlockers === "function") renderDashboardBlockers();
   updateAllKpis();
+
+  const m = state.merchants.find(item => item.id === proj.merchant_id);
+  const mName = m ? m.name : proj.title;
+  if (typeof pushUndoAction === "function") {
+    pushUndoAction({
+      module: "BLOCKER",
+      action_type: proj.is_blocked ? "CREATE" : "UPDATE",
+      entity_id: proj.id,
+      display_label: proj.title,
+      context_label: mName,
+      before: { projects: beforeProjects },
+      after: { projects: state.projects },
+      toastMessage: proj.is_blocked
+        ? `Đã tạo cảnh báo vướng mắc cho chuỗi ${mName}.`
+        : `Đã đóng vướng mắc kỹ thuật của ${mName}.`
+    });
+  }
+
   if (proj.is_blocked && typeof runAutomationRules === "function") {
-    const m = state.merchants.find(item => item.id === proj.merchant_id);
     runAutomationRules("PROJECT_BLOCKED", { title: proj.title, reason: proj.blocker_reason, merchantName: m ? m.name : "", project_id: proj.id, pic: proj.pic || "Bryan" });
   }
 }

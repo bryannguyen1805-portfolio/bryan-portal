@@ -1350,10 +1350,11 @@
     </div>
   </div>
 
-  <!-- Toast Notification -->
-  <div id="toast" class="fixed top-6 right-6 bg-slate-900 text-white text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 transition-all duration-300 opacity-0 pointer-events-none z-50 max-w-sm border border-slate-700">
-    <i data-lucide="check" class="w-4 h-4 text-teal-400 shrink-0" id="toast-icon"></i>
-    <span id="toast-message">Nội dung thông báo</span>
+  <!-- Toast Notification (Linear / Pipedrive Dark Slate + 6s Countdown Bar) -->
+  <div id="toast" style="background:#1E232A;border:1px solid #323A46;border-radius:6px;min-height:42px;min-width:320px;max-width:440px;color:#F1F5F9;font-size:13px;" class="fixed bottom-6 left-6 shadow-2xl flex items-center justify-between gap-3 px-3.5 py-2 transition-all duration-200 opacity-0 pointer-events-none z-[9999] overflow-hidden">
+    <span id="toast-message" class="leading-snug font-normal truncate flex-1">Nội dung thông báo</span>
+    <button type="button" id="toast-undo-btn" onclick="performGlobalUndo()" class="hidden px-2 py-0.5 rounded bg-slate-700/80 hover:bg-slate-600 text-teal-300 text-xs font-bold whitespace-nowrap shrink-0 transition">Hoàn tác ↩</button>
+    <div id="toast-countdown-bar" class="absolute bottom-0 left-0 h-[2px] bg-teal-400" style="width:0%"></div>
   </div>
 
   <!-- ================= 4. CORE JAVASCRIPT ENGINE ================= -->
@@ -1366,6 +1367,7 @@
   <script src="js/attio-engine.js"></script>
   <script src="js/omnibar.js"></script>
   <script src="js/notifications-automation.js"></script>
+  <script src="js/undo-engine.js"></script>
   <script src="js/onboarding.js"></script>
   <script src="js/calendar.js"></script>
 </body>

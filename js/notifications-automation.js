@@ -439,6 +439,7 @@ function copyAlertZalo(encodedMsg, title) {
 function resolveProjectBlockerFromAlert(projectId) {
   const p = state.projects.find(item => item.id === projectId);
   if (!p) return;
+  const beforeProjects = JSON.parse(JSON.stringify(state.projects));
   p.is_blocked = false;
   p.blocker_reason = "";
   saveStateStorage();
@@ -448,7 +449,19 @@ function resolveProjectBlockerFromAlert(projectId) {
   updateNotificationDot();
   renderNotificationsView();
   addNotificationLog(`Đã gỡ vướng mắc cho dự án "${p.title}"`);
-  showToast("✓ Đã gỡ vướng mắc dự án!");
+  if (typeof pushUndoAction === "function") {
+    pushUndoAction({
+      module: "BLOCKER",
+      action_type: "UPDATE",
+      entity_id: p.id,
+      display_label: p.title,
+      before: { projects: beforeProjects },
+      after: { projects: state.projects },
+      toastMessage: `Đã đóng vướng mắc kỹ thuật của "${p.title}".`
+    });
+  } else {
+    showToast(`Đã đóng vướng mắc kỹ thuật của "${p.title}".`);
+  }
 }
 
 function requestBrowserNotificationPermission() {

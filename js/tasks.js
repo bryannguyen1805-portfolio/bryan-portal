@@ -390,6 +390,7 @@ function renderTasksKanban() {
 function updateTaskStage(taskId, newStage) {
   const task = state.tasks.find(t => t.id === taskId);
   if (task) {
+    const beforeTasks = JSON.parse(JSON.stringify(state.tasks));
     task.stage = newStage;
     const labelMap = {
       STAGE_BACKLOG: 'Chuẩn bị',
@@ -398,8 +399,22 @@ function updateTaskStage(taskId, newStage) {
       STAGE_REVIEW: 'Đang duyệt',
       STAGE_DONE: 'Hoàn tất'
     };
-    showToast(`✓ Đã chuyển sang: ${labelMap[newStage] || newStage}`);
     syncAllAfterTaskChange(`Đầu việc "${task.title}" → ${labelMap[newStage] || newStage}`);
+    if (typeof pushUndoAction === "function") {
+      pushUndoAction({
+        module: "TODO",
+        action_type: newStage === "STAGE_DONE" ? "COMPLETE" : "UPDATE",
+        entity_id: task.id,
+        display_label: task.title,
+        before: { tasks: beforeTasks },
+        after: { tasks: state.tasks },
+        toastMessage: newStage === "STAGE_DONE"
+          ? `Đã hoàn thành việc: "${task.title}".`
+          : `Đã chuyển "${task.title}" sang ${labelMap[newStage] || newStage}.`
+      });
+    } else {
+      showToast(`Đã chuyển sang: ${labelMap[newStage] || newStage}`);
+    }
     if (newStage === 'STAGE_DONE' && typeof runAutomationRules === "function") {
       runAutomationRules("TASK_DONE", { title: task.title, project_id: task.project_id, pic: task.pic, taskObj: task });
     }
@@ -408,10 +423,22 @@ function updateTaskStage(taskId, newStage) {
 
 function deleteTask(taskId) {
   const target = state.tasks.find(t => t.id === taskId);
-  if (confirm(`Bạn có chắc muốn xóa đầu việc này?`)) {
-    state.tasks = state.tasks.filter(t => t.id !== taskId);
-    syncAllAfterTaskChange(target ? `Đã xóa đầu việc "${target.title}"` : null);
-    showToast("✓ Đã xóa đầu việc!");
+  if (!target) return;
+  const beforeTasks = JSON.parse(JSON.stringify(state.tasks));
+  state.tasks = state.tasks.filter(t => t.id !== taskId);
+  syncAllAfterTaskChange(`Đã xóa đầu việc "${target.title}"`);
+  if (typeof pushUndoAction === "function") {
+    pushUndoAction({
+      module: "TODO",
+      action_type: "DELETE",
+      entity_id: taskId,
+      display_label: target.title,
+      before: { tasks: beforeTasks },
+      after: { tasks: state.tasks },
+      toastMessage: `Đã xóa việc: "${target.title}".`
+    });
+  } else {
+    showToast(`Đã xóa việc: "${target.title}".`);
   }
 }
 

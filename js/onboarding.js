@@ -363,6 +363,14 @@ function toggleOnboardingTaskDone(taskId) {
   if (!ob) return;
   const t = ob.tasks.find(item => item.id === taskId);
   if (t) {
+    const beforeSnap = {
+      obId: ob.id,
+      tasks: JSON.parse(JSON.stringify(ob.tasks)),
+      project_start_date: ob.project_start_date || null,
+      current_stage: ob.current_stage || "LEGAL_AND_CMS",
+      progress_rate: ob.progress_rate || 0,
+      completed_steps: ob.completed_steps || 0
+    };
     t.status = t.status === "DONE" ? "IN_PROGRESS" : "DONE";
     t.completed_at = t.status === "DONE" ? new Date().toISOString() : null;
     t.completed_by = t.status === "DONE" ? "Manual" : null;
@@ -370,10 +378,25 @@ function toggleOnboardingTaskDone(taskId) {
     saveOnboardingStorage();
     renderOnboardingView();
 
+    if (typeof pushUndoAction === "function") {
+      pushUndoAction({
+        module: "DEPLOYMENT_STEP",
+        action_type: t.status === "DONE" ? "COMPLETE" : "UNCOMPLETE",
+        entity_id: `${ob.id}_B${t.step_no}`,
+        display_label: `B${t.step_no} (${t.title})`,
+        context_label: ob.merchant_name,
+        before: beforeSnap,
+        after: { obId: ob.id, tasks: ob.tasks, project_start_date: ob.project_start_date, current_stage: ob.current_stage, progress_rate: ob.progress_rate, completed_steps: ob.completed_steps },
+        toastMessage: t.status === "DONE"
+          ? `Đã hoàn tất B${t.step_no} (${t.title}) cho ${ob.merchant_name}.`
+          : `Đã chuyển B${t.step_no} (${t.title}) của ${ob.merchant_name} về chưa hoàn tất.`
+      });
+    }
+
     // Nếu vừa hoàn thành 100% và chưa bàn giao -> Tự động gợi ý mở Modal Bàn Giao
     const is100 = ob.tasks.length > 0 && ob.tasks.every(item => item.status === "DONE");
     if (is100 && !ob.graduated) {
-      showToast(`🎉 Chúc mừng! ${ob.merchant_name} đã đạt 100%. Hãy hoàn tất bàn giao sang Dự Án Chuỗi!`);
+      showToast(`Chúc mừng! ${ob.merchant_name} đã đạt 100%. Hãy hoàn tất bàn giao sang Dự Án Chuỗi!`, false, false);
       setTimeout(() => openGraduateModal(ob.id), 450);
     }
   }

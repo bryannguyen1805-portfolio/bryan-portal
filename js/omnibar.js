@@ -157,6 +157,14 @@ async function handleCommandSubmit(e) {
     if (resolved.targetOb && resolved.targetStepNo) {
       const targetOb = resolved.targetOb;
       const targetStep = resolved.targetStepNo;
+      const beforeSnap = {
+        obId: targetOb.id,
+        tasks: JSON.parse(JSON.stringify(targetOb.tasks)),
+        project_start_date: targetOb.project_start_date || null,
+        current_stage: targetOb.current_stage || "LEGAL_AND_CMS",
+        progress_rate: targetOb.progress_rate || 0,
+        completed_steps: targetOb.completed_steps || 0
+      };
       const ev = typeof mutateAttioDeploymentStep === "function"
         ? mutateAttioDeploymentStep(targetOb, targetStep, cmd)
         : null;
@@ -166,13 +174,24 @@ async function handleCommandSubmit(e) {
       updateAllKpis();
       navigateTo("ONBOARDING");
 
-      if (ev?.data?.toast_notification?.message) {
-        showToast("✓ " + ev.data.toast_notification.message);
-        if (typeof addNotificationLog === "function") {
-          addNotificationLog(`[Attio Automation] ${ev.data.toast_notification.message}`);
-        }
+      const stepTitle = ev?.data?.updated_step?.title || `Bước ${targetStep}`;
+      const msgText = `Đã hoàn tất B${targetStep} (${stepTitle}) cho ${targetOb.merchant_name}.`;
+      if (typeof pushUndoAction === "function") {
+        pushUndoAction({
+          module: "DEPLOYMENT_STEP",
+          action_type: "COMPLETE",
+          entity_id: `${targetOb.id}_B${targetStep}`,
+          display_label: `B${targetStep} (${stepTitle})`,
+          context_label: targetOb.merchant_name,
+          before: beforeSnap,
+          after: { obId: targetOb.id, tasks: targetOb.tasks, project_start_date: targetOb.project_start_date, current_stage: targetOb.current_stage, progress_rate: targetOb.progress_rate, completed_steps: targetOb.completed_steps },
+          toastMessage: msgText
+        });
       } else {
-        showToast(`✓ Đã tự động tick xong từ B1 đến B${targetStep} cho ${targetOb.merchant_name}!`);
+        showToast(msgText);
+      }
+      if (typeof addNotificationLog === "function") {
+        addNotificationLog(`[Attio Automation] ${msgText}`);
       }
 
       const is100 = targetOb.tasks.length > 0 && targetOb.tasks.every(item => item.status === "DONE");
@@ -316,6 +335,7 @@ async function handleCommandSubmit(e) {
       is_overdue: false
     };
 
+    const beforeTasks = JSON.parse(JSON.stringify(state.tasks));
     state.tasks.unshift(newTask);
     if (typeof runAutomationRules === "function") {
       runAutomationRules("TASK_CREATED", { title: newTask.title, project_id: newTask.project_id, pic: newTask.pic, taskObj: newTask });
@@ -326,7 +346,19 @@ async function handleCommandSubmit(e) {
     renderDashboardQuickTasks();
     renderTasksMainView();
     renderMerchantWorkspaceBody();
-    showToast(`✓ Antigravity AI đã tạo đầu việc: "${newTask.title}"`);
+    if (typeof pushUndoAction === "function") {
+      pushUndoAction({
+        module: "TODO",
+        action_type: "CREATE",
+        entity_id: newTask.id,
+        display_label: newTask.title,
+        before: { tasks: beforeTasks },
+        after: { tasks: state.tasks },
+        toastMessage: `Đã thêm việc mới: "${newTask.title}".`
+      });
+    } else {
+      showToast(`Đã thêm việc mới: "${newTask.title}".`);
+    }
     return;
   }
 

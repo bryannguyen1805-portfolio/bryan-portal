@@ -260,28 +260,56 @@ function handleSaveMeeting(e) {
   const partner = document.getElementById("meet-partner").value.trim();
   const attendees = document.getElementById("meet-attendees").value.trim() || "Bryan";
 
-  state.meetings.push({
+  const beforeMeetings = JSON.parse(JSON.stringify(state.meetings));
+  const newMt = {
     id: "mt-" + Date.now().toString().slice(-4),
     date: date,
     time: time,
     title: title,
     partner: partner,
     attendees: attendees
-  });
+  };
+  state.meetings.push(newMt);
   saveStateStorage();
   closeNewMeetingModal();
   renderDashboardMeetings();
   if (typeof renderCalendarView === "function") renderCalendarView();
   if (typeof runAutomationRules === "function") runAutomationRules("MEETING_CREATED", { title, merchantName: partner, pic: attendees });
-  showToast("✓ Đã lưu lịch họp mới!");
+  if (typeof pushUndoAction === "function") {
+    pushUndoAction({
+      module: "CALENDAR",
+      action_type: "CREATE",
+      entity_id: newMt.id,
+      display_label: title,
+      before: { meetings: beforeMeetings },
+      after: { meetings: state.meetings },
+      toastMessage: `Đã lên lịch họp "${title}" lúc ${time}.`
+    });
+  } else {
+    showToast(`Đã lên lịch họp "${title}" lúc ${time}.`);
+  }
 }
 
 function deleteMeeting(mtId) {
+  const target = state.meetings.find(m => m.id === mtId);
+  const beforeMeetings = JSON.parse(JSON.stringify(state.meetings));
   state.meetings = state.meetings.filter(m => m.id !== mtId);
   saveStateStorage();
   renderDashboardMeetings();
   if (typeof renderCalendarView === "function") renderCalendarView();
-  showToast("✓ Đã xóa lịch họp.");
+  if (typeof pushUndoAction === "function") {
+    pushUndoAction({
+      module: "CALENDAR",
+      action_type: "DELETE",
+      entity_id: mtId,
+      display_label: target ? target.title : mtId,
+      before: { meetings: beforeMeetings },
+      after: { meetings: state.meetings },
+      toastMessage: `Đã xóa lịch họp${target ? ': "' + target.title + '"' : ''}.`
+    });
+  } else {
+    showToast("Đã xóa lịch họp.");
+  }
 }
 
 function renderDashboardUpcomingDeadlines() {
