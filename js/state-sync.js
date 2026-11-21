@@ -170,8 +170,33 @@ if (savedStateRaw) {
   } catch (e) { console.warn("Lỗi đọc state localStorage:", e); }
 }
 
+let cloudSyncTimer = null;
+
+function scheduleFullCloudSync() {
+  if (!API_ENDPOINT) return;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(() => {
+    fetch(API_ENDPOINT, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "SYNC_FULL_STATE",
+        merchants: state.merchants,
+        stakeholders: state.stakeholders,
+        projects: state.projects,
+        tasks: state.tasks,
+        meetings: state.meetings,
+        folders: state.folders,
+        onboarding: typeof onboardingList !== "undefined" ? onboardingList : []
+      })
+    }).catch(() => {});
+  }, 1200);
+}
+
 function saveStateStorage() {
   localStorage.setItem("bryan_portal_state_v2", JSON.stringify(state));
+  scheduleFullCloudSync();
 }
 
 let activeMerchantId = state.merchants[0]?.id || "m-highlands";
@@ -400,9 +425,19 @@ async function syncDataFromGoogleSheets() {
     if (data.stakeholders && data.stakeholders.length > 0) state.stakeholders = data.stakeholders;
     if (data.projects && data.projects.length > 0) state.projects = data.projects;
     if (data.tasks && data.tasks.length > 0) state.tasks = data.tasks;
+    if (data.meetings && data.meetings.length > 0) state.meetings = data.meetings;
+    if (data.folders && data.folders.length > 0) state.folders = data.folders;
+    if (data.onboarding && data.onboarding.length > 0 && typeof onboardingList !== "undefined") {
+      onboardingList = data.onboarding;
+      if (typeof saveOnboardingStorage === "function") saveOnboardingStorage();
+    }
+    localStorage.setItem("bryan_portal_state_v2", JSON.stringify(state));
 
     updateAllKpis();
     renderDashboardQuickTasks();
+    if (typeof renderDashboardMeetings === "function") renderDashboardMeetings();
+    if (typeof renderCalendarView === "function") renderCalendarView();
+    if (typeof renderOnboardingView === "function") renderOnboardingView();
     renderMerchantPillsBar();
     renderMerchantSubTabs();
     renderMerchantWorkspaceBody();
