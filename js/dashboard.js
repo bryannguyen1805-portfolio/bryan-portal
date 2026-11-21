@@ -21,13 +21,144 @@ function toggleSidebarCollapse() {
   applySidebarCollapseState();
 }
 
+const DAILY_QUOTES = [
+  "Mỗi sáng thức dậy là một cơ hội mới để làm tốt hơn hôm qua.",
+  "Không cần làm tất cả hôm nay — chỉ cần hoàn thành trọn vẹn 1–3 việc quan trọng nhất.",
+  "Tiến độ đều đặn mỗi ngày luôn thắng sự vội vàng nhất thời.",
+  "Giữ tâm trí thoáng đãng để đưa ra những quyết định sắc bén nhất.",
+  "Một cuộc họp gọn, một đầu việc xong — ngày làm việc nhẹ tênh.",
+  "Bắt đầu bằng việc khó nhất, phần còn lại của ngày sẽ trôi chảy hơn hẳn."
+];
+let currentQuoteIdx = new Date().getDate() % DAILY_QUOTES.length;
+
+function getTimeGreetingMeta() {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return { prefix: "Chào buổi sáng", emoji: "☀️" };
+  if (h >= 12 && h < 18) return { prefix: "Chiều năng suất nhé", emoji: "☕" };
+  return { prefix: "Buổi tối nhẹ nhàng", emoji: "🌙" };
+}
+
+function getDailyFocusStorageKey() {
+  const email = (typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "default") || "default";
+  const today = new Date().toISOString().slice(0, 10);
+  return `bryan_portal_focus_${email}_${today}`;
+}
+
+function loadDailyFocusWidget() {
+  const input = document.getElementById("daily-focus-input");
+  const checkBtn = document.getElementById("daily-focus-check");
+  if (!input || !checkBtn) return;
+
+  let saved = { text: "", done: false };
+  try {
+    const raw = localStorage.getItem(getDailyFocusStorageKey());
+    if (raw) saved = JSON.parse(raw);
+  } catch (e) {}
+
+  input.value = saved.text || "";
+  applyDailyFocusDoneUI(!!saved.done);
+}
+
+function applyDailyFocusDoneUI(isDone) {
+  const input = document.getElementById("daily-focus-input");
+  const checkBtn = document.getElementById("daily-focus-check");
+  if (!input || !checkBtn) return;
+  const icon = checkBtn.querySelector("i, svg");
+  if (isDone) {
+    checkBtn.classList.add("bg-emerald-500", "border-emerald-500");
+    checkBtn.classList.remove("border-amber-400");
+    if (icon) icon.classList.remove("hidden");
+    input.classList.add("line-through", "text-slate-400");
+    input.classList.remove("text-slate-800");
+  } else {
+    checkBtn.classList.remove("bg-emerald-500", "border-emerald-500");
+    checkBtn.classList.add("border-amber-400");
+    if (icon) icon.classList.add("hidden");
+    input.classList.remove("line-through", "text-slate-400");
+    input.classList.add("text-slate-800");
+  }
+}
+
+function saveDailyFocusText() {
+  const input = document.getElementById("daily-focus-input");
+  if (!input) return;
+  let saved = { text: "", done: false };
+  try {
+    const raw = localStorage.getItem(getDailyFocusStorageKey());
+    if (raw) saved = JSON.parse(raw);
+  } catch (e) {}
+  saved.text = input.value.trim();
+  localStorage.setItem(getDailyFocusStorageKey(), JSON.stringify(saved));
+}
+
+function toggleDailyFocusDone() {
+  const input = document.getElementById("daily-focus-input");
+  if (!input) return;
+  let saved = { text: input.value.trim(), done: false };
+  try {
+    const raw = localStorage.getItem(getDailyFocusStorageKey());
+    if (raw) saved = JSON.parse(raw);
+  } catch (e) {}
+  saved.text = input.value.trim();
+  saved.done = !saved.done;
+  localStorage.setItem(getDailyFocusStorageKey(), JSON.stringify(saved));
+  applyDailyFocusDoneUI(saved.done);
+  if (saved.done && saved.text && typeof showToast === "function") {
+    showToast("🎉 Tuyệt vời! Bạn đã hoàn thành mục tiêu trọng tâm hôm nay!");
+  }
+}
+
+function cycleDailyQuote() {
+  currentQuoteIdx = (currentQuoteIdx + 1) % DAILY_QUOTES.length;
+  const quoteEl = document.getElementById("hero-daily-quote");
+  if (quoteEl) quoteEl.textContent = `"${DAILY_QUOTES[currentQuoteIdx]}"`;
+}
+
+function switchDashboardMode(mode) {
+  const focusEl = document.getElementById("dash-mode-focus");
+  const opsEl = document.getElementById("dash-mode-operations");
+  const btnFocus = document.getElementById("dash-tab-btn-FOCUS");
+  const btnOps = document.getElementById("dash-tab-btn-OPERATIONS");
+  if (!focusEl || !opsEl) return;
+
+  const isFocus = mode !== "OPERATIONS";
+  focusEl.classList.toggle("hidden", !isFocus);
+  opsEl.classList.toggle("hidden", isFocus);
+
+  if (btnFocus && btnOps) {
+    btnFocus.className = isFocus
+      ? "px-4 py-2 rounded-xl text-xs font-extrabold transition flex items-center space-x-1.5 bg-teal-600 text-white shadow-xs"
+      : "px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 text-slate-500 hover:text-slate-800";
+    btnOps.className = !isFocus
+      ? "px-4 py-2 rounded-xl text-xs font-extrabold transition flex items-center space-x-1.5 bg-teal-600 text-white shadow-xs"
+      : "px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 text-slate-500 hover:text-slate-800";
+  }
+  if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
 function syncWelcomeAccountGreeting() {
   const titleEl = document.getElementById("welcome-title");
   const nameEl = document.getElementById("sidebar-user-name");
-  if (!titleEl) return;
-  const fullName = (nameEl?.textContent || "Bryan").trim();
-  const shortName = fullName.split(/\s+/)[0] || "Bryan";
-  titleEl.textContent = `Chào ${shortName}`;
+  const dateEl = document.getElementById("hero-date-label");
+  const quoteEl = document.getElementById("hero-daily-quote");
+  if (titleEl) {
+    const fullName = (nameEl?.textContent || "Bryan").trim();
+    const shortName = fullName.split(/\s+/)[0] || "Bryan";
+    const safeName = shortName.replace(/[<>&"]/g, "");
+    const { prefix, emoji } = getTimeGreetingMeta();
+    titleEl.innerHTML = `${prefix}, <span class="text-amber-300">${safeName}</span> ${emoji}`;
+  }
+  if (dateEl) {
+    const now = new Date();
+    const weekdays = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+    const dd = String(now.getDate()).padStart(2, "0");
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    dateEl.textContent = `${weekdays[now.getDay()]}, ${dd}/${mm}/${now.getFullYear()}`;
+  }
+  if (quoteEl) {
+    quoteEl.textContent = `"${DAILY_QUOTES[currentQuoteIdx]}"`;
+  }
+  loadDailyFocusWidget();
 }
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -224,7 +355,12 @@ function renderDashboardQuickTasks() {
   }).join('');
 
   if (quickTasks.length === 0) {
-    html = `<div class="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200/80 text-xs font-bold text-emerald-800 text-center">✓ Đã xử lý xong toàn bộ đầu việc ưu tiên hôm nay!</div>`;
+    html = `
+      <div class="p-6 rounded-2xl bg-gradient-to-br from-emerald-50/80 to-teal-50/40 border border-emerald-200/60 text-center space-y-1.5">
+        <div class="text-sm font-extrabold text-emerald-800">✨ Mọi việc ưu tiên hôm nay đã gọn gàng!</div>
+        <div class="text-xs text-emerald-700/80">Bạn có thể thêm việc mới hoặc dành thời gian cho mục tiêu chiến lược.</div>
+      </div>
+    `;
   }
 
   container.innerHTML = html;
@@ -237,7 +373,12 @@ function renderDashboardMeetings() {
 
   const todayMeetings = (state.meetings || []).filter(mt => !mt.date || mt.date === "2026-11-21");
   if (todayMeetings.length === 0) {
-    container.innerHTML = `<div class="p-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">Hôm nay chưa có lịch họp nào. Bấm "+ Thêm lịch" hoặc gõ "Họp với ... lúc ...".</div>`;
+    container.innerHTML = `
+      <div class="p-6 text-center rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1.5">
+        <div class="text-xs font-bold text-slate-600">🌿 Hôm nay chưa có lịch họp nào</div>
+        <div class="text-[11px] text-slate-400">Không gian yên tĩnh tuyệt vời để tập trung xử lý việc sâu! Bấm <b>+ Thêm lịch</b> nếu cần đặt hẹn.</div>
+      </div>
+    `;
     return;
   }
 

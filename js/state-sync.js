@@ -258,18 +258,18 @@ function updateAllKpis() {
     radialCircle.setAttribute("stroke-dashoffset", circumference - (taskPct / 100) * circumference);
   }
 
-  // Clickable Summary Badges (Mục 4.2 SRS v3.0)
+  // Clickable Summary Badges (Morning Focus style)
   const summaryEl = document.getElementById("banner-summary-text");
   if (summaryEl) {
     summaryEl.innerHTML = `
-      <button onclick="navigateTo('PROJECTS')" class="px-2.5 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold transition cursor-pointer">
-        ${state.merchants.length} chuỗi đối tác đang vận hành
+      <button onclick="switchDashboardMode('OPERATIONS'); navigateTo('PROJECTS')" class="px-3 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white font-semibold transition cursor-pointer backdrop-blur-xs">
+        🏪 ${state.merchants.length} chuỗi đối tác
       </button>
-      <button onclick="navigateTo('ONBOARDING')" class="px-2.5 py-0.5 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-200 font-semibold transition cursor-pointer">
-        ${obActive} quy trình triển khai mới
+      <button onclick="switchDashboardMode('OPERATIONS'); navigateTo('ONBOARDING')" class="px-3 py-1 rounded-full bg-teal-400/20 hover:bg-teal-400/30 text-teal-100 font-semibold transition cursor-pointer backdrop-blur-xs">
+        🚀 ${obActive} triển khai mới
       </button>
-      <button onclick="document.getElementById('dash-blocker-section')?.scrollIntoView({behavior: 'smooth'})" class="px-2.5 py-0.5 rounded-lg ${blockerCount > 0 ? 'bg-rose-500/30 text-rose-200 hover:bg-rose-500/40' : 'bg-emerald-500/20 text-emerald-200 hover:bg-emerald-500/30'} font-semibold transition cursor-pointer">
-        ${blockerCount} vướng mắc tiến độ
+      <button onclick="switchDashboardMode('FOCUS'); document.getElementById('dash-blocker-section')?.scrollIntoView({behavior: 'smooth'})" class="px-3 py-1 rounded-full ${blockerCount > 0 ? 'bg-rose-500/35 text-rose-100 hover:bg-rose-500/45' : 'bg-emerald-400/20 text-emerald-100 hover:bg-emerald-400/30'} font-semibold transition cursor-pointer backdrop-blur-xs">
+        ${blockerCount > 0 ? `⚠️ ${blockerCount} vướng mắc cần gỡ` : '✨ Mọi dự án thông suốt'}
       </button>
     `;
   }
