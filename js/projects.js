@@ -168,6 +168,24 @@ function closeMerchantLogoModal() {
   document.getElementById("modal-merchant-logo")?.classList.add("hidden");
 }
 
+function editMerchantContractExpiry(mId) {
+  const m = state.merchants.find(item => item.id === mId);
+  if (!m) return;
+  const current = m.contract_expiry_date || "2027-11-21";
+  const nextVal = prompt(`Nhập ngày hết hạn hợp đồng cho ${m.name} (YYYY-MM-DD, hệ thống sẽ tự nhắc gia hạn trước 30 ngày):`, current);
+  if (nextVal === null) return;
+  const trimmed = nextVal.trim();
+  if (trimmed && !/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    showToast("Vui lòng nhập đúng định dạng YYYY-MM-DD (VD: 2027-11-21)", true);
+    return;
+  }
+  m.contract_expiry_date = trimmed;
+  saveStateStorage();
+  renderMerchantWorkspaceBody();
+  if (typeof updateNotificationDot === "function") updateNotificationDot();
+  showToast(trimmed ? `Đã đặt hạn hợp đồng ${m.name}: ${trimmed} (nhắc trước 30 ngày)!` : "Đã xóa ngày hết hạn hợp đồng.");
+}
+
 let showMerchantDirectory = false;
 let merchantDirSearch = "";
 let merchantDirFilter = "ALL"; // ALL | BLOCKED | ACTIVE | LIVE
@@ -568,9 +586,14 @@ function renderMerchantWorkspaceBody() {
                 <span class="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-full bg-slate-900 text-white text-[9px] font-bold opacity-0 group-hover:opacity-100 transition">Logo</span>
               </button>
               <div>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center flex-wrap gap-2">
                   <h2 class="text-lg font-black text-slate-900 tracking-tight">${merchant.name}</h2>
                   <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-teal-50 text-teal-800 border border-teal-200">${merchant.alias}</span>
+                  <button type="button" onclick="editMerchantContractExpiry('${merchant.id}')" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition ${
+                    merchant.contract_expiry_date ? 'bg-slate-50 hover:bg-amber-50 text-slate-700 border-slate-200' : 'bg-slate-50 hover:bg-teal-50 text-slate-500 border-dashed border-slate-300'
+                  }" title="Bấm để cập nhật ngày hết hạn hợp đồng (tự nhắc gia hạn trước 30 ngày)">
+                    ${merchant.contract_expiry_date ? `Hạn HĐ: ${merchant.contract_expiry_date}` : '+ Đặt hạn hợp đồng'}
+                  </button>
                 </div>
                 <p class="text-xs text-slate-500 mt-0.5">${merchant.industry} • <strong class="text-teal-700">${merchant.expected_gmv}</strong></p>
               </div>

@@ -200,6 +200,10 @@ function openGraduateModal(obId) {
   document.getElementById("grad-gmv").value = "~500M VNĐ/tháng";
   document.getElementById("grad-industry").value = "Chuỗi B2B Enterprise";
   document.getElementById("grad-folder").value = "https://drive.google.com/drive/folders/payoo-dms-" + ob.merchant_name.toLowerCase().replace(/\s+/g, "-");
+  const nextYear = new Date();
+  nextYear.setFullYear(nextYear.getFullYear() + 1);
+  const expiryInput = document.getElementById("grad-contract-expiry");
+  if (expiryInput) expiryInput.value = nextYear.toISOString().split("T")[0];
   document.getElementById("grad-stk-name").value = "";
   document.getElementById("grad-stk-role").value = "";
   document.getElementById("grad-stk-phone").value = "";
@@ -221,6 +225,7 @@ function handleGraduateOnboarding(e) {
   const gmv = document.getElementById("grad-gmv").value.trim() || "~500M VNĐ/tháng";
   const industry = document.getElementById("grad-industry").value.trim() || "Chuỗi B2B";
   const folderPath = document.getElementById("grad-folder").value.trim();
+  const contractExpiry = document.getElementById("grad-contract-expiry")?.value || "";
   const stkName = document.getElementById("grad-stk-name").value.trim();
   const stkRole = document.getElementById("grad-stk-role").value.trim() || "Đại Diện Chuỗi";
   const stkPhone = document.getElementById("grad-stk-phone").value.trim();
@@ -237,7 +242,8 @@ function handleGraduateOnboarding(e) {
     expected_gmv: gmv,
     avatar_letter: ob.merchant_name.charAt(0).toUpperCase(),
     color: "bg-teal-700",
-    contract_status: `Đã Hoàn Tất Onboarding (${chLabel}) • Đang Vận Hành`
+    contract_expiry_date: contractExpiry,
+    contract_status: `Đã Hoàn Tất Triển Khai (${chLabel}) • Đang Vận Hành`
   });
 
   // 2. Tạo Dự án đầu tiên tương ứng Kênh đã Onboarding

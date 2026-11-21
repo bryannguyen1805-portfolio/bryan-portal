@@ -409,6 +409,30 @@ function getActiveAlerts() {
     });
   }
 
+  // 4. Nhắc gia hạn hợp đồng đối tác trước 30 ngày
+  state.merchants.filter(m => m.contract_expiry_date).forEach(m => {
+    const diffDays = Math.round((new Date(m.contract_expiry_date + 'T00:00:00') - new Date(todayStr + 'T00:00:00')) / 86400000);
+    if (diffDays <= 30) {
+      const stk = state.stakeholders.find(s => s.merchant_id === m.id);
+      const picName = stk ? stk.name : 'Phụ trách chuỗi';
+      const statusMsg = diffDays < 0
+        ? `Hợp đồng đã hết hạn ${Math.abs(diffDays)} ngày (${m.contract_expiry_date}) — Cần gia hạn ngay`
+        : (diffDays === 0
+          ? `Hợp đồng hết hạn hôm nay (${m.contract_expiry_date}) — Cần làm thủ tục gia hạn`
+          : `Hợp đồng còn ${diffDays} ngày hết hạn (${m.contract_expiry_date}) — Nhắc gia hạn trước 30 ngày`);
+      alerts.push({
+        id: `renew-${m.id}`,
+        category: diffDays <= 7 ? 'URGENT' : 'UPCOMING',
+        kind: 'CONTRACT_RENEWAL',
+        title: `Gia hạn hợp đồng • ${m.name}`,
+        detail: statusMsg,
+        pic: picName,
+        merchantId: m.id,
+        zaloText: `[Gia hạn hợp đồng - ${m.name}] Chào ${picName}, hợp đồng hợp tác Payoo của ${m.name} sẽ hết hạn vào ngày ${m.contract_expiry_date}. Nhờ team phối hợp rà soát & gia hạn hợp đồng mới giúp Bryan nhé!`
+      });
+    }
+  });
+
   return alerts;
 }
 
@@ -518,7 +542,7 @@ function renderNotificationsView() {
   } else {
     container.innerHTML = visible.map(a => {
       const isUrgent = a.category === 'URGENT';
-      const badge = a.kind === 'BLOCKER' ? 'VƯỚNG MẮC DỰ ÁN' : (a.kind === 'TASK_OVERDUE' ? 'QUÁ HẠN' : (a.kind === 'MEETING' ? 'LỊCH HỌP' : 'SẮP TỚI HẠN'));
+      const badge = a.kind === 'BLOCKER' ? 'VƯỚNG MẮC DỰ ÁN' : (a.kind === 'TASK_OVERDUE' ? 'QUÁ HẠN' : (a.kind === 'MEETING' ? 'LỊCH HỌP' : (a.kind === 'CONTRACT_RENEWAL' ? 'GIA HẠN HỢP ĐỒNG' : 'SẮP TỚI HẠN')));
       return `
         <div class="p-4 rounded-2xl border ${isUrgent ? 'border-rose-200 bg-rose-50/30' : 'border-amber-200 bg-amber-50/30'} flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div class="space-y-1 min-w-0">
