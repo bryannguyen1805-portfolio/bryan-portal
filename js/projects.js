@@ -1,6 +1,173 @@
 // -------------------------------------------------------------
 // 4. MERCHANT WORKSPACE SUB-NAVIGATION (TỔNG QUAN VS TRANG RIÊNG TỪNG DỰ ÁN)
 // -------------------------------------------------------------
+function renderMerchantAvatarHtml(m, sizeClass = "w-10 h-10 rounded-xl", textClass = "text-sm") {
+  if (m && m.logo_url) {
+    return `
+      <div class="${sizeClass} bg-white border border-slate-200 p-0.5 flex items-center justify-center overflow-hidden shrink-0">
+        <img src="${m.logo_url}" loading="lazy" alt="${m.name}" class="w-full h-full object-contain rounded-lg" onerror="this.parentElement.className='${sizeClass} ${m.color} text-white flex items-center justify-center font-black ${textClass} shrink-0'; this.parentElement.innerHTML='${m.avatar_letter}';" />
+      </div>
+    `;
+  }
+  return `
+    <div class="${sizeClass} ${m?.color || 'bg-teal-600'} text-white font-black ${textClass} flex items-center justify-center shrink-0">
+      ${m?.avatar_letter || '?'}
+    </div>
+  `;
+}
+
+function compressImageToWebp96(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Không đọc được file ảnh"));
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("File không phải ảnh hợp lệ"));
+      img.onload = () => {
+        const size = 96;
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, size, size);
+        const scale = Math.min(size / img.width, size / img.height);
+        const w = img.width * scale;
+        const h = img.height * scale;
+        ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+        const dataUrl = canvas.toDataURL("image/webp", 0.82);
+        resolve(dataUrl);
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+let activeLogoMerchantId = null;
+
+function ensureMerchantLogoModal() {
+  if (document.getElementById("modal-merchant-logo")) return;
+  const div = document.createElement("div");
+  div.id = "modal-merchant-logo";
+  div.className = "hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4";
+  div.innerHTML = `
+    <div class="bg-white w-full max-w-md rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between">
+        <h3 id="logo-modal-title" class="text-sm font-black">Cập Nhật Logo Đối Tác</h3>
+        <button onclick="closeMerchantLogoModal()" class="text-slate-300 hover:text-white text-sm">✕</button>
+      </div>
+      <div class="p-5 space-y-4 text-xs">
+        <div class="flex items-center space-x-3">
+          <div id="logo-modal-preview"></div>
+          <div class="text-[11px] text-slate-500">
+            Ảnh tải lên sẽ tự động nén về chuẩn <strong>96×96px WebP</strong> (~2–4 KB) để không làm nặng bộ nhớ khi lên 50–100+ đối tác.
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Cách 1: Dán Link Ảnh hoặc Tên Miền Website (Tốn 0 KB)</label>
+          <input id="logo-url-input" oninput="previewMerchantLogoUrl(this.value)" type="text" placeholder="VD: highlandscoffee.com.vn hoặc https://..." class="w-full px-3 py-2 border border-slate-300 rounded-xl outline-none focus:border-teal-500" />
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Cách 2: Tải File Logo Từ Máy (Tự nén 96×96px)</label>
+          <input id="logo-file-input" onchange="handleMerchantLogoFileSelect(this)" type="file" accept="image/*" class="w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer" />
+        </div>
+      </div>
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2 text-xs">
+        <button type="button" onclick="clearMerchantLogo()" class="px-3 py-1.5 text-rose-600 hover:bg-rose-50 rounded-xl font-bold transition">Gỡ logo</button>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="closeMerchantLogoModal()" class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold transition">Hủy</button>
+          <button type="button" onclick="saveMerchantLogo()" class="px-4 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold transition">Lưu Logo</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+}
+
+let pendingLogoDataUrl = "";
+
+function normalizeLogoUrlInput(raw) {
+  const val = (raw || "").trim();
+  if (!val) return "";
+  if (val.startsWith("http://") || val.startsWith("https://") || val.startsWith("data:image/")) {
+    return val;
+  }
+  // Nếu nhập tên miền (VD: highlandscoffee.com.vn) -> Tự lấy logo qua Favicon HD 128px
+  const domain = val.replace(/^www\./i, "").split("/")[0];
+  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`;
+}
+
+function openMerchantLogoModal(mId) {
+  ensureMerchantLogoModal();
+  const m = state.merchants.find(item => item.id === mId);
+  if (!m) return;
+  activeLogoMerchantId = mId;
+  pendingLogoDataUrl = m.logo_url || "";
+  document.getElementById("logo-modal-title").textContent = `Logo Đối Tác • ${m.name}`;
+  document.getElementById("logo-url-input").value = (m.logo_url && !m.logo_url.startsWith("data:")) ? m.logo_url : "";
+  document.getElementById("logo-file-input").value = "";
+  document.getElementById("logo-modal-preview").innerHTML = renderMerchantAvatarHtml(m, "w-14 h-14 rounded-2xl", "text-xl");
+  document.getElementById("modal-merchant-logo").classList.remove("hidden");
+}
+
+function previewMerchantLogoUrl(raw) {
+  const m = state.merchants.find(item => item.id === activeLogoMerchantId);
+  if (!m) return;
+  pendingLogoDataUrl = normalizeLogoUrlInput(raw);
+  document.getElementById("logo-modal-preview").innerHTML = renderMerchantAvatarHtml({ ...m, logo_url: pendingLogoDataUrl }, "w-14 h-14 rounded-2xl", "text-xl");
+}
+
+async function handleMerchantLogoFileSelect(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  try {
+    const compressed = await compressImageToWebp96(file);
+    pendingLogoDataUrl = compressed;
+    const m = state.merchants.find(item => item.id === activeLogoMerchantId);
+    if (m) {
+      document.getElementById("logo-modal-preview").innerHTML = renderMerchantAvatarHtml({ ...m, logo_url: compressed }, "w-14 h-14 rounded-2xl", "text-xl");
+    }
+    showToast(`Đã nén logo còn ~${Math.round(compressed.length / 1024)} KB (96×96 WebP)!`);
+  } catch (err) {
+    showToast(err.message || "Không xử lý được ảnh", true);
+  }
+}
+
+function clearMerchantLogo() {
+  const m = state.merchants.find(item => item.id === activeLogoMerchantId);
+  if (!m) return;
+  m.logo_url = "";
+  pendingLogoDataUrl = "";
+  saveStateStorage();
+  closeMerchantLogoModal();
+  renderMerchantPillsBar();
+  renderMerchantDirectoryPanel();
+  renderMerchantWorkspaceBody();
+  showToast("Đã gỡ logo đối tác.");
+}
+
+function saveMerchantLogo() {
+  const m = state.merchants.find(item => item.id === activeLogoMerchantId);
+  if (!m) return;
+  const urlVal = document.getElementById("logo-url-input").value.trim();
+  if (urlVal && !pendingLogoDataUrl.startsWith("data:")) {
+    pendingLogoDataUrl = normalizeLogoUrlInput(urlVal);
+  }
+  m.logo_url = pendingLogoDataUrl;
+  saveStateStorage();
+  closeMerchantLogoModal();
+  renderMerchantPillsBar();
+  renderMerchantDirectoryPanel();
+  renderMerchantWorkspaceBody();
+  showToast("Đã lưu logo đối tác!");
+}
+
+function closeMerchantLogoModal() {
+  document.getElementById("modal-merchant-logo")?.classList.add("hidden");
+}
+
 let showMerchantDirectory = false;
 let merchantDirSearch = "";
 let merchantDirFilter = "ALL"; // ALL | BLOCKED | ACTIVE | LIVE
@@ -49,9 +216,7 @@ function renderMerchantPillsBar() {
   const activeMerchant = state.merchants.find(m => m.id === activeMerchantId);
   const singleSwitcherHtml = !showMerchantDirectory && activeMerchant ? `
     <div class="flex items-center gap-1.5 bg-teal-50/70 border border-teal-200 rounded-full pl-2 pr-1.5 py-1 shrink-0">
-      <span class="w-5 h-5 rounded-full ${activeMerchant.color} text-white text-[10px] flex items-center justify-center font-black shrink-0">
-        ${activeMerchant.avatar_letter}
-      </span>
+      ${renderMerchantAvatarHtml(activeMerchant, "w-5 h-5 rounded-full", "text-[10px]")}
       <select onchange="if(this.value) selectMerchant(this.value)" class="bg-transparent border-none text-xs font-extrabold text-slate-900 outline-none cursor-pointer pr-1 max-w-[220px]" title="Chọn chuỗi đối tác đang xem">
         ${state.merchants.map(m => {
           const hasBlk = state.projects.some(p => p.merchant_id === m.id && p.is_blocked);
@@ -143,7 +308,7 @@ function renderMerchantDirectoryPanel() {
                 <tr onclick="selectMerchant('${m.id}')" class="hover:bg-slate-50 cursor-pointer transition">
                   <td class="py-3 pr-3 font-bold text-slate-900">
                     <div class="flex items-center space-x-2.5">
-                      <span class="w-7 h-7 rounded-lg ${m.color} text-white text-[11px] flex items-center justify-center font-black shrink-0">${m.avatar_letter}</span>
+                      ${renderMerchantAvatarHtml(m, "w-7 h-7 rounded-lg", "text-[11px]")}
                       <div>
                         <div>${m.name}</div>
                         <div class="text-[10px] font-normal text-slate-400">${m.industry || 'B2B Partner'}</div>
@@ -398,9 +563,10 @@ function renderMerchantWorkspaceBody() {
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center space-x-3.5">
-              <div class="w-12 h-12 rounded-2xl ${merchant.color} text-white font-black text-xl flex items-center justify-center shadow-sm shrink-0">
-                ${merchant.avatar_letter}
-              </div>
+              <button type="button" onclick="openMerchantLogoModal('${merchant.id}')" class="relative group shrink-0" title="Bấm để gắn hoặc đổi logo đối tác">
+                ${renderMerchantAvatarHtml(merchant, "w-12 h-12 rounded-2xl shadow-sm", "text-xl")}
+                <span class="absolute -bottom-1 -right-1 px-1.5 py-0.2 rounded-full bg-slate-900 text-white text-[9px] font-bold opacity-0 group-hover:opacity-100 transition">Logo</span>
+              </button>
               <div>
                 <div class="flex items-center space-x-2">
                   <h2 class="text-lg font-black text-slate-900 tracking-tight">${merchant.name}</h2>
