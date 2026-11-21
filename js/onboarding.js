@@ -158,6 +158,8 @@ function saveOnboardingStorage() {
 
 function openNewOnboardingModal() {
   document.getElementById("ob-merchant-name").value = "";
+  const brandEl = document.getElementById("ob-brand-name");
+  if (brandEl) brandEl.value = "";
   document.getElementById("ob-channel-type").value = "POS";
   document.getElementById("modal-new-onboarding").classList.remove("hidden");
 }
@@ -169,6 +171,7 @@ function closeNewOnboardingModal() {
 function handleCreateOnboarding(e) {
   e.preventDefault();
   const name = document.getElementById("ob-merchant-name").value.trim();
+  const brandName = (document.getElementById("ob-brand-name")?.value || "").trim() || name;
   const channel = document.getElementById("ob-channel-type").value;
   if (!name) return;
 
@@ -176,6 +179,7 @@ function handleCreateOnboarding(e) {
   const newOb = {
     id: "ob-" + Date.now().toString().slice(-5),
     merchant_name: name,
+    brand_name: brandName,
     channel: channel,
     total_steps: tasks.length,
     tasks: tasks
@@ -237,6 +241,7 @@ function handleGraduateOnboarding(e) {
   state.merchants.push({
     id: newMId,
     name: ob.merchant_name,
+    brand_name: ob.brand_name || ob.merchant_name,
     alias: alias.startsWith("@") ? alias : "@" + alias,
     industry: industry,
     expected_gmv: gmv,

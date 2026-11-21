@@ -1232,18 +1232,29 @@
 
       <form onsubmit="handleCreateOnboarding(event)" class="space-y-4 text-xs">
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Tên Đối Tác (Merchant Name) *</label>
+          <label class="block font-bold text-slate-700 mb-1">Tên Đối Tác / Pháp Nhân *</label>
           <input 
             type="text" 
             id="ob-merchant-name" 
             required 
-            placeholder="VD: GS25, Katinat, Highlands..." 
+            placeholder="VD: Công ty Cổ phần Việt Thái Quốc Tế..." 
             class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none font-medium"
           />
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Kênh Triển Khai (Channel Type) *</label>
+          <label class="block font-bold text-slate-700 mb-1">Tên Thương Hiệu (Dùng tạo mã TKVH) *</label>
+          <input 
+            type="text" 
+            id="ob-brand-name" 
+            required 
+            placeholder="VD: HIGHLANDS, GS25, KATINAT..." 
+            class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none font-bold"
+          />
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Kênh Triển Khai *</label>
           <select id="ob-channel-type" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none font-bold text-slate-800">
             <option value="POS">1. POS (Tự động sinh 15 bước chuẩn)</option>
             <option value="POS_PAYLINK">2. POS & Paylink (Tự động sinh 18 bước chuẩn)</option>
@@ -1253,7 +1264,7 @@
         </div>
 
         <div class="p-3 bg-teal-50 rounded-xl border border-teal-200 text-teal-800 text-[11px] leading-relaxed">
-          <strong>Tự động hóa SOP:</strong> Hệ thống sẽ tự động sinh toàn bộ các bước từ Làm Hợp Đồng/BM01 $\rightarrow$ Duyệt CMS $\rightarrow$ Cấu Hình/ASM $\rightarrow$ Go-Live và phân bổ sẵn vào Kanban 4 cột.
+          <strong>Tự động hóa quy trình:</strong> Hệ thống tự động sinh đầy đủ các bước từ Làm Hợp Đồng/BM01 → Duyệt CMS → Cấu Hình/ASM → Go-Live và phân bổ sẵn vào 4 chặng.
         </div>
 
         <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">

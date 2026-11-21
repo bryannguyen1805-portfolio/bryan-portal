@@ -228,6 +228,20 @@ function deleteMerchant(mId, event) {
   showToast(`Đã xóa chuỗi đối tác "${m.name}".`);
 }
 
+function editMerchantBrandName(mId) {
+  const m = state.merchants.find(item => item.id === mId);
+  if (!m) return;
+  const nextBrand = prompt(`Nhập Tên Thương Hiệu cho ${m.name} (dùng tạo mã TKVH):`, m.brand_name || m.name);
+  if (nextBrand === null) return;
+  const trimmed = nextBrand.trim();
+  if (!trimmed) return;
+  m.brand_name = trimmed;
+  saveStateStorage();
+  renderMerchantDirectoryPanel();
+  renderMerchantWorkspaceBody();
+  showToast(`Đã cập nhật Tên Thương Hiệu: "${trimmed}"`);
+}
+
 function editMerchantContractExpiry(mId) {
   const m = state.merchants.find(item => item.id === mId);
   if (!m) return;
@@ -252,7 +266,8 @@ let merchantDirFilter = "ALL"; // ALL | BLOCKED | ACTIVE | LIVE
 
 function getMerchantTkvhCode(m, projs = []) {
   if (m?.tkvh) return m.tkvh;
-  const cleanName = (m?.name || "MERCHANT")
+  const rawBrand = m?.brand_name || m?.name || "MERCHANT";
+  const cleanName = rawBrand
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d")
@@ -390,7 +405,7 @@ function renderMerchantDirectoryPanel() {
           <thead>
             <tr class="border-b border-slate-200 text-[11px] font-extrabold text-slate-500 uppercase">
               <th class="py-2.5 pr-3">Chuỗi Đối Tác</th>
-              <th class="py-2.5 px-3">TKVH & Ngân Hàng</th>
+              <th class="py-2.5 px-3">TKVH</th>
               <th class="py-2.5 px-3">Số Dự Án</th>
               <th class="py-2.5 px-3">Tiến Độ TB</th>
               <th class="py-2.5 px-3">Trạng Thái</th>
@@ -415,7 +430,6 @@ function renderMerchantDirectoryPanel() {
                   </td>
                   <td class="py-3 px-3">
                     <div class="font-mono text-[11px] font-bold text-slate-800">${getMerchantTkvhCode(m, projs)}</div>
-                    <div class="text-[10px] text-slate-400">${m.acquiring_bank || 'VietinBank / Pvcombank'}</div>
                   </td>
                   <td class="py-3 px-3 font-semibold text-slate-700">${projs.length} dự án</td>
                   <td class="py-3 px-3">
@@ -682,6 +696,9 @@ function renderMerchantWorkspaceBody() {
                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                   </button>
                   <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-teal-50 text-teal-800 border border-teal-200">${merchant.alias}</span>
+                  <button type="button" onclick="editMerchantBrandName('${merchant.id}')" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 transition" title="Bấm để đặt Tên Thương Hiệu (dùng tạo mã TKVH)">
+                    Thương hiệu: ${merchant.brand_name || merchant.name}
+                  </button>
                   <button type="button" onclick="editMerchantContractExpiry('${merchant.id}')" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition ${
                     merchant.contract_expiry_date ? 'bg-slate-50 hover:bg-amber-50 text-slate-700 border-slate-200' : 'bg-slate-50 hover:bg-teal-50 text-slate-500 border-dashed border-slate-300'
                   }" title="Bấm để cập nhật ngày hết hạn hợp đồng (tự nhắc gia hạn trước 30 ngày)">
