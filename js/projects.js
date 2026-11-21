@@ -346,35 +346,7 @@ function renderMerchantWorkspaceBody() {
 
       </div>
 
-      <!-- KHỐI TRA CỨU 2: THÔNG SỐ KỸ THUẬT THANH TOÁN B2B & HỒ SƠ TÀI LIỆU SỐ -->
-      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-          <div class="flex items-center space-x-2">
-            <i data-lucide="credit-card" class="w-4 h-4 text-teal-600"></i>
-            <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">Thông Số Kỹ Thuật Thanh Toán</h4>
-          </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">${merchant.settlement_cycle || 'T+1 Tự động'}</span>
-        </div>
-        <div class="grid grid-cols-2 gap-2 text-[11px]">
-          <div class="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
-            <div class="text-[10px] text-slate-400 font-semibold">Mã Merchant ID (MID)</div>
-            <div class="font-mono font-bold text-slate-800 mt-0.5 truncate">${merchant.mid || ('MID_' + merchant.id.replace('m-','').toUpperCase() + '_2026')}</div>
-          </div>
-          <div class="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
-            <div class="text-[10px] text-slate-400 font-semibold">Ngân hàng liên kết</div>
-            <div class="font-bold text-slate-800 mt-0.5 truncate">${merchant.acquiring_bank || 'VietinBank / Pvcombank'}</div>
-          </div>
-          <div class="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
-            <div class="text-[10px] text-slate-400 font-semibold">Chu kỳ đối soát</div>
-            <div class="font-bold text-teal-700 mt-0.5">${merchant.settlement_cycle || 'T+1 Tự động'}</div>
-          </div>
-          <div class="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
-            <div class="text-[10px] text-slate-400 font-semibold">Biểu phí dịch vụ (MDR)</div>
-            <div class="font-bold text-slate-800 mt-0.5 truncate">${merchant.mdr_rate || 'Nội địa 0.9% • Quốc tế 2.2%'}</div>
-          </div>
-        </div>
-
-      </div>
+      <!-- KHỐI TRA CỨU 2: HỒ SƠ & TÀI LIỆU DỰ ÁN -->
 
       <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
         <div class="flex items-center justify-between pb-2 border-b border-slate-100">
