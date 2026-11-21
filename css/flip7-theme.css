@@ -56,13 +56,26 @@ aside .nav-item.bg-teal-600\/90 i,
 aside .nav-item.bg-teal-600\/90 svg {
   color: var(--f7-teal-deep) !important;
 }
+aside .nav-item.bg-teal-600\/90 span:last-child:not(:first-child) {
+  background-color: rgba(19, 78, 75, 0.18) !important;
+  color: #134E4B !important;
+  font-weight: 800 !important;
+}
 aside .nav-item:not(.bg-teal-600\/90) {
-  color: #D1F2F0 !important;
+  color: #ECFEFC !important;
   border-radius: 999px !important;
 }
-aside .nav-item:not(.bg-teal-600\/90):hover {
-  background-color: rgba(255, 255, 255, 0.12) !important;
+aside .nav-item:not(.bg-teal-600\/90) span:last-child:not(:first-child) {
+  background-color: rgba(10, 46, 44, 0.55) !important;
   color: #FFFFFF !important;
+}
+aside .nav-item:not(.bg-teal-600\/90):hover {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+  color: #FFFFFF !important;
+}
+aside .text-slate-400,
+aside .text-slate-500 {
+  color: #BCECE9 !important;
 }
 
 /* Topbar */
@@ -116,11 +129,28 @@ main .border-b.border-slate-200 {
   border-bottom-color: rgba(43, 168, 162, 0.24) !important;
 }
 
-/* Hero Banner — Primary Teal + Gold Highlights */
+/* Hero Banner — Deep Teal Depth + High-Contrast Text & Glass Pills */
 #view-DASHBOARD > div:first-child {
-  background: linear-gradient(135deg, var(--f7-teal-dark) 0%, var(--f7-teal) 60%, var(--f7-teal-light) 100%) !important;
-  border: 2px solid rgba(255, 255, 255, 0.25) !important;
+  background: linear-gradient(135deg, #0F3E3C 0%, #155E5B 55%, #1E8C86 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.20) !important;
   box-shadow: var(--f7-shadow-teal) !important;
+}
+#view-DASHBOARD > div:first-child #hero-date-label,
+#view-DASHBOARD > div:first-child #banner-summary-text button {
+  background-color: rgba(10, 38, 37, 0.45) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+}
+#view-DASHBOARD > div:first-child #banner-summary-text button:hover {
+  background-color: rgba(10, 38, 37, 0.68) !important;
+}
+#view-DASHBOARD > div:first-child #hero-daily-quote {
+  color: #E6FFFD !important;
+}
+#daily-focus-input {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 #radial-progress-circle {
   color: var(--f7-gold) !important;
