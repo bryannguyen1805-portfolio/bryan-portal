@@ -442,9 +442,15 @@ function updateSyncStatusUI() {
   const text = document.getElementById("topbar-cloud-text");
   if (!btn || !text) return;
 
-  btn.className = "flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-500 border border-slate-200/80 text-xs font-medium transition";
-  if (dot) dot.className = API_ENDPOINT ? "w-1.5 h-1.5 rounded-full bg-emerald-500" : "w-1.5 h-1.5 rounded-full bg-emerald-500/70";
-  text.textContent = "Đã đồng bộ";
+  if (API_ENDPOINT) {
+    btn.className = "flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-500 border border-slate-200/80 text-xs font-medium transition";
+    if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500";
+    text.textContent = "Đã đồng bộ";
+  } else {
+    btn.className = "flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold transition";
+    if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-amber-500";
+    text.textContent = "Chưa gắn Sheet";
+  }
 }
 
 async function syncDataFromGoogleSheets() {
