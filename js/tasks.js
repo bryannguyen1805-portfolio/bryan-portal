@@ -3,28 +3,59 @@
 // -------------------------------------------------------------
 function switchTaskView(viewMode) {
   activeTaskView = viewMode;
+  const btnList = document.getElementById("btn-view-list");
   const btnCards = document.getElementById("btn-view-cards");
   const btnKanban = document.getElementById("btn-view-kanban");
+  const cList = document.getElementById("container-task-list");
   const cCards = document.getElementById("container-task-cards");
   const cKanban = document.getElementById("container-task-kanban");
 
-  if (viewMode === 'CARDS') {
-    btnCards.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-teal-700 shadow-xs flex items-center space-x-1";
-    btnKanban.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center space-x-1";
-    cCards.classList.remove('hidden');
-    cKanban.classList.add('hidden');
-    renderTasksCards();
-  } else {
-    btnKanban.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-teal-700 shadow-xs flex items-center space-x-1";
-    btnCards.className = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center space-x-1";
-    cCards.classList.add('hidden');
-    cKanban.classList.remove('hidden');
-    renderTasksKanban();
-  }
+  const activeCls = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-teal-700 shadow-xs flex items-center space-x-1";
+  const idleCls = "px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center space-x-1";
+
+  if (btnList) btnList.className = viewMode === 'LIST' ? activeCls : idleCls;
+  if (btnCards) btnCards.className = viewMode === 'CARDS' ? activeCls : idleCls;
+  if (btnKanban) btnKanban.className = viewMode === 'KANBAN' ? activeCls : idleCls;
+
+  if (cList) cList.classList.toggle('hidden', viewMode !== 'LIST');
+  if (cCards) cCards.classList.toggle('hidden', viewMode !== 'CARDS');
+  if (cKanban) cKanban.classList.toggle('hidden', viewMode !== 'KANBAN');
+
+  renderTasksMainView();
 }
 
-let activeTaskStatusFilter = 'ALL';
+let activeTaskStatusFilter = 'OPEN';
+let taskPageLimit = 12;
 let draggedTaskId = null;
+
+function showMoreTasks() {
+  taskPageLimit += 12;
+  renderTasksMainView();
+}
+
+function clearCompletedTasks() {
+  const doneCount = state.tasks.filter(t => t.stage === 'STAGE_DONE').length;
+  if (doneCount === 0) {
+    showToast("Không có đầu việc đã hoàn tất nào để dọn.");
+    return;
+  }
+  const beforeTasks = JSON.parse(JSON.stringify(state.tasks));
+  state.tasks = state.tasks.filter(t => t.stage !== 'STAGE_DONE');
+  syncAllAfterTaskChange(`Đã dọn ${doneCount} đầu việc đã hoàn tất`);
+  if (typeof pushUndoAction === "function") {
+    pushUndoAction({
+      module: "TODO",
+      action_type: "DELETE",
+      entity_id: "bulk-done",
+      display_label: `${doneCount} việc đã hoàn tất`,
+      before: { tasks: beforeTasks },
+      after: { tasks: state.tasks },
+      toastMessage: `Đã dọn gọn ${doneCount} việc đã hoàn tất.`
+    });
+  } else {
+    showToast(`Đã dọn gọn ${doneCount} việc đã hoàn tất.`);
+  }
+}
 
 function getTodayIsoDate() {
   const now = new Date();
@@ -155,11 +186,82 @@ function updateTaskStatusCounts() {
 function renderTasksMainView() {
   populateTaskMerchantFilter();
   updateTaskStatusCounts();
-  if (activeTaskView === 'CARDS') {
+  if (activeTaskView === 'LIST') {
+    renderTasksList();
+  } else if (activeTaskView === 'CARDS') {
     renderTasksCards();
   } else {
     renderTasksKanban();
+    const pagEl = document.getElementById("container-task-pagination");
+    if (pagEl) pagEl.innerHTML = "";
   }
+}
+
+function renderTaskPagination(totalCount, shownCount) {
+  const pagEl = document.getElementById("container-task-pagination");
+  if (!pagEl) return;
+  if (totalCount <= shownCount) {
+    pagEl.innerHTML = totalCount > 0 ? `<div class="text-[11px] text-slate-400 text-center">Đang hiển thị ${shownCount}/${totalCount} đầu việc</div>` : "";
+    return;
+  }
+  const remain = totalCount - shownCount;
+  pagEl.innerHTML = `
+    <div class="flex items-center justify-center gap-3 pt-2">
+      <span class="text-xs text-slate-400">Đang hiện ${shownCount}/${totalCount} đầu việc</span>
+      <button onclick="showMoreTasks()" class="px-4 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 transition">Xem thêm ${Math.min(12, remain)} việc nữa</button>
+    </div>
+  `;
+}
+
+function renderTasksList() {
+  const container = document.getElementById("container-task-list");
+  if (!container) return;
+
+  const allTasks = getFilteredTasks();
+  const tasks = allTasks.slice(0, taskPageLimit);
+  renderTaskPagination(allTasks.length, tasks.length);
+
+  if (tasks.length === 0) {
+    container.innerHTML = `
+      <div class="py-10 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300">
+        <p class="text-sm font-bold text-slate-700">Không có đầu việc nào ở bộ lọc này</p>
+        <button onclick="resetTaskFilters()" class="mt-2 px-3.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 rounded-xl text-xs font-bold text-slate-700 transition">Xem tất cả</button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = tasks.map(t => {
+    const proj = state.projects.find(p => p.id === t.project_id);
+    const merchant = proj ? state.merchants.find(m => m.id === proj.merchant_id) : null;
+    const isDone = t.stage === 'STAGE_DONE';
+    const overdueDays = getTaskOverdueDays(t);
+    return `
+      <div class="px-3.5 py-2.5 rounded-xl border ${overdueDays > 0 ? 'border-rose-300 bg-rose-50/20' : 'border-slate-200 bg-white'} flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:border-teal-400 transition text-xs">
+        <div class="flex items-center space-x-2.5 min-w-0 flex-1">
+          <button onclick="toggleTaskQuickDone('${t.id}')" class="shrink-0 ${isDone ? 'text-emerald-600' : 'text-slate-400 hover:text-emerald-600'}" title="Hoàn tất nhanh">
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+          </button>
+          <span class="font-bold truncate ${isDone ? 'line-through text-slate-400' : 'text-slate-800'}">${t.title}</span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600 shrink-0">${merchant ? merchant.name : 'Nội bộ'}</span>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="text-[11px] ${overdueDays > 0 ? 'text-rose-600 font-bold' : 'text-slate-500'}">${t.due_date || ''}${overdueDays > 0 ? ' (Trễ ' + overdueDays + 'd)' : ''}</span>
+          <span class="text-[10px] font-extrabold px-2 py-0.5 rounded ${t.priority === 'KHẨN CẤP' ? 'bg-rose-100 text-rose-700' : (t.priority === 'CAO' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600')}">${t.priority}</span>
+          <select onchange="updateTaskStage('${t.id}', this.value)" class="text-[11px] font-semibold bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 outline-none">
+            <option value="STAGE_BACKLOG" ${t.stage === 'STAGE_BACKLOG' ? 'selected' : ''}>1. Chuẩn bị</option>
+            <option value="STAGE_TODO" ${(!t.stage || t.stage === 'STAGE_TODO') ? 'selected' : ''}>2. Cần làm</option>
+            <option value="STAGE_DOING" ${t.stage === 'STAGE_DOING' ? 'selected' : ''}>3. Đang làm</option>
+            <option value="STAGE_REVIEW" ${t.stage === 'STAGE_REVIEW' ? 'selected' : ''}>4. Đang duyệt</option>
+            <option value="STAGE_DONE" ${t.stage === 'STAGE_DONE' ? 'selected' : ''}>5. Hoàn tất</option>
+          </select>
+          <button onclick="openEditTaskModal('${t.id}')" class="p-1 text-slate-400 hover:text-teal-600"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+          <button onclick="deleteTask('${t.id}')" class="p-1 text-slate-400 hover:text-rose-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  lucide.createIcons();
 }
 
 function getFilteredTasks() {
@@ -217,7 +319,9 @@ function renderTasksCards() {
   const container = document.getElementById("container-task-cards");
   if (!container) return;
 
-  const tasks = getFilteredTasks();
+  const allTasks = getFilteredTasks();
+  const tasks = allTasks.slice(0, taskPageLimit);
+  renderTaskPagination(allTasks.length, tasks.length);
   if (tasks.length === 0) {
     container.innerHTML = `
       <div class="col-span-full py-12 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300">
