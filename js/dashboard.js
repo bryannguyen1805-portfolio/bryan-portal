@@ -418,12 +418,13 @@ function toggleTaskDone(taskId) {
   const task = state.tasks.find(t => t.id === taskId);
   if (task) {
     task.stage = task.stage === 'STAGE_DONE' ? 'STAGE_DOING' : 'STAGE_DONE';
+    task.completed_at = task.stage === 'STAGE_DONE' ? new Date().toISOString() : null;
     saveStateStorage();
     showToast(`✓ Đã cập nhật trạng thái đầu việc!`);
     updateAllKpis();
     renderDashboardQuickTasks();
     renderMerchantWorkspaceBody();
-    if (activeTaskView === 'CARDS') renderTasksCards();
+    if (typeof renderTasksMainView === "function") renderTasksMainView();
   }
 }
 

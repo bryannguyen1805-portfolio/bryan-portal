@@ -316,6 +316,7 @@ function renderCalendarTimeline() {
 // -------------------------------------------------------------
 window.addEventListener("DOMContentLoaded", () => {
   syncGraduatedOnboardingToState();
+  if (typeof autoPruneCompletedTasksOlderThan30Days === "function") autoPruneCompletedTasksOlderThan30Days();
   lucide.createIcons();
   updateSyncStatusUI();
   updateAllKpis();
@@ -328,7 +329,7 @@ window.addEventListener("DOMContentLoaded", () => {
   renderMerchantPillsBar();
   renderMerchantSubTabs();
   renderMerchantWorkspaceBody();
-  renderTasksCards();
+  if (typeof renderTasksMainView === "function") renderTasksMainView();
   renderOnboardingView();
   renderCharts();
   syncAutomationCheckboxes();

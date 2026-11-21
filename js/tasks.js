@@ -496,6 +496,7 @@ function updateTaskStage(taskId, newStage) {
   if (task) {
     const beforeTasks = JSON.parse(JSON.stringify(state.tasks));
     task.stage = newStage;
+    task.completed_at = newStage === 'STAGE_DONE' ? new Date().toISOString() : null;
     const labelMap = {
       STAGE_BACKLOG: 'Chuẩn bị',
       STAGE_TODO: 'Cần làm',
@@ -544,5 +545,27 @@ function deleteTask(taskId) {
   } else {
     showToast(`Đã xóa việc: "${target.title}".`);
   }
+}
+
+// Tự động xóa các đầu việc đã hoàn tất quá 30 ngày (T+30)
+function autoPruneCompletedTasksOlderThan30Days(nowMs = Date.now()) {
+  const THIRTY_DAYS_MS = 30 * 86400000;
+  const beforeLen = state.tasks.length;
+  state.tasks = state.tasks.filter(t => {
+    if (t.stage !== 'STAGE_DONE') return true;
+    const refStr = t.completed_at || (t.due_date ? t.due_date + 'T00:00:00' : null);
+    if (!refStr) return true;
+    const doneMs = new Date(refStr).getTime();
+    if (Number.isNaN(doneMs)) return true;
+    return (nowMs - doneMs) < THIRTY_DAYS_MS;
+  });
+  const prunedCount = beforeLen - state.tasks.length;
+  if (prunedCount > 0) {
+    saveStateStorage();
+    if (typeof addNotificationLog === "function") {
+      addNotificationLog(`Đã tự động dọn ${prunedCount} đầu việc hoàn tất quá 30 ngày (T+30)`);
+    }
+  }
+  return prunedCount;
 }
 
