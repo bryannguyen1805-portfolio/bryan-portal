@@ -168,6 +168,30 @@ function closeMerchantLogoModal() {
   document.getElementById("modal-merchant-logo")?.classList.add("hidden");
 }
 
+function editMerchantName(mId) {
+  const m = state.merchants.find(item => item.id === mId);
+  if (!m) return;
+  const nextName = prompt("Nhập tên mới cho chuỗi đối tác:", m.name);
+  if (nextName === null) return;
+  const trimmed = nextName.trim();
+  if (!trimmed) {
+    showToast("Tên chuỗi đối tác không được để trống.", true);
+    return;
+  }
+  const oldName = m.name;
+  m.name = trimmed;
+  m.avatar_letter = trimmed.charAt(0).toUpperCase();
+  saveStateStorage();
+  renderMerchantPillsBar();
+  renderMerchantDirectoryPanel();
+  renderMerchantWorkspaceBody();
+  if (typeof renderDashboardProjectsProgress === "function") renderDashboardProjectsProgress();
+  if (typeof renderTasksMainView === "function") renderTasksMainView();
+  if (typeof renderCalendarView === "function") renderCalendarView();
+  if (typeof addNotificationLog === "function") addNotificationLog(`Đã đổi tên chuỗi "${oldName}" → "${trimmed}"`);
+  showToast(`Đã đổi tên chuỗi thành "${trimmed}"!`);
+}
+
 function editMerchantContractExpiry(mId) {
   const m = state.merchants.find(item => item.id === mId);
   if (!m) return;
@@ -588,6 +612,9 @@ function renderMerchantWorkspaceBody() {
               <div>
                 <div class="flex items-center flex-wrap gap-2">
                   <h2 class="text-lg font-black text-slate-900 tracking-tight">${merchant.name}</h2>
+                  <button type="button" onclick="editMerchantName('${merchant.id}')" class="p-1 rounded-lg text-slate-400 hover:text-teal-700 hover:bg-teal-50 transition" title="Đổi tên chuỗi đối tác">
+                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                  </button>
                   <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-teal-50 text-teal-800 border border-teal-200">${merchant.alias}</span>
                   <button type="button" onclick="editMerchantContractExpiry('${merchant.id}')" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition ${
                     merchant.contract_expiry_date ? 'bg-slate-50 hover:bg-amber-50 text-slate-700 border-slate-200' : 'bg-slate-50 hover:bg-teal-50 text-slate-500 border-dashed border-slate-300'
