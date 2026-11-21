@@ -127,6 +127,13 @@ let onboardingList = JSON.parse(localStorage.getItem("bryan_onboarding_list") ||
 let showGraduatedOnboarding = false;
 let activeOnboardingId = (onboardingList.find(o => !o.graduated) || onboardingList[0])?.id || "";
 let draggedOnboardingTaskId = null;
+let onboardingStageOverrides = {};
+
+function toggleOnboardingStageCollapse(obId, stageId) {
+  const key = `${obId}_${stageId}`;
+  onboardingStageOverrides[key] = !onboardingStageOverrides[key];
+  renderOnboardingView();
+}
 
 function toggleShowGraduatedOnboarding() {
   showGraduatedOnboarding = !showGraduatedOnboarding;
@@ -437,13 +444,13 @@ function renderOnboardingView() {
       const isActive = ob.id === activeOnboardingId;
       const doneCnt = ob.tasks.filter(t => t.status === "DONE").length;
       const pct = Math.round((doneCnt / ob.total_steps) * 100);
+      const slaEval = typeof evaluateOnboardingSla === "function" ? evaluateOnboardingSla(ob) : { dotColor: "green", dotLabel: "Đúng tiến độ" };
+      const dotCls = slaEval.dotColor === "red" ? "bg-rose-500" : (slaEval.dotColor === "amber" ? "bg-amber-400" : "bg-emerald-500");
       return `
-        <button onclick="selectOnboardingMerchant('${ob.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 shrink-0 ${
+        <button onclick="selectOnboardingMerchant('${ob.id}')" title="${slaEval.dotLabel}" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 shrink-0 ${
           isActive ? 'bg-teal-700 text-white shadow-sm' : (ob.graduated ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100' : 'bg-slate-100 text-slate-700 hover:bg-slate-200')
         }">
-          <span class="w-5 h-5 rounded-lg ${isActive ? 'bg-teal-500' : (ob.graduated ? 'bg-emerald-500' : 'bg-slate-300')} text-white text-[10px] flex items-center justify-center font-black">
-            ${ob.merchant_name.charAt(0).toUpperCase()}
-          </span>
+          <span class="w-2 h-2 rounded-full ${ob.graduated ? 'bg-emerald-500' : dotCls} shrink-0"></span>
           <span>${ob.merchant_name}</span>
           <span class="px-1.5 py-0.2 rounded text-[10px] ${isActive ? 'bg-teal-800 text-teal-100' : 'bg-slate-200 text-slate-600'}">${ob.graduated ? 'Đã bàn giao' : pct + '%'}</span>
         </button>
@@ -557,12 +564,16 @@ function renderOnboardingView() {
     `;
   }
 
-  // 3. Render 4 Cột Kanban Phong Cách Linear / Notion (Top Accent Bar)
+  // 3. Render Giao Diện Pipedrive 2 Tầng: Thanh Tiến Trình Chặng + 4 Giai Đoạn Thu Gọn Thông Minh + SLA
+  const slaSummary = typeof evaluateOnboardingSla === "function"
+    ? evaluateOnboardingSla(activeOb)
+    : { dotColor: "green", dotLabel: "Đúng tiến độ", stepSla: {}, capWarning: null, elapsedWorkingDays: 0, overdueCount: 0, warningCount: 0 };
+
   const stages = [
-    { id: "STAGE_LEGAL_CMS", title: "1. Pháp Lý & CMS Duyệt", topAccent: "border-t-slate-500", badge: "bg-slate-200 text-slate-800" },
-    { id: "STAGE_SIGN_HANDOVER", title: "2. Ký Kết & Bàn Giao", topAccent: "border-t-blue-500", badge: "bg-blue-100 text-blue-800" },
-    { id: "STAGE_CONFIG_DEVICE", title: "3. Cấu Hình & Thiết Bị", topAccent: "border-t-amber-500", badge: "bg-amber-100 text-amber-800" },
-    { id: "STAGE_GOLIVE", title: "4. Nghiệm Thu & Go-Live", topAccent: "border-t-emerald-500", badge: "bg-emerald-100 text-emerald-800" }
+    { id: "STAGE_LEGAL_CMS", short: "1. Pháp Lý & CMS", title: "1. Pháp Lý & Phê Duyệt Hệ Thống (CMS)" },
+    { id: "STAGE_SIGN_HANDOVER", short: "2. Ký Kết & BG", title: "2. Ký Kết & Bàn Giao Hồ Sơ" },
+    { id: "STAGE_CONFIG_DEVICE", short: "3. Cấu Hình & TB", title: "3. Cấu Hình Kỹ Thuật & Cấp Thiết Bị" },
+    { id: "STAGE_GOLIVE", short: "4. Nghiệm Thu", title: "4. Nghiệm Thu & Chính Thức Hoạt Động (Go-Live)" }
   ];
 
   const deptBadgeColor = (dept) => {
@@ -575,102 +586,122 @@ function renderOnboardingView() {
   };
 
   if (boardEl) {
-    boardEl.innerHTML = stages.map(st => {
-      let colTasks = activeOb.tasks.filter(t => t.stage === st.id);
-      if (onboardingFilter === "PENDING") colTasks = colTasks.filter(t => t.status !== "DONE");
-      if (onboardingFilter === "DONE") colTasks = colTasks.filter(t => t.status === "DONE");
+    // Thanh tiến trình chặng ngang + Cảnh báo trần 22 ngày làm việc
+    const stepperHtml = `
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center space-x-2 text-xs">
+            <span class="w-2.5 h-2.5 rounded-full ${slaSummary.dotColor === 'red' ? 'bg-rose-500 animate-pulse' : (slaSummary.dotColor === 'amber' ? 'bg-amber-400' : 'bg-emerald-500')}"></span>
+            <span class="font-bold text-slate-800">Tình trạng SLA: ${slaSummary.dotLabel}</span>
+            ${activeOb.project_start_date ? `<span class="text-slate-400">• Đã chạy ${slaSummary.elapsedWorkingDays}/22 ngày làm việc</span>` : ''}
+          </div>
+          ${slaSummary.capWarning ? `<span class="px-2.5 py-1 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-bold">${slaSummary.capWarning}</span>` : ''}
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
+          ${stages.map((st, idx) => {
+            const stTasks = activeOb.tasks.filter(t => t.stage === st.id);
+            const doneCnt = stTasks.filter(t => t.status === "DONE").length;
+            const totalCnt = stTasks.length;
+            const isAllDone = totalCnt > 0 && doneCnt === totalCnt;
+            const hasNext = stTasks.some(t => t.id === nextActionId);
+            return `
+              <div class="px-3 py-2 rounded-xl border text-xs font-bold flex items-center justify-between ${
+                isAllDone ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                : (hasNext ? 'bg-teal-50 border-teal-400 text-teal-900 ring-1 ring-teal-300' : 'bg-slate-50 border-slate-200 text-slate-500')
+              }">
+                <span class="truncate">${isAllDone ? '✓' : (hasNext ? '▶' : (idx + 1) + '.')} ${st.short}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-white/80 shrink-0">${doneCnt}/${totalCnt}</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
 
-      // Sắp xếp: Việc chưa xong lên trước (theo thứ tự bước), việc DONE thu gọn xuống dưới
-      colTasks.sort((a, b) => {
-        if (a.status !== b.status) return a.status === "DONE" ? 1 : -1;
-        return a.step_no - b.step_no;
-      });
+    // 4 Giai đoạn Smart Auto-Collapse
+    const stagesHtml = stages.map(st => {
+      let stageTasks = activeOb.tasks.filter(t => t.stage === st.id);
+      const colDoneCount = stageTasks.filter(t => t.status === "DONE").length;
+      const colTotalCount = stageTasks.length;
+      const isStageCompleted = colTotalCount > 0 && colDoneCount === colTotalCount;
+      const hasNextAction = stageTasks.some(t => t.id === nextActionId);
 
-      const colDoneCount = activeOb.tasks.filter(t => t.stage === st.id && t.status === "DONE").length;
-      const colTotalCount = activeOb.tasks.filter(t => t.stage === st.id).length;
+      // Mặc định: Giai đoạn xong 100% -> Thu gọn; Giai đoạn đang chạy -> Mở; Tương lai -> Thu gọn (trừ khi user bấm mở)
+      const overrideKey = `${activeOb.id}_${st.id}`;
+      let isExpanded = hasNextAction || (!isStageCompleted && colDoneCount > 0);
+      if (onboardingFilter !== "ALL") isExpanded = true;
+      if (Object.prototype.hasOwnProperty.call(onboardingStageOverrides, overrideKey)) {
+        isExpanded = onboardingStageOverrides[overrideKey];
+      }
+
+      if (onboardingFilter === "PENDING") stageTasks = stageTasks.filter(t => t.status !== "DONE");
+      if (onboardingFilter === "DONE") stageTasks = stageTasks.filter(t => t.status === "DONE");
+      stageTasks.sort((a, b) => a.step_no - b.step_no);
 
       return `
-        <div 
-          ondragover="onObDragOver(event)" 
-          ondragleave="onObDragLeave(event)" 
-          ondrop="onObDrop(event, '${st.id}')"
-          class="bg-slate-100/80 p-3 rounded-2xl border border-slate-200/90 border-t-4 ${st.topAccent} flex flex-col min-h-[420px] transition-colors"
-        >
-          <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-200/80">
-            <span class="text-xs font-black text-slate-800">${st.title}</span>
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${st.badge}">${colDoneCount}/${colTotalCount}</span>
-          </div>
+        <div class="rounded-2xl border transition overflow-hidden ${
+          isStageCompleted ? 'border-emerald-200 bg-emerald-50/30'
+          : (hasNextAction ? 'border-teal-300 bg-white shadow-sm' : 'border-slate-200 bg-slate-50/70')
+        }">
+          <button type="button" onclick="toggleOnboardingStageCollapse('${activeOb.id}', '${st.id}')" class="w-full px-4 py-3 flex items-center justify-between gap-3 text-left hover:bg-black/[0.02] transition">
+            <div class="flex items-center space-x-2.5 min-w-0">
+              <span class="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-black shrink-0 ${
+                isStageCompleted ? 'bg-emerald-600 text-white' : (hasNextAction ? 'bg-teal-600 text-white' : 'bg-slate-300 text-white')
+              }">${isStageCompleted ? '✓' : (hasNextAction ? '●' : '○')}</span>
+              <span class="text-xs font-black ${isStageCompleted ? 'text-emerald-900' : (hasNextAction ? 'text-slate-900' : 'text-slate-600')} truncate">${st.title}</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                isStageCompleted ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200/80 text-slate-700'
+              }">${colDoneCount}/${colTotalCount} bước</span>
+            </div>
+            <span class="text-[11px] font-bold text-slate-500 shrink-0">${isExpanded ? 'Thu gọn ▲' : 'Mở rộng ▼'}</span>
+          </button>
 
-          <div class="space-y-2 flex-1">
-            ${colTasks.length > 0 ? colTasks.map(t => {
-              const isDone = t.status === "DONE";
-              const isNext = t.id === nextActionId;
+          ${isExpanded ? `
+            <div class="px-4 pb-4 pt-1 space-y-2 border-t border-slate-100">
+              ${stageTasks.length > 0 ? stageTasks.map(t => {
+                const isDone = t.status === "DONE";
+                const isNext = t.id === nextActionId;
+                const slaInfo = slaSummary.stepSla[t.step_no];
+                const slaText = typeof formatSlaRemainingText === "function" ? formatSlaRemainingText(slaInfo) : "";
 
-              // THU GỌN THÔNG MINH CHO THẺ ĐÃ DONE (1 dòng thanh mảnh)
-              if (isDone) {
+                let slaPillClass = "bg-slate-100 text-slate-500";
+                if (slaInfo?.statusCode === "OVERDUE") slaPillClass = "bg-rose-100 text-rose-700 font-bold";
+                else if (slaInfo?.statusCode === "WARNING") slaPillClass = "bg-amber-100 text-amber-800 font-bold";
+                else if (slaInfo?.statusCode === "ON_TRACK") slaPillClass = "bg-emerald-50 text-emerald-700 font-semibold";
+                else if (slaInfo?.statusCode === "SOFT_WAIT") slaPillClass = "bg-slate-100 text-slate-600 font-semibold";
+
                 return `
-                  <div 
-                    draggable="true" 
-                    ondragstart="onObDragStart(event, '${t.id}')" 
-                    ondragend="onObDragEnd(event)"
-                    class="bg-emerald-50/50 hover:bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-emerald-200/70 cursor-grab active:cursor-grabbing transition flex items-center justify-between gap-2"
-                  >
-                    <div class="flex items-center space-x-2 overflow-hidden">
-                      <input 
-                        type="checkbox" 
-                        checked 
-                        onchange="toggleOnboardingTaskDone('${t.id}')" 
-                        class="w-3.5 h-3.5 text-emerald-600 rounded cursor-pointer shrink-0"
-                      />
-                      <span class="text-[11px] font-semibold text-slate-400 line-through truncate" title="${t.title}">
-                        B${t.step_no}: ${t.title}
-                      </span>
+                  <div class="p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 transition ${
+                    isDone ? 'bg-emerald-50/40 border-emerald-200/70 opacity-80'
+                    : (isNext ? 'bg-teal-50/40 border-teal-500 ring-1 ring-teal-500/20 shadow-xs'
+                    : (slaInfo?.activated ? 'bg-white border-slate-200' : 'bg-slate-50/80 border-slate-200/70 opacity-75'))
+                  }">
+                    <div class="flex items-start space-x-2.5 min-w-0">
+                      <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleOnboardingTaskDone('${t.id}')" class="w-4 h-4 mt-0.5 text-teal-600 rounded cursor-pointer shrink-0" />
+                      <div class="min-w-0">
+                        <div class="flex items-center flex-wrap gap-1.5">
+                          <span class="text-[10px] font-black px-1.5 py-0.5 rounded ${isNext ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700'}">B${t.step_no}</span>
+                          ${isNext ? `<span class="text-[10px] font-extrabold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">Bước kế tiếp cần làm</span>` : ''}
+                          ${t.step_no === 16 ? `<span class="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">Thời hạn mềm</span>` : ''}
+                          <span class="text-[10px] font-bold px-2 py-0.5 rounded ${deptBadgeColor(t.dept)}">${t.dept}</span>
+                        </div>
+                        <p class="text-xs font-bold mt-1 ${isDone ? 'line-through text-slate-400' : 'text-slate-800'}">${t.title}</p>
+                      </div>
                     </div>
-                    <span class="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded shrink-0">Xong</span>
+
+                    <div class="flex items-center gap-2 shrink-0 sm:pl-4">
+                      ${slaText ? `<span class="text-[11px] px-2.5 py-1 rounded-lg ${slaPillClass} whitespace-nowrap">${slaText}</span>` : ''}
+                    </div>
                   </div>
                 `;
-              }
-
-              // THẺ CHƯA XONG (Nổi bật, có highlight nếu là Bước Tiếp Theo)
-              return `
-                <div 
-                  draggable="true" 
-                  ondragstart="onObDragStart(event, '${t.id}')" 
-                  ondragend="onObDragEnd(event)"
-                  class="bg-white p-3 rounded-xl border ${isNext ? 'border-teal-500 ring-2 ring-teal-500/20 shadow-md' : 'border-slate-200 shadow-xs hover:shadow-md'} cursor-grab active:cursor-grabbing transition space-y-2"
-                >
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-1.5">
-                      <i data-lucide="grip-vertical" class="w-3.5 h-3.5 text-slate-300"></i>
-                      <span class="text-[10px] font-black px-2 py-0.5 rounded ${isNext ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700'}">
-                        Bước ${t.step_no}
-                      </span>
-                      ${isNext ? `<span class="text-[9px] font-extrabold text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200 animate-pulse">ĐANG TỚI</span>` : ''}
-                    </div>
-                    <span class="text-[10px] font-extrabold px-2 py-0.5 rounded ${deptBadgeColor(t.dept)}">${t.dept}</span>
-                  </div>
-
-                  <div class="flex items-start space-x-2">
-                    <input 
-                      type="checkbox" 
-                      onchange="toggleOnboardingTaskDone('${t.id}')" 
-                      class="w-3.5 h-3.5 mt-0.5 text-teal-600 rounded cursor-pointer shrink-0"
-                    />
-                    <div class="text-xs font-bold leading-snug text-slate-800">
-                      ${t.title}
-                    </div>
-                  </div>
-                </div>
-              `;
-            }).join('') : `
-              <div class="h-24 border border-dashed border-slate-300 rounded-xl flex items-center justify-center text-[11px] text-slate-400">
-                Kéo thẻ vào đây hoặc không có mục nào
-              </div>
-            `}
-          </div>
+              }).join('') : `<div class="text-xs text-slate-400 py-3 text-center">Không có bước nào khớp bộ lọc.</div>`}
+            </div>
+          ` : ''}
         </div>
       `;
     }).join('');
+
+    boardEl.innerHTML = `<div class="col-span-full space-y-3">${stepperHtml}${stagesHtml}</div>`;
   }
 
   lucide.createIcons();
