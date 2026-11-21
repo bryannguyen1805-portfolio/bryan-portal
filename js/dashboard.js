@@ -1,6 +1,28 @@
 // -------------------------------------------------------------
 // 2. NAVIGATION & SCREEN SWITCHING
 // -------------------------------------------------------------
+const SIDEBAR_COLLAPSE_KEY = "bryan_portal_sidebar_collapsed";
+
+function applySidebarCollapseState() {
+  const sidebar = document.getElementById("app-sidebar");
+  const icon = document.getElementById("sidebar-collapse-icon");
+  if (!sidebar) return;
+  const isCollapsed = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === "1";
+  sidebar.classList.toggle("sidebar-collapsed", isCollapsed);
+  if (icon) {
+    icon.setAttribute("data-lucide", isCollapsed ? "panel-left-open" : "panel-left-close");
+    if (typeof lucide !== "undefined") lucide.createIcons();
+  }
+}
+
+function toggleSidebarCollapse() {
+  const isCollapsed = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === "1";
+  localStorage.setItem(SIDEBAR_COLLAPSE_KEY, isCollapsed ? "0" : "1");
+  applySidebarCollapseState();
+}
+
+window.addEventListener("DOMContentLoaded", applySidebarCollapseState);
+
 function navigateTo(screenId) {
   const views = ['DASHBOARD', 'PROJECTS', 'ONBOARDING', 'PIPELINE', 'TASKS', 'CALENDAR', 'NOTIFICATIONS', 'AUTOMATION'];
   views.forEach(v => {

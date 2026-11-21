@@ -81,27 +81,32 @@
 <body class="h-full flex overflow-hidden bg-slate-900 text-slate-800">
 
   <!-- ================= 1. SIDEBAR TRÁI XANH NAVY TINH GIẢN (B2B PM FOCUS) ================= -->
-  <aside class="w-[268px] bg-navy-900 text-slate-300 flex flex-col justify-between shrink-0 border-r border-slate-800 z-30 select-none">
+  <aside id="app-sidebar" class="w-56 bg-navy-900 text-slate-300 flex flex-col justify-between shrink-0 border-r border-slate-800 z-30 select-none transition-all duration-200">
     <div>
       <!-- Brand & Header -->
-      <div class="h-16 px-4 flex items-center space-x-3 border-b border-slate-800/80 bg-navy-950/60 shrink-0">
+      <div class="sidebar-brand h-16 px-3.5 flex items-center justify-between gap-2 border-b border-slate-800/80 bg-navy-950/60 shrink-0">
+        <div class="flex items-center space-x-2.5 min-w-0">
         <div class="w-10 h-10 rounded-xl bg-slate-950 border border-slate-700/60 p-1 flex items-center justify-center shadow-lg shadow-sky-500/10 shrink-0 overflow-hidden">
           <img src="data:image/webp;base64,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" alt="Bryan Portal Logo" class="w-full h-full object-contain" />
         </div>
-        <div class="min-w-0 flex-1">
-          <div class="flex items-center space-x-1.5">
-            <span class="font-black text-white text-sm tracking-tight whitespace-nowrap">BRYAN PORTAL</span>
+          <div class="sidebar-label min-w-0 flex-1">
+            <div class="flex items-center space-x-1.5">
+              <span class="font-black text-white text-sm tracking-tight whitespace-nowrap">BRYAN PORTAL</span>
+            </div>
+            <p class="text-[10px] text-slate-400 font-medium truncate">Quản Lý Dự Án B2B</p>
           </div>
-          <p class="text-[10px] text-slate-400 font-medium truncate">Quản Lý Dự Án B2B</p>
         </div>
+        <button onclick="toggleSidebarCollapse()" class="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition shrink-0" title="Thu gọn / Mở rộng thanh danh mục">
+          <i data-lucide="panel-left-close" class="w-4 h-4" id="sidebar-collapse-icon"></i>
+        </button>
       </div>
 
       <!-- User Mini Card -->
-      <div class="px-4 py-3 mx-3 my-3 rounded-xl bg-navy-800/60 border border-slate-800 flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-teal-700 to-teal-500 text-white font-black text-xs flex items-center justify-center ring-2 ring-teal-500/30 shrink-0">
+      <div class="sidebar-user-card px-3.5 py-2.5 mx-2.5 my-2.5 rounded-xl bg-navy-800/60 border border-slate-800 flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-teal-700 to-teal-500 text-white font-black text-xs flex items-center justify-center ring-2 ring-teal-500/30 shrink-0">
           BN
         </div>
-        <div class="overflow-hidden">
+        <div class="sidebar-label overflow-hidden">
           <div class="text-xs font-bold text-white truncate">Bryan Nguyen</div>
           <div class="text-[10px] text-teal-400 font-semibold truncate flex items-center">
             <span class="w-1.5 h-1.5 rounded-full bg-teal-400 mr-1 animate-pulse"></span>
@@ -111,60 +116,60 @@
       </div>
 
       <!-- Navigation Menu Items -->
-      <nav class="px-2.5 space-y-1 mt-2 text-xs font-semibold">
-        <button onclick="navigateTo('DASHBOARD')" id="nav-DASHBOARD" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2.5 rounded-xl transition text-white bg-teal-600/90 shadow-sm shadow-teal-700/30">
+      <nav class="px-2.5 space-y-1 mt-1 text-xs font-semibold">
+        <button onclick="navigateTo('DASHBOARD')" id="nav-DASHBOARD" title="Tổng Quan" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2.5 rounded-xl transition text-white bg-teal-600/90 shadow-sm shadow-teal-700/30">
           <i data-lucide="layout-dashboard" class="w-4 h-4 text-teal-200 shrink-0"></i>
-          <span class="whitespace-nowrap">Tổng Quan Điều Hành</span>
+          <span class="sidebar-label whitespace-nowrap">Tổng Quan</span>
         </button>
 
-        <button onclick="navigateTo('PROJECTS')" id="nav-PROJECTS" class="nav-item w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+        <button onclick="navigateTo('PROJECTS')" id="nav-PROJECTS" title="Chuỗi Đối Tác" class="nav-item w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
           <div class="flex items-center space-x-2.5 min-w-0">
             <i data-lucide="layers" class="w-4 h-4 text-slate-400 shrink-0"></i>
-            <span class="whitespace-nowrap">Dự Án Chuỗi Đối Tác</span>
+            <span class="sidebar-label whitespace-nowrap">Chuỗi Đối Tác</span>
           </div>
-          <span class="px-1.5 py-0.5 text-[10px] bg-teal-500/20 text-teal-300 rounded font-bold whitespace-nowrap shrink-0" id="badge-merchant-count">3</span>
+          <span class="sidebar-badge px-1.5 py-0.5 text-[10px] bg-teal-500/20 text-teal-300 rounded font-bold whitespace-nowrap shrink-0" id="badge-merchant-count">3</span>
         </button>
 
-        <button onclick="navigateTo('ONBOARDING')" id="nav-ONBOARDING" class="nav-item w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+        <button onclick="navigateTo('ONBOARDING')" id="nav-ONBOARDING" title="Triển Khai Mới" class="nav-item w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
           <div class="flex items-center space-x-2.5 min-w-0">
             <i data-lucide="list-checks" class="w-4 h-4 text-slate-400 shrink-0"></i>
-            <span class="whitespace-nowrap">Quy Trình Triển Khai</span>
+            <span class="sidebar-label whitespace-nowrap">Triển Khai Mới</span>
           </div>
-          <span class="px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-bold whitespace-nowrap shrink-0" id="badge-onboarding-count">2</span>
+          <span class="sidebar-badge px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-bold whitespace-nowrap shrink-0" id="badge-onboarding-count">2</span>
         </button>
 
-        <button onclick="navigateTo('PIPELINE')" id="nav-PIPELINE" class="nav-item w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
-          <div class="flex items-center space-x-3 min-w-0">
+        <button onclick="navigateTo('PIPELINE')" id="nav-PIPELINE" title="Phễu Bán Hàng" class="nav-item w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center space-x-2.5 min-w-0">
             <i data-lucide="trending-up" class="w-4 h-4 text-slate-400 shrink-0"></i>
-            <span class="whitespace-nowrap truncate">Phễu Thương Mại</span>
+            <span class="sidebar-label whitespace-nowrap">Phễu Bán Hàng</span>
           </div>
-          <span class="px-1.5 py-0.5 text-[10px] bg-amber-500/20 text-amber-300 rounded font-bold whitespace-nowrap shrink-0">3</span>
+          <span class="sidebar-badge px-1.5 py-0.5 text-[10px] bg-amber-500/20 text-amber-300 rounded font-bold whitespace-nowrap shrink-0">3</span>
         </button>
 
-        <button onclick="navigateTo('TASKS')" id="nav-TASKS" class="nav-item w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
-          <div class="flex items-center space-x-3 min-w-0">
+        <button onclick="navigateTo('TASKS')" id="nav-TASKS" title="Nhiệm Vụ" class="nav-item w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center space-x-2.5 min-w-0">
             <i data-lucide="check-square" class="w-4 h-4 text-slate-400 shrink-0"></i>
-            <span class="whitespace-nowrap truncate">Nhiệm Vụ & Tiến Độ</span>
+            <span class="sidebar-label whitespace-nowrap">Nhiệm Vụ</span>
           </div>
-          <span class="px-1.5 py-0.5 text-[10px] bg-slate-700 text-slate-300 rounded font-bold whitespace-nowrap shrink-0" id="badge-task-count">6</span>
+          <span class="sidebar-badge px-1.5 py-0.5 text-[10px] bg-slate-700 text-slate-300 rounded font-bold whitespace-nowrap shrink-0" id="badge-task-count">6</span>
         </button>
 
-        <button onclick="navigateTo('CALENDAR')" id="nav-CALENDAR" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+        <button onclick="navigateTo('CALENDAR')" id="nav-CALENDAR" title="Lịch & Cột Mốc" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
           <i data-lucide="calendar" class="w-4 h-4 text-slate-400 shrink-0"></i>
-          <span class="whitespace-nowrap truncate">Lịch Họp & Cột Mốc</span>
+          <span class="sidebar-label whitespace-nowrap">Lịch & Cột Mốc</span>
         </button>
 
-        <button onclick="navigateTo('NOTIFICATIONS')" id="nav-NOTIFICATIONS" class="nav-item w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
-          <div class="flex items-center space-x-3 min-w-0">
+        <button onclick="navigateTo('NOTIFICATIONS')" id="nav-NOTIFICATIONS" title="Cảnh Báo" class="nav-item w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center space-x-2.5 min-w-0">
             <i data-lucide="bell" class="w-4 h-4 text-slate-400 shrink-0"></i>
-            <span class="whitespace-nowrap truncate">Cảnh Báo & Nhắc Hẹn</span>
+            <span class="sidebar-label whitespace-nowrap">Cảnh Báo</span>
           </div>
-          <span id="badge-notif-count" class="px-1.5 py-0.5 text-[10px] bg-rose-500/20 text-rose-300 rounded font-bold whitespace-nowrap shrink-0">0</span>
+          <span id="badge-notif-count" class="sidebar-badge px-1.5 py-0.5 text-[10px] bg-rose-500/20 text-rose-300 rounded font-bold whitespace-nowrap shrink-0">0</span>
         </button>
 
-        <button onclick="navigateTo('AUTOMATION')" id="nav-AUTOMATION" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+        <button onclick="navigateTo('AUTOMATION')" id="nav-AUTOMATION" title="Tự Động Hóa" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
           <i data-lucide="zap" class="w-4 h-4 text-slate-400 shrink-0"></i>
-          <span class="whitespace-nowrap truncate">Tự Động Hóa</span>
+          <span class="sidebar-label whitespace-nowrap">Tự Động Hóa</span>
         </button>
       </nav>
     </div>
