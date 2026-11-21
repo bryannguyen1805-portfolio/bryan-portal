@@ -106,8 +106,8 @@
       </div>
 
       <!-- User Mini Card -->
-      <div class="sidebar-user-card px-3 py-2.5 mx-2.5 my-2.5 rounded-xl bg-navy-800/60 border border-slate-800 flex items-center justify-between gap-2">
-        <div class="flex items-center space-x-2.5 min-w-0">
+      <div class="sidebar-user-card px-3 py-2.5 mx-2.5 my-2.5 rounded-xl bg-navy-800/60 border border-slate-800 flex items-center justify-between gap-1.5">
+        <div class="flex items-center space-x-2 min-w-0">
           <div id="sidebar-user-avatar" class="w-8 h-8 rounded-full bg-gradient-to-tr from-teal-700 to-teal-500 text-white font-black text-xs flex items-center justify-center ring-2 ring-teal-500/30 shrink-0">
             BN
           </div>
@@ -116,9 +116,17 @@
             <div id="sidebar-user-email" class="text-[10px] text-teal-300 font-medium truncate">tri.nguyen2@vietunion.com.vn</div>
           </div>
         </div>
-        <button onclick="logoutCurrentUser()" class="sidebar-label p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition shrink-0" title="Chuyển tài khoản / Đăng xuất">
-          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-        </button>
+        <div class="sidebar-label flex items-center gap-0.5 shrink-0">
+          <button id="btn-admin-users" onclick="openAdminUsersModal()" class="hidden p-1 rounded-lg text-amber-300 hover:text-white hover:bg-white/10 transition" title="Admin: Cấp & Quản lý tài khoản">
+            <i data-lucide="users" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="openChangePinModal()" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition" title="Đổi Mã PIN / Mật khẩu">
+            <i data-lucide="key-round" class="w-3.5 h-3.5"></i>
+          </button>
+          <button onclick="logoutCurrentUser()" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition" title="Đăng xuất">
+            <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Navigation Menu Items -->
@@ -1441,16 +1449,16 @@
 
       <form onsubmit="handleAuthLoginSubmit(event)" class="space-y-3 text-xs">
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Email Doanh Nghiệp (@vietunion.com.vn) *</label>
+          <label class="block font-bold text-slate-700 mb-1">Email Doanh Nghiệp (Đã được cấp quyền) *</label>
           <input id="auth-email-input" type="email" required placeholder="VD: tri.nguyen2@vietunion.com.vn" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none font-medium" />
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Tên hiển thị (Tùy chọn)</label>
-          <input id="auth-name-input" type="text" placeholder="VD: Bryan Nguyen" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none" />
+          <label class="block font-bold text-slate-700 mb-1">Mã PIN / Mật khẩu *</label>
+          <input id="auth-pin-input" type="password" required placeholder="Nhập mã PIN do Admin cấp" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none font-mono" />
         </div>
         <div id="auth-error-msg" class="hidden p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-semibold"></div>
         <button type="submit" class="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold text-xs shadow-sm transition">
-          Vào Không Gian Làm Việc Riêng →
+          Đăng Nhập Vào Không Gian Riêng →
         </button>
       </form>
     </div>

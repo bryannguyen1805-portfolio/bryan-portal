@@ -194,7 +194,8 @@ let cloudSyncTimer = null;
 function scheduleFullCloudSync() {
   if (!API_ENDPOINT) return;
   const userEmail = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "";
-  if (!userEmail) return;
+  const userPin = typeof getCurrentUserPin === "function" ? getCurrentUserPin() : "";
+  if (!userEmail || !userPin) return;
   clearTimeout(cloudSyncTimer);
   cloudSyncTimer = setTimeout(() => {
     fetch(API_ENDPOINT, {
@@ -204,6 +205,7 @@ function scheduleFullCloudSync() {
       body: JSON.stringify({
         action: "SYNC_FULL_STATE",
         owner_email: userEmail,
+        owner_pin: userPin,
         merchants: state.merchants,
         stakeholders: state.stakeholders,
         projects: state.projects,
@@ -441,8 +443,9 @@ async function syncDataFromGoogleSheets() {
 
   try {
     const userEmail = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "";
+    const userPin = typeof getCurrentUserPin === "function" ? getCurrentUserPin() : "";
     const sep = API_ENDPOINT.includes("?") ? "&" : "?";
-    const res = await fetch(`${API_ENDPOINT}${sep}action=getData&user_email=${encodeURIComponent(userEmail)}`);
+    const res = await fetch(`${API_ENDPOINT}${sep}action=getData&user_email=${encodeURIComponent(userEmail)}&user_pin=${encodeURIComponent(userPin)}`);
     const data = await res.json();
     if (data && data.status === 403) {
       showToast(data.error || "Tài khoản không có quyền truy cập.", true);
@@ -482,12 +485,13 @@ async function syncDataFromGoogleSheets() {
 async function postDataToGoogleSheets(payload) {
   if (!API_ENDPOINT) return;
   const userEmail = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "";
+  const userPin = typeof getCurrentUserPin === "function" ? getCurrentUserPin() : "";
   try {
     await fetch(API_ENDPOINT, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ owner_email: userEmail, ...payload })
+      body: JSON.stringify({ owner_email: userEmail, owner_pin: userPin, ...payload })
     });
     setTimeout(syncDataFromGoogleSheets, 1500);
   } catch (err) {

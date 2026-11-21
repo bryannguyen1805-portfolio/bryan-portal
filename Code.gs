@@ -1,23 +1,10 @@
 /**
- * GOOGLE APPS SCRIPT - BACKEND REST API, DATA ISOLATION (10 OMNI USERS) & EMAIL ENGINE
+ * GOOGLE APPS SCRIPT - BACKEND REST API, STRICT WHITELIST + PIN, DATA ISOLATION (10 OMNI USERS)
  * Hạ tầng: GitHub Pages (Frontend) + Google Apps Script (Backend) + Google Sheets Master
  */
 
 const SPREADSHEET_ID = SpreadsheetApp.getActiveSpreadsheet().getId();
 const ALERT_RECIPIENTS = "quantritc1805@gmail.com,tri.nguyen2@vietunion.com.vn";
-
-// Whitelist phòng Omni (mọi email @vietunion.com.vn hoặc danh sách chỉ định)
-const ALLOWED_EMAILS = [
-  "tri.nguyen2@vietunion.com.vn",
-  "quantritc1805@gmail.com"
-];
-
-function isAuthorizedOmniUser(email) {
-  const e = String(email || "").trim().toLowerCase();
-  if (!e || e.indexOf("@") === -1) return false;
-  if (ALLOWED_EMAILS.indexOf(e) !== -1) return true;
-  return e.endsWith("@vietunion.com.vn");
-}
 
 function getSheetRowsAsObjects(ss, sheetName) {
   const sheet = ss.getSheetByName(sheetName);
@@ -44,23 +31,53 @@ function filterByOwner(rows, userEmail) {
 }
 
 /**
- * GET request: Kiểm tra danh tính (403 nếu không hợp lệ) & Lọc dữ liệu theo owner_email tại Backend
+ * Xác thực nghiêm ngặt theo danh sách tài khoản trong Sheet `Users` (BỎ kiểm tra đuôi domain)
+ */
+function verifyUserCredentials(ss, email, pin) {
+  const targetEmail = String(email || "").trim().toLowerCase();
+  const targetPin = String(pin || "").trim();
+  if (!targetEmail || !targetPin) return null;
+
+  const users = getSheetRowsAsObjects(ss, "Users");
+  const found = users.find(u =>
+    String(u.email || "").trim().toLowerCase() === targetEmail &&
+    String(u.active).toUpperCase() !== "FALSE" &&
+    String(u.pin || "").trim() === targetPin
+  );
+  if (!found) return null;
+  return {
+    email: targetEmail,
+    name: found.name || "Nhân sự Omni",
+    role: String(found.role || "USER").toUpperCase()
+  };
+}
+
+/**
+ * GET request: Hỗ trợ `action=login` & `action=getData` (Bắt buộc đúng Email + PIN)
  */
 function doGet(e) {
   try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const action = String((e && e.parameter && e.parameter.action) || "getData");
     const userEmail = String((e && e.parameter && e.parameter.user_email) || "").trim().toLowerCase();
-    if (!isAuthorizedOmniUser(userEmail)) {
+    const userPin = String((e && e.parameter && e.parameter.user_pin) || "").trim();
+
+    const verifiedUser = verifyUserCredentials(ss, userEmail, userPin);
+    if (!verifiedUser) {
       return resJSON({
         success: false,
         status: 403,
-        error: "403 Forbidden: Tài khoản không nằm trong danh sách phòng Omni."
+        error: "403 Forbidden: Email chưa được cấp quyền hoặc Mã PIN không chính xác."
       });
     }
 
-    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    if (action === "login") {
+      return resJSON({ success: true, user: verifiedUser });
+    }
+
     const payload = {
       success: true,
-      user_email: userEmail,
+      user: verifiedUser,
       merchants: filterByOwner(getSheetRowsAsObjects(ss, "Merchants"), userEmail),
       stakeholders: filterByOwner(getSheetRowsAsObjects(ss, "Stakeholders"), userEmail),
       projects: filterByOwner(getSheetRowsAsObjects(ss, "Projects"), userEmail).map(p => {
@@ -96,7 +113,7 @@ function doGet(e) {
 }
 
 /**
- * Ghi cô lập theo owner_email: Giữ nguyên toàn bộ dòng của 9 nhân sự khác, chỉ thay thế dòng của userEmail
+ * Ghi cô lập theo owner_email: Giữ nguyên dữ liệu của 9 nhân sự khác
  */
 function upsertOwnerRowsToSheet(ss, sheetName, headers, userEmail, ownerRows) {
   let sheet = ss.getSheetByName(sheetName) || ss.insertSheet(sheetName);
@@ -121,7 +138,7 @@ function upsertOwnerRowsToSheet(ss, sheetName, headers, userEmail, ownerRows) {
 }
 
 /**
- * POST request: Bọc trong LockService (chờ tối đa 15s) chống xung đột ghi khi 10 người dùng đồng thời
+ * POST request: LockService 15s + Xác thực Email/PIN + Đổi PIN + Admin cấp tài khoản
  */
 function doPost(e) {
   const lock = LockService.getScriptLock();
@@ -131,12 +148,67 @@ function doPost(e) {
     const body = JSON.parse(e.postData.contents);
     const action = body.action;
     const ownerEmail = String(body.owner_email || "").trim().toLowerCase();
+    const ownerPin = String(body.owner_pin || "").trim();
 
-    if (!isAuthorizedOmniUser(ownerEmail)) {
-      return resJSON({ success: false, status: 403, error: "403 Forbidden: Thiếu hoặc sai owner_email hợp lệ." });
+    const verifiedUser = verifyUserCredentials(ss, ownerEmail, ownerPin);
+    if (!verifiedUser) {
+      return resJSON({ success: false, status: 403, error: "403 Forbidden: Email hoặc Mã PIN không hợp lệ." });
     }
 
     const nowIso = new Date().toISOString();
+
+    // Đổi Mã PIN cá nhân
+    if (action === "CHANGE_PIN") {
+      const newPin = String(body.new_pin || "").trim();
+      if (newPin.length < 4) return resJSON({ success: false, message: "Mã PIN mới phải từ 4 ký tự trở lên." });
+      const uSheet = ss.getSheetByName("Users");
+      const users = getSheetRowsAsObjects(ss, "Users");
+      for (let i = 0; i < users.length; i++) {
+        if (String(users[i].email || "").trim().toLowerCase() === ownerEmail) {
+          uSheet.getRange(i + 2, 4).setValue(newPin);
+          uSheet.getRange(i + 2, 6).setValue(nowIso);
+          return resJSON({ success: true, message: "Đã cập nhật Mã PIN mới trên Google Sheets!" });
+        }
+      }
+      return resJSON({ success: false, message: "Không tìm thấy tài khoản." });
+    }
+
+    // Admin cấp / cập nhật tài khoản nhân sự Omni
+    if (action === "ADMIN_UPSERT_USER") {
+      if (verifiedUser.role !== "ADMIN") {
+        return resJSON({ success: false, status: 403, error: "Chỉ Admin mới có quyền cấp tài khoản." });
+      }
+      const target = body.target_user || {};
+      const tEmail = String(target.email || "").trim().toLowerCase();
+      if (!tEmail) return resJSON({ success: false, message: "Thiếu email tài khoản mới." });
+
+      let uSheet = ss.getSheetByName("Users") || ss.insertSheet("Users");
+      const users = getSheetRowsAsObjects(ss, "Users");
+      const idx = users.findIndex(u => String(u.email || "").trim().toLowerCase() === tEmail);
+      const rowData = [tEmail, target.name || "Nhân sự Omni", target.role || "USER", String(target.pin || "123456"), target.active === false ? "FALSE" : "TRUE", nowIso];
+      if (idx !== -1) {
+        uSheet.getRange(idx + 2, 1, 1, 6).setValues([rowData]);
+      } else {
+        uSheet.appendRow(rowData);
+      }
+      return resJSON({ success: true, message: "Đã lưu tài khoản " + tEmail });
+    }
+
+    if (action === "ADMIN_DELETE_USER") {
+      if (verifiedUser.role !== "ADMIN") {
+        return resJSON({ success: false, status: 403, error: "Chỉ Admin mới có quyền xóa tài khoản." });
+      }
+      const tEmail = String(body.target_email || "").trim().toLowerCase();
+      const uSheet = ss.getSheetByName("Users");
+      const users = getSheetRowsAsObjects(ss, "Users").filter(u => String(u.email || "").trim().toLowerCase() !== tEmail);
+      const headers = ["email", "name", "role", "pin", "active", "updated_at"];
+      uSheet.clear();
+      uSheet.appendRow(headers);
+      if (users.length > 0) {
+        uSheet.getRange(2, 1, users.length, headers.length).setValues(users.map(r => headers.map(h => r[h] !== undefined ? r[h] : "")));
+      }
+      return resJSON({ success: true, message: "Đã xóa tài khoản " + tEmail });
+    }
 
     if (action === "SYNC_FULL_STATE") {
       if (Array.isArray(body.merchants)) {
@@ -224,9 +296,6 @@ function resJSON(data) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-/**
- * Tự động gửi Email tổng hợp mỗi ngày lúc 08:30 (lọc riêng dữ liệu của Bryan)
- */
 function sendDailyDigestEmail() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const bryanEmail = "tri.nguyen2@vietunion.com.vn";
@@ -290,6 +359,14 @@ function setupDailyEmailTrigger() {
 function initSampleSheets() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const owner = "tri.nguyen2@vietunion.com.vn";
+  const nowIso = new Date().toISOString();
+
+  // Sheet Users (Admin chủ động cấp tài khoản & nhân sự tự đổi PIN)
+  let uSheet = ss.getSheetByName("Users") || ss.insertSheet("Users");
+  uSheet.clear();
+  uSheet.appendRow(["email", "name", "role", "pin", "active", "updated_at"]);
+  uSheet.appendRow(["tri.nguyen2@vietunion.com.vn", "Bryan Nguyen", "ADMIN", "180526", "TRUE", nowIso]);
+  uSheet.appendRow(["quantritc1805@gmail.com", "Bryan Nguyen", "ADMIN", "180526", "TRUE", nowIso]);
 
   upsertOwnerRowsToSheet(ss, "Merchants",
     ["id", "name", "brand_name", "alias", "industry", "expected_gmv", "avatar_letter", "color", "logo_url", "contract_expiry_date", "contract_status", "owner_email", "updated_at"],
