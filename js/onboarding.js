@@ -124,8 +124,18 @@ let onboardingList = JSON.parse(localStorage.getItem("bryan_onboarding_list") ||
   }
 ];
 
-let activeOnboardingId = onboardingList[0]?.id || "";
+let showGraduatedOnboarding = false;
+let activeOnboardingId = (onboardingList.find(o => !o.graduated) || onboardingList[0])?.id || "";
 let draggedOnboardingTaskId = null;
+
+function toggleShowGraduatedOnboarding() {
+  showGraduatedOnboarding = !showGraduatedOnboarding;
+  const visible = showGraduatedOnboarding ? onboardingList : onboardingList.filter(o => !o.graduated);
+  if (!visible.some(o => o.id === activeOnboardingId)) {
+    activeOnboardingId = visible[0]?.id || "";
+  }
+  renderOnboardingView();
+}
 
 function saveOnboardingStorage() {
   localStorage.setItem("bryan_onboarding_list", JSON.stringify(onboardingList));
@@ -409,34 +419,60 @@ function setOnboardingFilter(f) {
 function renderOnboardingView() {
   saveOnboardingStorage();
 
+  const activeList = onboardingList.filter(o => !o.graduated);
+  const graduatedList = onboardingList.filter(o => o.graduated);
+  const visibleList = showGraduatedOnboarding ? onboardingList : activeList;
+
+  if (!visibleList.some(o => o.id === activeOnboardingId)) {
+    activeOnboardingId = visibleList[0]?.id || "";
+  }
+
   // 1. Render Pills
   const pillsBar = document.getElementById("onboarding-pills-bar");
   if (pillsBar) {
-    pillsBar.innerHTML = onboardingList.map(ob => {
+    const pillsHtml = visibleList.map(ob => {
       const isActive = ob.id === activeOnboardingId;
       const doneCnt = ob.tasks.filter(t => t.status === "DONE").length;
       const pct = Math.round((doneCnt / ob.total_steps) * 100);
       return `
         <button onclick="selectOnboardingMerchant('${ob.id}')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-2 shrink-0 ${
-          isActive ? 'bg-teal-700 text-white shadow-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+          isActive ? 'bg-teal-700 text-white shadow-sm' : (ob.graduated ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100' : 'bg-slate-100 text-slate-700 hover:bg-slate-200')
         }">
-          <span class="w-5 h-5 rounded-lg ${isActive ? 'bg-teal-500' : 'bg-slate-300'} text-white text-[10px] flex items-center justify-center font-black">
+          <span class="w-5 h-5 rounded-lg ${isActive ? 'bg-teal-500' : (ob.graduated ? 'bg-emerald-500' : 'bg-slate-300')} text-white text-[10px] flex items-center justify-center font-black">
             ${ob.merchant_name.charAt(0).toUpperCase()}
           </span>
           <span>${ob.merchant_name}</span>
-          <span class="px-1.5 py-0.2 rounded text-[10px] ${isActive ? 'bg-teal-800 text-teal-100' : 'bg-slate-200 text-slate-600'}">${pct}%</span>
+          <span class="px-1.5 py-0.2 rounded text-[10px] ${isActive ? 'bg-teal-800 text-teal-100' : 'bg-slate-200 text-slate-600'}">${ob.graduated ? 'Đã bàn giao' : pct + '%'}</span>
         </button>
       `;
     }).join('');
+
+    const toggleGraduatedBtn = graduatedList.length > 0 ? `
+      <button onclick="toggleShowGraduatedOnboarding()" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shrink-0 border ${
+        showGraduatedOnboarding
+          ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+          : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:text-slate-800'
+      }" title="Ẩn/hiện các chuỗi đã hoàn tất Go-Live & Bàn giao">
+        <i data-lucide="archive" class="w-3.5 h-3.5"></i>
+        <span>${showGraduatedOnboarding ? 'Ẩn chuỗi đã bàn giao' : `Đã bàn giao (${graduatedList.length})`}</span>
+      </button>
+    ` : '';
+
+    pillsBar.innerHTML = pillsHtml + toggleGraduatedBtn;
   }
 
-  const activeOb = onboardingList.find(o => o.id === activeOnboardingId);
+  const activeOb = visibleList.find(o => o.id === activeOnboardingId);
   const headerEl = document.getElementById("onboarding-active-header");
   const boardEl = document.getElementById("onboarding-kanban-board");
 
   if (!activeOb) {
-    if (headerEl) headerEl.innerHTML = `<div class="text-center text-xs text-slate-400 py-2">Chưa có đối tác Onboarding nào. Bấm "+ Thêm Đối Tác / Triển Khai Mới" để bắt đầu!</div>`;
+    if (headerEl) {
+      headerEl.innerHTML = graduatedList.length > 0
+        ? `<div class="text-center text-xs text-slate-500 py-3">Tất cả chuỗi đối tác đã hoàn tất triển khai & bàn giao sang <b>Dự Án Chuỗi Đối Tác</b>! Bấm <b>"Đã bàn giao (${graduatedList.length})"</b> ở trên nếu cần xem lại hồ sơ 18 bước, hoặc thêm đối tác mới.</div>`
+        : `<div class="text-center text-xs text-slate-400 py-2">Chưa có đối tác triển khai nào. Bấm "+ Thêm Đối Tác / Triển Khai Mới" để bắt đầu!</div>`;
+    }
     if (boardEl) boardEl.innerHTML = "";
+    lucide.createIcons();
     return;
   }
 
