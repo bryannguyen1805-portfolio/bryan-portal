@@ -199,7 +199,7 @@ function openGraduateModal(obId) {
   document.getElementById("grad-alias").value = "@" + ob.merchant_name.toLowerCase().replace(/[^a-z0-9]/g, "");
   document.getElementById("grad-gmv").value = "~500M VNĐ/tháng";
   document.getElementById("grad-industry").value = "Chuỗi B2B Enterprise";
-  document.getElementById("grad-folder").value = "/Users/quangtri/Documents/" + ob.merchant_name.replace(/\s+/g, "-") + "/";
+  document.getElementById("grad-folder").value = "https://drive.google.com/drive/folders/payoo-dms-" + ob.merchant_name.toLowerCase().replace(/\s+/g, "-");
   document.getElementById("grad-stk-name").value = "";
   document.getElementById("grad-stk-role").value = "";
   document.getElementById("grad-stk-phone").value = "";
