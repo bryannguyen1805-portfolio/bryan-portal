@@ -30,6 +30,9 @@ function filterByOwner(rows, userEmail) {
   return rows.filter(r => String(r.owner_email || "").trim().toLowerCase() === target);
 }
 
+const USERS_HEADERS = ["email", "name", "role", "pin", "active", "deleted_at", "purge_after", "updated_at"];
+const USER_DATA_SHEETS = ["Merchants", "Stakeholders", "Projects", "Tasks", "Meetings", "Folders", "Onboarding"];
+
 /**
  * Xác thực nghiêm ngặt theo danh sách tài khoản trong Sheet `Users` (BỎ kiểm tra đuôi domain)
  */
@@ -42,6 +45,7 @@ function verifyUserCredentials(ss, email, pin) {
   const found = users.find(u =>
     String(u.email || "").trim().toLowerCase() === targetEmail &&
     String(u.active).toUpperCase() !== "FALSE" &&
+    !String(u.deleted_at || "").trim() &&
     String(u.pin || "").trim() === targetPin
   );
   if (!found) return null;
@@ -50,6 +54,89 @@ function verifyUserCredentials(ss, email, pin) {
     name: found.name || "Nhân sự Omni",
     role: String(found.role || "USER").toUpperCase()
   };
+}
+
+function writeUsersSheetRows(ss, users) {
+  let uSheet = ss.getSheetByName("Users") || ss.insertSheet("Users");
+  uSheet.clear();
+  uSheet.appendRow(USERS_HEADERS);
+  if (users.length > 0) {
+    uSheet.getRange(2, 1, users.length, USERS_HEADERS.length).setValues(
+      users.map(r => USERS_HEADERS.map(h => r[h] !== undefined ? r[h] : ""))
+    );
+  }
+}
+
+/**
+ * Xóa vĩnh viễn toàn bộ dữ liệu thuộc về `targetEmail` trên tất cả 7 sheet dữ liệu
+ */
+function purgeUserDataFromAllSheets(ss, targetEmail) {
+  const target = String(targetEmail || "").trim().toLowerCase();
+  if (!target) return 0;
+  let removedTotal = 0;
+
+  USER_DATA_SHEETS.forEach(sheetName => {
+    const sheet = ss.getSheetByName(sheetName);
+    if (!sheet || sheet.getLastRow() <= 1) return;
+    const values = sheet.getDataRange().getValues();
+    const headers = values[0].map(h => String(h).trim());
+    const ownerIdx = headers.indexOf("owner_email");
+    if (ownerIdx === -1) return;
+
+    const keptRows = [];
+    for (let i = 1; i < values.length; i++) {
+      const rowOwner = String(values[i][ownerIdx] || "").trim().toLowerCase();
+      if (rowOwner === target) {
+        removedTotal++;
+      } else {
+        keptRows.push(values[i]);
+      }
+    }
+    sheet.clear();
+    sheet.appendRow(headers);
+    if (keptRows.length > 0) {
+      sheet.getRange(2, 1, keptRows.length, headers.length).setValues(keptRows);
+    }
+  });
+  return removedTotal;
+}
+
+/**
+ * Tự động dọn sạch user & toàn bộ dữ liệu liên quan đã quá hạn chờ 7 ngày
+ */
+function purgeExpiredDeletedUsers(ss) {
+  const users = getSheetRowsAsObjects(ss, "Users");
+  if (users.length === 0) return [];
+  const nowMs = Date.now();
+  const purgedEmails = [];
+  const remainingUsers = [];
+
+  users.forEach(u => {
+    const delAt = String(u.deleted_at || "").trim();
+    const purgeAt = String(u.purge_after || "").trim();
+    if (delAt && purgeAt && new Date(purgeAt).getTime() <= nowMs) {
+      const email = String(u.email || "").trim().toLowerCase();
+      if (email) {
+        purgeUserDataFromAllSheets(ss, email);
+        purgedEmails.push(email);
+      }
+    } else {
+      remainingUsers.push(u);
+    }
+  });
+
+  if (purgedEmails.length > 0) {
+    writeUsersSheetRows(ss, remainingUsers);
+  }
+  return purgedEmails;
+}
+
+/**
+ * Hàm gắn Time-driven Trigger chạy hàng ngày trên Google Apps Script để tự động dọn tài khoản quá 7 ngày
+ */
+function runDailyUserPurge() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  return purgeExpiredDeletedUsers(ss);
 }
 
 /**
@@ -73,6 +160,23 @@ function doGet(e) {
 
     if (action === "login") {
       return resJSON({ success: true, user: verifiedUser });
+    }
+
+    if (action === "listUsers") {
+      if (verifiedUser.role !== "ADMIN") {
+        return resJSON({ success: false, status: 403, error: "Chỉ Admin mới có quyền xem danh sách tài khoản." });
+      }
+      purgeExpiredDeletedUsers(ss);
+      const allUsers = getSheetRowsAsObjects(ss, "Users").map(u => ({
+        email: String(u.email || "").trim().toLowerCase(),
+        name: u.name || "Nhân sự Omni",
+        role: String(u.role || "USER").toUpperCase(),
+        pin: String(u.pin || ""),
+        active: String(u.active).toUpperCase() !== "FALSE",
+        deleted_at: u.deleted_at || "",
+        purge_after: u.purge_after || ""
+      }));
+      return resJSON({ success: true, users: allUsers });
     }
 
     const payload = {
@@ -161,16 +265,19 @@ function doPost(e) {
     if (action === "CHANGE_PIN") {
       const newPin = String(body.new_pin || "").trim();
       if (newPin.length < 4) return resJSON({ success: false, message: "Mã PIN mới phải từ 4 ký tự trở lên." });
-      const uSheet = ss.getSheetByName("Users");
       const users = getSheetRowsAsObjects(ss, "Users");
+      let updated = false;
       for (let i = 0; i < users.length; i++) {
         if (String(users[i].email || "").trim().toLowerCase() === ownerEmail) {
-          uSheet.getRange(i + 2, 4).setValue(newPin);
-          uSheet.getRange(i + 2, 6).setValue(nowIso);
-          return resJSON({ success: true, message: "Đã cập nhật Mã PIN mới trên Google Sheets!" });
+          users[i].pin = newPin;
+          users[i].updated_at = nowIso;
+          updated = true;
+          break;
         }
       }
-      return resJSON({ success: false, message: "Không tìm thấy tài khoản." });
+      if (!updated) return resJSON({ success: false, message: "Không tìm thấy tài khoản." });
+      writeUsersSheetRows(ss, users);
+      return resJSON({ success: true, message: "Đã cập nhật Mã PIN mới trên Google Sheets!" });
     }
 
     // Admin cấp / cập nhật tài khoản nhân sự Omni
@@ -182,32 +289,78 @@ function doPost(e) {
       const tEmail = String(target.email || "").trim().toLowerCase();
       if (!tEmail) return resJSON({ success: false, message: "Thiếu email tài khoản mới." });
 
-      let uSheet = ss.getSheetByName("Users") || ss.insertSheet("Users");
       const users = getSheetRowsAsObjects(ss, "Users");
       const idx = users.findIndex(u => String(u.email || "").trim().toLowerCase() === tEmail);
-      const rowData = [tEmail, target.name || "Nhân sự Omni", target.role || "USER", String(target.pin || "123456"), target.active === false ? "FALSE" : "TRUE", nowIso];
-      if (idx !== -1) {
-        uSheet.getRange(idx + 2, 1, 1, 6).setValues([rowData]);
-      } else {
-        uSheet.appendRow(rowData);
-      }
+      const existing = idx !== -1 ? users[idx] : {};
+      const nextObj = {
+        email: tEmail,
+        name: target.name || existing.name || "Nhân sự Omni",
+        role: target.role || existing.role || "USER",
+        pin: String(target.pin || existing.pin || "123456"),
+        active: target.active === false || String(target.active).toUpperCase() === "FALSE" ? "FALSE" : "TRUE",
+        deleted_at: target.deleted_at !== undefined ? target.deleted_at : (existing.deleted_at || ""),
+        purge_after: target.purge_after !== undefined ? target.purge_after : (existing.purge_after || ""),
+        updated_at: nowIso
+      };
+      if (idx !== -1) users[idx] = nextObj;
+      else users.push(nextObj);
+      writeUsersSheetRows(ss, users);
       return resJSON({ success: true, message: "Đã lưu tài khoản " + tEmail });
     }
 
+    // Admin xóa mềm tài khoản (chờ 7 ngày trước khi xóa sạch dữ liệu)
     if (action === "ADMIN_DELETE_USER") {
       if (verifiedUser.role !== "ADMIN") {
         return resJSON({ success: false, status: 403, error: "Chỉ Admin mới có quyền xóa tài khoản." });
       }
       const tEmail = String(body.target_email || "").trim().toLowerCase();
-      const uSheet = ss.getSheetByName("Users");
-      const users = getSheetRowsAsObjects(ss, "Users").filter(u => String(u.email || "").trim().toLowerCase() !== tEmail);
-      const headers = ["email", "name", "role", "pin", "active", "updated_at"];
-      uSheet.clear();
-      uSheet.appendRow(headers);
-      if (users.length > 0) {
-        uSheet.getRange(2, 1, users.length, headers.length).setValues(users.map(r => headers.map(h => r[h] !== undefined ? r[h] : "")));
+      if (!tEmail || tEmail === ownerEmail) {
+        return resJSON({ success: false, message: "Không thể tự xóa tài khoản đang đăng nhập." });
       }
-      return resJSON({ success: true, message: "Đã xóa tài khoản " + tEmail });
+      const users = getSheetRowsAsObjects(ss, "Users");
+      const idx = users.findIndex(u => String(u.email || "").trim().toLowerCase() === tEmail);
+      if (idx === -1) return resJSON({ success: false, message: "Không tìm thấy tài khoản " + tEmail });
+
+      const purgeAfterIso = new Date(Date.now() + 7 * 86400000).toISOString();
+      users[idx].active = "FALSE";
+      users[idx].deleted_at = nowIso;
+      users[idx].purge_after = purgeAfterIso;
+      users[idx].updated_at = nowIso;
+      writeUsersSheetRows(ss, users);
+      return resJSON({ success: true, purge_after: purgeAfterIso, message: `Đã đưa ${tEmail} vào chờ xóa (dữ liệu sẽ bị xóa sau 7 ngày nếu không khôi phục).` });
+    }
+
+    // Admin khôi phục tài khoản đang chờ xóa trong vòng 7 ngày
+    if (action === "ADMIN_RESTORE_USER") {
+      if (verifiedUser.role !== "ADMIN") {
+        return resJSON({ success: false, status: 403, error: "Chỉ Admin mới có quyền khôi phục tài khoản." });
+      }
+      const tEmail = String(body.target_email || "").trim().toLowerCase();
+      const users = getSheetRowsAsObjects(ss, "Users");
+      const idx = users.findIndex(u => String(u.email || "").trim().toLowerCase() === tEmail);
+      if (idx === -1) return resJSON({ success: false, message: "Không tìm thấy tài khoản " + tEmail });
+
+      users[idx].active = "TRUE";
+      users[idx].deleted_at = "";
+      users[idx].purge_after = "";
+      users[idx].updated_at = nowIso;
+      writeUsersSheetRows(ss, users);
+      return resJSON({ success: true, message: "Đã khôi phục tài khoản & toàn bộ dữ liệu cho " + tEmail });
+    }
+
+    // Admin xóa vĩnh viễn NGAY LẬP TỨC toàn bộ tài khoản + dữ liệu (không cần chờ hết 7 ngày)
+    if (action === "ADMIN_PURGE_USER") {
+      if (verifiedUser.role !== "ADMIN") {
+        return resJSON({ success: false, status: 403, error: "Chỉ Admin mới có quyền xóa vĩnh viễn tài khoản." });
+      }
+      const tEmail = String(body.target_email || "").trim().toLowerCase();
+      if (!tEmail || tEmail === ownerEmail) {
+        return resJSON({ success: false, message: "Không thể tự xóa tài khoản đang đăng nhập." });
+      }
+      const removedDataCount = purgeUserDataFromAllSheets(ss, tEmail);
+      const users = getSheetRowsAsObjects(ss, "Users").filter(u => String(u.email || "").trim().toLowerCase() !== tEmail);
+      writeUsersSheetRows(ss, users);
+      return resJSON({ success: true, removed_rows: removedDataCount, message: `Đã xóa vĩnh viễn ${tEmail} và ${removedDataCount} dòng dữ liệu liên quan.` });
     }
 
     if (action === "SYNC_FULL_STATE") {
@@ -361,12 +514,11 @@ function initSampleSheets() {
   const owner = "tri.nguyen2@vietunion.com.vn";
   const nowIso = new Date().toISOString();
 
-  // Sheet Users (Admin chủ động cấp tài khoản & nhân sự tự đổi PIN)
-  let uSheet = ss.getSheetByName("Users") || ss.insertSheet("Users");
-  uSheet.clear();
-  uSheet.appendRow(["email", "name", "role", "pin", "active", "updated_at"]);
-  uSheet.appendRow(["tri.nguyen2@vietunion.com.vn", "Bryan Nguyen", "ADMIN", "180526", "TRUE", nowIso]);
-  uSheet.appendRow(["quantritc1805@gmail.com", "Bryan Nguyen", "ADMIN", "180526", "TRUE", nowIso]);
+  // Sheet Users (Admin chủ động cấp tài khoản, xóa mềm 7 ngày, khôi phục & nhân sự tự đổi PIN)
+  writeUsersSheetRows(ss, [
+    { email: "tri.nguyen2@vietunion.com.vn", name: "Bryan Nguyen", role: "ADMIN", pin: "180526", active: "TRUE", deleted_at: "", purge_after: "", updated_at: nowIso },
+    { email: "quantritc1805@gmail.com", name: "Bryan Nguyen", role: "ADMIN", pin: "180526", active: "TRUE", deleted_at: "", purge_after: "", updated_at: nowIso }
+  ]);
 
   upsertOwnerRowsToSheet(ss, "Merchants",
     ["id", "name", "brand_name", "alias", "industry", "expected_gmv", "avatar_letter", "color", "logo_url", "contract_expiry_date", "contract_status", "owner_email", "updated_at"],

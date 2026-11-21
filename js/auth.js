@@ -28,7 +28,7 @@ function saveLocalOmniUsers(users) {
 
 function findLocalOmniUser(email) {
   const e = (email || "").trim().toLowerCase();
-  return getLocalOmniUsers().find(u => u.email.toLowerCase() === e && u.active !== false) || null;
+  return getLocalOmniUsers().find(u => u.email.toLowerCase() === e && u.active !== false && !u.deleted_at) || null;
 }
 
 function getCurrentUserEmail() {
@@ -268,13 +268,34 @@ function openAdminUsersModal() {
   ensureAdminUsersModal();
   renderAdminUsersList();
   document.getElementById("modal-admin-users").classList.remove("hidden");
+
+  // Đồng bộ danh sách User mới nhất từ Google Sheets (kể cả danh sách chờ xóa 7 ngày)
+  if (typeof API_ENDPOINT !== "undefined" && API_ENDPOINT) {
+    const sep = API_ENDPOINT.includes("?") ? "&" : "?";
+    fetch(`${API_ENDPOINT}${sep}action=listUsers&user_email=${encodeURIComponent(getCurrentUserEmail())}&user_pin=${encodeURIComponent(getCurrentUserPin())}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.success && Array.isArray(data.users)) {
+          saveLocalOmniUsers(data.users);
+          renderAdminUsersList();
+        }
+      })
+      .catch(() => {});
+  }
 }
 
 function renderAdminUsersList() {
   const list = document.getElementById("admin-users-list");
   if (!list) return;
-  const users = getLocalOmniUsers();
-  list.innerHTML = users.map(u => `
+  const nowMs = Date.now();
+  const allUsers = getLocalOmniUsers().filter(u => {
+    if (u.deleted_at && u.purge_after && new Date(u.purge_after).getTime() <= nowMs) return false;
+    return true;
+  });
+  const activeUsers = allUsers.filter(u => !u.deleted_at);
+  const trashUsers = allUsers.filter(u => !!u.deleted_at);
+
+  const activeHtml = activeUsers.map(u => `
     <div class="p-3 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-3">
       <div class="min-w-0">
         <div class="flex items-center gap-2">
@@ -287,11 +308,40 @@ function renderAdminUsersList() {
       <div class="flex items-center gap-1.5 shrink-0">
         ${u.email !== getCurrentUserEmail() ? `
           <button onclick="adminToggleUserActive('${u.email}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold text-slate-700">${u.active === false ? 'Mở khóa' : 'Khóa'}</button>
-          <button onclick="adminRemoveUser('${u.email}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg font-bold">Xóa</button>
+          <button onclick="adminRemoveUser('${u.email}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg font-bold" title="Đưa vào thùng rác 7 ngày trước khi xóa sạch dữ liệu">Xóa (7 ngày)</button>
         ` : '<span class="text-[10px] text-slate-400 font-semibold">Đang đăng nhập</span>'}
       </div>
     </div>
   `).join('');
+
+  const trashHtml = trashUsers.length > 0 ? `
+    <div class="pt-3 mt-3 border-t border-dashed border-rose-200 space-y-2">
+      <div class="text-[11px] font-extrabold text-rose-700 uppercase tracking-wider">
+        Thùng rác / Chờ xóa dữ liệu (${trashUsers.length}) — Tự động xóa sạch sau 7 ngày
+      </div>
+      ${trashUsers.map(u => {
+        const daysLeft = Math.max(0, Math.ceil((new Date(u.purge_after).getTime() - nowMs) / 86400000));
+        const purgeDateStr = u.purge_after ? new Date(u.purge_after).toLocaleDateString("vi-VN") : "";
+        return `
+          <div class="p-3 rounded-xl border border-rose-200 bg-rose-50/50 flex items-center justify-between gap-3">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-bold text-slate-800 line-through">${u.name}</span>
+                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded bg-rose-100 text-rose-700">Còn ${daysLeft} ngày (xóa ${purgeDateStr})</span>
+              </div>
+              <div class="text-[11px] text-slate-500 font-mono">${u.email}</div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button onclick="adminRestoreUser('${u.email}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold">Khôi phục</button>
+              <button onclick="adminPurgeUserNow('${u.email}')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold">Xóa ngay</button>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  ` : '';
+
+  list.innerHTML = activeHtml + trashHtml;
 }
 
 function handleAdminProvisionUser(e) {
@@ -331,13 +381,60 @@ function adminToggleUserActive(email) {
 }
 
 function adminRemoveUser(email) {
-  const users = getLocalOmniUsers().filter(u => u.email.toLowerCase() !== email.toLowerCase());
+  const target = email.toLowerCase();
+  const nowIso = new Date().toISOString();
+  const purgeAfterIso = new Date(Date.now() + 7 * 86400000).toISOString();
+  const users = getLocalOmniUsers().map(u => {
+    if (u.email.toLowerCase() === target) {
+      return { ...u, active: false, deleted_at: nowIso, purge_after: purgeAfterIso };
+    }
+    return u;
+  });
   saveLocalOmniUsers(users);
   if (typeof postDataToGoogleSheets === "function") {
-    postDataToGoogleSheets({ action: "ADMIN_DELETE_USER", target_email: email });
+    postDataToGoogleSheets({ action: "ADMIN_DELETE_USER", target_email: target });
   }
   renderAdminUsersList();
-  showToast(`Đã gỡ tài khoản ${email}.`);
+  showToast(`Đã đưa ${target} vào chờ xóa (tự xóa toàn bộ dữ liệu sau 7 ngày nếu không khôi phục).`);
+}
+
+function adminRestoreUser(email) {
+  const target = email.toLowerCase();
+  const users = getLocalOmniUsers().map(u => {
+    if (u.email.toLowerCase() === target) {
+      const next = { ...u, active: true };
+      delete next.deleted_at;
+      delete next.purge_after;
+      return next;
+    }
+    return u;
+  });
+  saveLocalOmniUsers(users);
+  if (typeof postDataToGoogleSheets === "function") {
+    postDataToGoogleSheets({ action: "ADMIN_RESTORE_USER", target_email: target });
+  }
+  renderAdminUsersList();
+  showToast(`✓ Đã khôi phục tài khoản & toàn bộ dữ liệu cho ${target}!`);
+}
+
+function adminPurgeUserNow(email) {
+  const target = email.toLowerCase();
+  if (!confirm(`Xác nhận XÓA VĨNH VIỄN ngay lập tức tài khoản "${target}" và TOÀN BỘ dữ liệu liên quan (không thể khôi phục)?`)) {
+    return;
+  }
+  const users = getLocalOmniUsers().filter(u => u.email.toLowerCase() !== target);
+  saveLocalOmniUsers(users);
+  // Dọn dữ liệu local của user đó trên trình duyệt hiện tại nếu có
+  try {
+    const safeKey = target.replace(/[^a-z0-9]/g, "_");
+    ["bryan_portal_state_v2_" + safeKey, "bryan_portal_onboarding_v2_" + safeKey].forEach(k => localStorage.removeItem(k));
+  } catch (e) {}
+
+  if (typeof postDataToGoogleSheets === "function") {
+    postDataToGoogleSheets({ action: "ADMIN_PURGE_USER", target_email: target });
+  }
+  renderAdminUsersList();
+  showToast(`Đã xóa vĩnh viễn tài khoản và toàn bộ dữ liệu của ${target}.`);
 }
 
 window.addEventListener("DOMContentLoaded", () => {
