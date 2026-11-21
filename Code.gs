@@ -514,11 +514,20 @@ function initSampleSheets() {
   const owner = "tri.nguyen2@vietunion.com.vn";
   const nowIso = new Date().toISOString();
 
-  // Sheet Users (Admin chủ động cấp tài khoản, xóa mềm 7 ngày, khôi phục & nhân sự tự đổi PIN)
-  writeUsersSheetRows(ss, [
-    { email: "tri.nguyen2@vietunion.com.vn", name: "Bryan Nguyen", role: "ADMIN", pin: "180526", active: "TRUE", deleted_at: "", purge_after: "", updated_at: nowIso },
-    { email: "quantritc1805@gmail.com", name: "Bryan Nguyen", role: "ADMIN", pin: "180526", active: "TRUE", deleted_at: "", purge_after: "", updated_at: nowIso }
-  ]);
+  // Sheet Users: chỉ khởi tạo nếu chưa có (tránh ghi đè user/PIN đã tạo)
+  const existingUsers = getSheetRowsAsObjects(ss, "Users");
+  if (existingUsers.length === 0) {
+    writeUsersSheetRows(ss, [
+      { email: "tri.nguyen2@vietunion.com.vn", name: "Bryan Nguyen", role: "ADMIN", pin: "180526", active: "TRUE", deleted_at: "", purge_after: "", updated_at: nowIso },
+      { email: "quantritc1805@gmail.com", name: "Bryan Nguyen", role: "ADMIN", pin: "180526", active: "TRUE", deleted_at: "", purge_after: "", updated_at: nowIso }
+    ]);
+  }
+
+  // Chỉ seed dữ liệu mẫu nếu sheet Merchants đang trống (tránh ghi đè dữ liệu thật khi chạy lại initSampleSheets)
+  const mSheetExisting = ss.getSheetByName("Merchants");
+  if (mSheetExisting && mSheetExisting.getLastRow() > 1) {
+    return;
+  }
 
   upsertOwnerRowsToSheet(ss, "Merchants",
     ["id", "name", "brand_name", "alias", "industry", "expected_gmv", "avatar_letter", "color", "logo_url", "contract_expiry_date", "contract_status", "owner_email", "updated_at"],

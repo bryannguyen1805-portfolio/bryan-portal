@@ -191,17 +191,16 @@ if (!savedStateRaw && !isBryanLegacyUser()) {
 
 let cloudSyncTimer = null;
 
-function scheduleFullCloudSync() {
+async function flushFullCloudSyncNow() {
   if (!API_ENDPOINT) return;
   const userEmail = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "";
   const userPin = typeof getCurrentUserPin === "function" ? getCurrentUserPin() : "";
   if (!userEmail || !userPin) return;
   clearTimeout(cloudSyncTimer);
-  cloudSyncTimer = setTimeout(() => {
-    fetch(API_ENDPOINT, {
+  try {
+    const res = await fetch(API_ENDPOINT, {
       method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
+      keepalive: true,
       body: JSON.stringify({
         action: "SYNC_FULL_STATE",
         owner_email: userEmail,
@@ -214,7 +213,24 @@ function scheduleFullCloudSync() {
         folders: state.folders,
         onboarding: typeof onboardingList !== "undefined" ? onboardingList : []
       })
-    }).catch(() => {});
+    });
+    const data = await res.json().catch(() => null);
+    if (data && data.status === 403 && typeof showToast === "function") {
+      showToast("Chưa lưu được lên Google Sheets (403 - hãy kiểm tra Code.gs đã Deploy bản mới chưa).", true);
+    }
+  } catch (e) {
+    console.warn("Lỗi flushFullCloudSyncNow:", e);
+  }
+}
+
+function scheduleFullCloudSync() {
+  if (!API_ENDPOINT) return;
+  const userEmail = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "";
+  const userPin = typeof getCurrentUserPin === "function" ? getCurrentUserPin() : "";
+  if (!userEmail || !userPin) return;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(() => {
+    flushFullCloudSyncNow();
   }, 400);
 }
 
@@ -487,13 +503,17 @@ async function postDataToGoogleSheets(payload) {
   const userEmail = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "";
   const userPin = typeof getCurrentUserPin === "function" ? getCurrentUserPin() : "";
   try {
-    await fetch(API_ENDPOINT, {
+    const res = await fetch(API_ENDPOINT, {
       method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
+      keepalive: true,
       body: JSON.stringify({ owner_email: userEmail, owner_pin: userPin, ...payload })
     });
-    setTimeout(syncDataFromGoogleSheets, 1500);
+    const data = await res.json().catch(() => null);
+    if (data && data.status === 403 && typeof showToast === "function") {
+      showToast(data.error || "Không có quyền ghi dữ liệu lên Google Sheets (403).", true);
+      return;
+    }
+    setTimeout(syncDataFromGoogleSheets, 800);
   } catch (err) {
     console.error("Lỗi POST API:", err);
   }

@@ -137,7 +137,10 @@ async function handleAuthLoginSubmit(e) {
   window.location.reload();
 }
 
-function logoutCurrentUser() {
+async function logoutCurrentUser() {
+  if (typeof flushFullCloudSyncNow === "function") {
+    await flushFullCloudSyncNow();
+  }
   localStorage.removeItem(AUTH_EMAIL_KEY);
   localStorage.removeItem(AUTH_NAME_KEY);
   localStorage.removeItem(AUTH_PIN_KEY);
