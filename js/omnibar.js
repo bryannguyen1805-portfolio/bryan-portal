@@ -13,7 +13,15 @@ function hideOmnibarPreview() {
   document.getElementById("omnibar-preview")?.classList.add("hidden");
 }
 
-// Phím tắt toàn cục Ctrl+K / Cmd+K & Esc
+// Phím tắt toàn cục Ctrl+K (Windows) / Cmd+K (macOS) & Esc
+window.addEventListener("DOMContentLoaded", () => {
+  const isMac = /Mac|iPhone|iPad/i.test(navigator.platform || navigator.userAgent || "");
+  const kbd = document.getElementById("omnibar-shortcut-kbd");
+  const inp = document.getElementById("nlp-command-input");
+  if (kbd) kbd.textContent = isMac ? "⌘K" : "Ctrl+K";
+  if (inp) inp.placeholder = `Tìm kiếm đối tác, dự án hoặc nhập lệnh nhanh (${isMac ? "⌘K" : "Ctrl + K"})...`;
+});
+
 document.addEventListener("keydown", (e) => {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
     e.preventDefault();
