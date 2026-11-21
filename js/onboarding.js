@@ -153,7 +153,7 @@ function toggleShowGraduatedOnboarding() {
 function saveOnboardingStorage() {
   localStorage.setItem("bryan_onboarding_list", JSON.stringify(onboardingList));
   const badge = document.getElementById("badge-onboarding-count");
-  if (badge) badge.textContent = onboardingList.filter(o => !o.graduated).length + " Chuỗi";
+  if (badge) badge.textContent = onboardingList.filter(o => !o.graduated).length;
 }
 
 function openNewOnboardingModal() {

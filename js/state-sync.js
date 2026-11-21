@@ -272,7 +272,7 @@ function updateAllKpis() {
   // Sidebar badges
   const bMerchant = document.getElementById("badge-merchant-count");
   const bTask = document.getElementById("badge-task-count");
-  if (bMerchant) bMerchant.textContent = state.merchants.length + " Chuỗi";
+  if (bMerchant) bMerchant.textContent = state.merchants.length;
   if (bTask) bTask.textContent = pendingTasks;
   if (typeof updateNotificationDot === "function") updateNotificationDot();
 }

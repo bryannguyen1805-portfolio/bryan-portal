@@ -81,7 +81,7 @@
 <body class="h-full flex overflow-hidden bg-slate-900 text-slate-800">
 
   <!-- ================= 1. SIDEBAR TRÁI XANH NAVY TINH GIẢN (B2B PM FOCUS) ================= -->
-  <aside class="w-64 bg-navy-900 text-slate-300 flex flex-col justify-between shrink-0 border-r border-slate-800 z-30 select-none">
+  <aside class="w-[268px] bg-navy-900 text-slate-300 flex flex-col justify-between shrink-0 border-r border-slate-800 z-30 select-none">
     <div>
       <!-- Brand & Header -->
       <div class="h-16 px-4 flex items-center space-x-3 border-b border-slate-800/80 bg-navy-950/60 shrink-0">
@@ -111,26 +111,26 @@
       </div>
 
       <!-- Navigation Menu Items -->
-      <nav class="px-3 space-y-1 mt-2 text-xs font-semibold">
-        <button onclick="navigateTo('DASHBOARD')" id="nav-DASHBOARD" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl transition text-white bg-teal-600/90 shadow-sm shadow-teal-700/30">
+      <nav class="px-2.5 space-y-1 mt-2 text-xs font-semibold">
+        <button onclick="navigateTo('DASHBOARD')" id="nav-DASHBOARD" class="nav-item w-full flex items-center space-x-2.5 px-3 py-2.5 rounded-xl transition text-white bg-teal-600/90 shadow-sm shadow-teal-700/30">
           <i data-lucide="layout-dashboard" class="w-4 h-4 text-teal-200 shrink-0"></i>
-          <span class="whitespace-nowrap truncate">Tổng Quan Điều Hành</span>
+          <span class="whitespace-nowrap">Tổng Quan Điều Hành</span>
         </button>
 
-        <button onclick="navigateTo('PROJECTS')" id="nav-PROJECTS" class="nav-item w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
-          <div class="flex items-center space-x-3 min-w-0">
+        <button onclick="navigateTo('PROJECTS')" id="nav-PROJECTS" class="nav-item w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center space-x-2.5 min-w-0">
             <i data-lucide="layers" class="w-4 h-4 text-slate-400 shrink-0"></i>
-            <span class="whitespace-nowrap truncate">Dự Án Chuỗi Đối Tác</span>
+            <span class="whitespace-nowrap">Dự Án Chuỗi Đối Tác</span>
           </div>
-          <span class="px-1.5 py-0.5 text-[10px] bg-teal-500/20 text-teal-300 rounded font-bold whitespace-nowrap shrink-0" id="badge-merchant-count">3 Chuỗi</span>
+          <span class="px-1.5 py-0.5 text-[10px] bg-teal-500/20 text-teal-300 rounded font-bold whitespace-nowrap shrink-0" id="badge-merchant-count">3</span>
         </button>
 
-        <button onclick="navigateTo('ONBOARDING')" id="nav-ONBOARDING" class="nav-item w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
-          <div class="flex items-center space-x-3 min-w-0">
+        <button onclick="navigateTo('ONBOARDING')" id="nav-ONBOARDING" class="nav-item w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <div class="flex items-center space-x-2.5 min-w-0">
             <i data-lucide="list-checks" class="w-4 h-4 text-slate-400 shrink-0"></i>
-            <span class="whitespace-nowrap truncate">Quy Trình Triển Khai</span>
+            <span class="whitespace-nowrap">Quy Trình Triển Khai</span>
           </div>
-          <span class="px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-bold whitespace-nowrap shrink-0" id="badge-onboarding-count">2 Chuỗi</span>
+          <span class="px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-bold whitespace-nowrap shrink-0" id="badge-onboarding-count">2</span>
         </button>
 
         <button onclick="navigateTo('PIPELINE')" id="nav-PIPELINE" class="nav-item w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl transition text-slate-400 hover:text-white hover:bg-slate-800/60">
