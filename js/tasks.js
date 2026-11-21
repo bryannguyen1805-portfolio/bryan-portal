@@ -86,9 +86,9 @@ function updateNotificationDot() {
   const count = alerts.length;
   badge.textContent = count;
   if (count > 0) {
-    badge.className = "px-1.5 py-0.5 text-[10px] bg-rose-500/20 text-rose-300 rounded font-bold whitespace-nowrap shrink-0";
+    badge.className = "sidebar-badge px-1.5 py-0.5 text-[10px] bg-rose-500/20 text-rose-300 rounded font-bold whitespace-nowrap shrink-0";
   } else {
-    badge.className = "px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-bold whitespace-nowrap shrink-0";
+    badge.className = "sidebar-badge px-1.5 py-0.5 text-[10px] bg-emerald-500/20 text-emerald-300 rounded font-bold whitespace-nowrap shrink-0";
   }
   const notifView = document.getElementById("view-NOTIFICATIONS");
   if (notifView && !notifView.classList.contains("hidden") && typeof renderNotificationsView === "function") {
