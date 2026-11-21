@@ -397,20 +397,25 @@
 
       <!-- ================= SCREEN 2: DEDICATED MERCHANT WORKSPACE (2-COLUMN CLEAN LAYOUT) ================= -->
       <div id="view-PROJECTS" class="hidden space-y-4 max-w-[1440px] mx-auto">
-        <!-- THANH CHỌN CHUỖI DUY NHẤT (Gọn, thoáng, không chồng chéo) -->
+        <!-- THANH CHỌN CHUỖI DUY NHẤT (Hỗ trợ 50+ đối tác không rớt dòng) -->
         <div class="bg-white px-4 py-3 rounded-2xl border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          <div class="flex flex-wrap items-center gap-2 flex-1 min-w-0" id="merchant-pills-bar"></div>
+          <div class="flex items-center gap-2 flex-1 min-w-0 overflow-x-auto" id="merchant-pills-bar"></div>
           <div class="flex items-center space-x-2 shrink-0">
-            <button onclick="navigateTo('ONBOARDING'); openNewOnboardingModal();" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1 shadow-xs" title="Khởi tạo quy trình Onboarding 15-19 bước trước khi Go-Live">
-              <i data-lucide="list-checks" class="w-3.5 h-3.5"></i>
-              <span>+ Onboarding Mới</span>
+            <button onclick="copyWeeklyProgressReport()" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition flex items-center space-x-1" title="Sao chép báo cáo tiến độ tuần gửi Quản lý">
+              <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+              <span>Báo cáo tuần</span>
             </button>
-            <button onclick="openNewMerchantModal()" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 rounded-xl text-xs font-semibold transition flex items-center space-x-1" title="Thêm nhanh chuỗi đã Go-Live sẵn">
+            <button onclick="navigateTo('ONBOARDING'); openNewOnboardingModal();" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1 shadow-xs" title="Khởi tạo quy trình triển khai mới 15-19 bước">
+              <i data-lucide="list-checks" class="w-3.5 h-3.5"></i>
+              <span>+ Triển khai mới</span>
+            </button>
+            <button onclick="openNewMerchantModal()" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 rounded-xl text-xs font-semibold transition flex items-center space-x-1" title="Thêm nhanh chuỗi đã vận hành">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-              <span>Đã Go-Live</span>
+              <span>Chuỗi đang chạy</span>
             </button>
           </div>
         </div>
+        <div id="merchant-directory-panel" class="hidden"></div>
 
         <!-- BỐ CỤC 2 CỘT (70% TRÁI HÀNH ĐỘNG | 30% PHẢI TRA CỨU CỐ ĐỊNH) -->
         <div id="merchant-workspace-body" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
@@ -788,7 +793,7 @@
               <input id="auto-new-name" required type="text" placeholder="VD: Tự nâng ưu tiên việc UAT" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500" />
             </div>
             <div class="lg:col-span-2">
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">KHI (Sự kiện)</label>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Khi phát sinh</label>
               <select id="auto-new-trigger" class="w-full px-2.5 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500 font-semibold">
                 <option value="TASK_CREATED">Tạo đầu việc mới</option>
                 <option value="TASK_DONE">Hoàn tất đầu việc</option>
@@ -797,11 +802,11 @@
               </select>
             </div>
             <div class="lg:col-span-2">
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">NẾU chứa từ khóa</label>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Điều kiện từ khóa</label>
               <input id="auto-new-keyword" type="text" placeholder="Để trống = tất cả" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500" />
             </div>
             <div class="lg:col-span-2">
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">THÌ TỰ ĐỘNG</label>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Hành động tự động</label>
               <select id="auto-new-action" class="w-full px-2.5 py-2 bg-white border border-slate-300 rounded-xl outline-none focus:border-teal-500 font-semibold">
                 <option value="SET_PRIORITY_URGENT">Nâng mức Khẩn cấp</option>
                 <option value="CREATE_FOLLOWUP_TASK">Tạo đầu việc nối tiếp</option>

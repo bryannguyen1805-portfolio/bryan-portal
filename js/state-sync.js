@@ -147,6 +147,25 @@ if (savedStateRaw) {
           { id: "mt-2", time: "16:00 - 17:00", title: "Chốt điều khoản hợp đồng & Biểu phí máy quẹt thẻ", partner: "JDV Chuỗi Bán Lẻ", attendees: "Bryan, Anh Khoa, Pvcombank" }
         ];
       }
+      // Tự động chuyển đổi dữ liệu thư mục máy tính cũ (/Users/...) sang Hồ sơ tài liệu số
+      if (Array.isArray(state.folders)) {
+        let migrated = false;
+        state.folders = state.folders.map((f, idx) => {
+          if (f.path && f.path.startsWith("/Users/")) {
+            migrated = true;
+            const slug = (f.merchant_id || "partner").replace("m-", "");
+            return {
+              ...f,
+              file_name: f.file_name || `Ho_So_${slug.toUpperCase()}_${idx + 1}.pdf`,
+              path: `https://drive.google.com/drive/folders/payoo-dms-${slug}`,
+              action_label: f.action_label || "Mở tài liệu",
+              badge: f.badge || "Tài liệu số"
+            };
+          }
+          return f;
+        });
+        if (migrated) localStorage.setItem("bryan_portal_state_v2", JSON.stringify(state));
+      }
     }
   } catch (e) { console.warn("Lỗi đọc state localStorage:", e); }
 }

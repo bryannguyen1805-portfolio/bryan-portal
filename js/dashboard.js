@@ -189,21 +189,8 @@ function renderDashboardQuickTasks() {
     `;
   }).join('');
 
-  // Cân bằng chiều cao thị giác 2 cột: Nếu việc chưa xong < 2 -> hiển thị thêm tối đa 2 việc đã hoàn tất dạng mờ nhẹ
-  if (quickTasks.length < 2) {
-    const doneRecent = state.tasks.filter(t => t.stage === 'STAGE_DONE').slice(0, 2 - quickTasks.length);
-    if (quickTasks.length === 0) {
-      html += `<div class="p-3 rounded-xl bg-emerald-50/50 border border-emerald-200/70 text-xs font-bold text-emerald-700 text-center">✓ Đã xử lý xong toàn bộ đầu việc ưu tiên hôm nay!</div>`;
-    }
-    html += doneRecent.map(t => `
-      <div class="p-2.5 rounded-xl bg-slate-50/60 border border-slate-200/50 flex items-center justify-between gap-2 opacity-65">
-        <div class="flex items-center space-x-2.5 min-w-0">
-          <input type="checkbox" checked onchange="toggleTaskDone('${t.id}')" class="w-3.5 h-3.5 accent-emerald-600 rounded cursor-pointer shrink-0">
-          <span class="text-xs font-semibold text-slate-500 line-through truncate">${t.title}</span>
-        </div>
-        <span class="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded shrink-0">Xong</span>
-      </div>
-    `).join('');
+  if (quickTasks.length === 0) {
+    html = `<div class="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200/80 text-xs font-bold text-emerald-800 text-center">✓ Đã xử lý xong toàn bộ đầu việc ưu tiên hôm nay!</div>`;
   }
 
   container.innerHTML = html;

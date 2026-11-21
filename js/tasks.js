@@ -374,7 +374,7 @@ function renderTasksKanban() {
               <div class="text-xs font-bold ${t.stage === 'STAGE_DONE' ? 'line-through text-slate-400' : 'text-slate-800'}">${t.title}</div>
               ${merchant ? `<div class="text-[10px] font-semibold text-teal-700">${merchant.name}</div>` : ''}
               <div class="flex items-center justify-between text-[10px] text-slate-400">
-                <span>PIC: ${t.pic} • ${t.due_date}</span>
+                <span>Phụ trách: ${t.pic} • ${t.due_date}</span>
                 ${overdueDays > 0 ? `<span class="text-rose-600 font-bold">-${overdueDays}d</span>` : ''}
               </div>
             </div>

@@ -1,10 +1,24 @@
 // -------------------------------------------------------------
 // 4. MERCHANT WORKSPACE SUB-NAVIGATION (TỔNG QUAN VS TRANG RIÊNG TỪNG DỰ ÁN)
 // -------------------------------------------------------------
+let showMerchantDirectory = false;
+let merchantDirSearch = "";
+let merchantDirFilter = "ALL"; // ALL | BLOCKED | ACTIVE | LIVE
+let recentMerchantIds = [];
+
+function toggleMerchantDirectory() {
+  showMerchantDirectory = !showMerchantDirectory;
+  renderMerchantPillsBar();
+  renderMerchantDirectoryPanel();
+}
+
 function selectMerchant(mId) {
   activeMerchantId = mId;
-  activeSubTab = "OVERVIEW"; // Mặc định mở trang Tổng Quan Merchant
+  activeSubTab = "OVERVIEW";
+  showMerchantDirectory = false;
+  recentMerchantIds = [mId, ...recentMerchantIds.filter(id => id !== mId)].slice(0, 4);
   renderMerchantPillsBar();
+  renderMerchantDirectoryPanel();
   renderMerchantSubTabs();
   renderMerchantWorkspaceBody();
 }
@@ -19,8 +33,32 @@ function renderMerchantPillsBar() {
   const container = document.getElementById("merchant-pills-bar");
   if (!container) return;
 
-  container.innerHTML = state.merchants.map(m => {
-    const isActive = m.id === activeMerchantId;
+  // Khi số chuỗi <= 5, hiển thị gọn trên 1 dòng; khi >= 6 (hoặc 50+), dùng Danh sách chuỗi + Chuyển nhanh + 3 chuỗi gần nhất
+  const useCompactSwitcher = state.merchants.length >= 6;
+  const pinnedList = useCompactSwitcher
+    ? state.merchants.filter(m => m.id === activeMerchantId || recentMerchantIds.includes(m.id)).slice(0, 3)
+    : state.merchants;
+
+  const dirBtnHtml = `
+    <button onclick="toggleMerchantDirectory()" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shrink-0 border ${
+      showMerchantDirectory ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'
+    }">
+      <i data-lucide="building-2" class="w-3.5 h-3.5"></i>
+      <span>Danh sách chuỗi (${state.merchants.length})</span>
+    </button>
+  `;
+
+  const quickSelectHtml = useCompactSwitcher ? `
+    <select onchange="if(this.value) selectMerchant(this.value)" class="px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-800 outline-none focus:border-teal-500 max-w-[200px] shrink-0" title="Chuyển nhanh sang bất kỳ chuỗi đối tác nào">
+      ${state.merchants.map(m => {
+        const hasBlk = state.projects.some(p => p.merchant_id === m.id && p.is_blocked);
+        return `<option value="${m.id}" ${m.id === activeMerchantId ? 'selected' : ''}>${hasBlk ? '⚠ ' : ''}${m.name}</option>`;
+      }).join('')}
+    </select>
+  ` : '';
+
+  const pillsHtml = pinnedList.map(m => {
+    const isActive = m.id === activeMerchantId && !showMerchantDirectory;
     const hasBlocker = state.projects.some(p => p.merchant_id === m.id && p.is_blocked);
 
     return `
@@ -32,11 +70,158 @@ function renderMerchantPillsBar() {
         <span class="w-5 h-5 rounded-lg ${m.color} text-white text-[10px] flex items-center justify-center font-black">
           ${m.avatar_letter}
         </span>
-        <span>${m.name}</span>
-        ${hasBlocker ? `<span class="w-2 h-2 rounded-full bg-rose-500 animate-ping" title="Đang có Blocker"></span>` : ''}
+        <span class="whitespace-nowrap">${m.name}</span>
+        ${hasBlocker ? `<span class="w-2 h-2 rounded-full bg-rose-500 animate-ping" title="Đang có vướng mắc"></span>` : ''}
       </button>
     `;
   }).join('');
+
+  container.innerHTML = dirBtnHtml + quickSelectHtml + pillsHtml;
+  lucide.createIcons();
+}
+
+function renderMerchantDirectoryPanel() {
+  const panel = document.getElementById("merchant-directory-panel");
+  const wsBody = document.getElementById("merchant-workspace-body");
+  const subTabs = document.getElementById("merchant-subtabs-bar");
+  if (!panel) return;
+
+  if (!showMerchantDirectory) {
+    panel.classList.add("hidden");
+    if (wsBody) wsBody.classList.remove("hidden");
+    if (subTabs) subTabs.parentElement?.classList.remove("hidden");
+    return;
+  }
+
+  panel.classList.remove("hidden");
+  if (wsBody) wsBody.classList.add("hidden");
+
+  const q = merchantDirSearch.trim().toLowerCase();
+  const rows = state.merchants.filter(m => {
+    const projs = state.projects.filter(p => p.merchant_id === m.id);
+    const hasBlk = projs.some(p => p.is_blocked);
+    const hasActive = projs.some(p => !p.is_archived && p.progress < 100);
+    if (merchantDirFilter === "BLOCKED" && !hasBlk) return false;
+    if (merchantDirFilter === "ACTIVE" && !hasActive) return false;
+    if (merchantDirFilter === "LIVE" && (hasActive || projs.length === 0)) return false;
+    if (q) {
+      const hay = `${m.name} ${m.industry || ''} ${m.mid || ''} ${m.acquiring_bank || ''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  panel.innerHTML = `
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div>
+          <h3 class="text-sm font-black text-slate-900">Danh Mục Chuỗi Đối Tác (${rows.length}/${state.merchants.length})</h3>
+          <p class="text-xs text-slate-400">Tìm kiếm nhanh và theo dõi trạng thái toàn bộ chuỗi đang quản lý</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <input value="${merchantDirSearch}" oninput="merchantDirSearch=this.value; renderMerchantDirectoryPanel()" type="text" placeholder="Tìm tên chuỗi, MID, ngân hàng..." class="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-teal-500 w-56" />
+          <div class="flex items-center gap-1 text-xs">
+            ${[
+              { id: "ALL", label: "Tất cả" },
+              { id: "BLOCKED", label: "Có vướng mắc" },
+              { id: "ACTIVE", label: "Đang triển khai" },
+              { id: "LIVE", label: "Đang vận hành" }
+            ].map(f => `
+              <button onclick="merchantDirFilter='${f.id}'; renderMerchantDirectoryPanel()" class="px-2.5 py-1.5 rounded-xl font-bold transition ${
+                merchantDirFilter === f.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }">${f.label}</button>
+            `).join('')}
+          </div>
+        </div>
+
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="border-b border-slate-200 text-[11px] font-extrabold text-slate-500 uppercase">
+              <th class="py-2.5 pr-3">Chuỗi Đối Tác</th>
+              <th class="py-2.5 px-3">Mã MID & Ngân Hàng</th>
+              <th class="py-2.5 px-3">Số Dự Án</th>
+              <th class="py-2.5 px-3">Tiến Độ TB</th>
+              <th class="py-2.5 px-3">Trạng Thái</th>
+              <th class="py-2.5 pl-3 text-right">Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            ${rows.map(m => {
+              const projs = state.projects.filter(p => p.merchant_id === m.id);
+              const avgPct = projs.length > 0 ? Math.round(projs.reduce((s, p) => s + (p.progress || 0), 0) / projs.length) : 100;
+              const hasBlk = projs.some(p => p.is_blocked);
+              return `
+                <tr onclick="selectMerchant('${m.id}')" class="hover:bg-slate-50 cursor-pointer transition">
+                  <td class="py-3 pr-3 font-bold text-slate-900">
+                    <div class="flex items-center space-x-2.5">
+                      <span class="w-7 h-7 rounded-lg ${m.color} text-white text-[11px] flex items-center justify-center font-black shrink-0">${m.avatar_letter}</span>
+                      <div>
+                        <div>${m.name}</div>
+                        <div class="text-[10px] font-normal text-slate-400">${m.industry || 'B2B Partner'}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <div class="font-mono text-[11px] text-slate-700">${m.mid || ('MID_' + m.id.replace('m-','').toUpperCase())}</div>
+                    <div class="text-[10px] text-slate-400">${m.acquiring_bank || 'VietinBank / Pvcombank'}</div>
+                  </td>
+                  <td class="py-3 px-3 font-semibold text-slate-700">${projs.length} dự án</td>
+                  <td class="py-3 px-3">
+                    <div class="flex items-center space-x-2">
+                      <div class="w-20 bg-slate-100 rounded-full h-1.5"><div class="bg-teal-600 h-1.5 rounded-full" style="width:${avgPct}%"></div></div>
+                      <span class="font-bold text-teal-700">${avgPct}%</span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    ${hasBlk
+                      ? `<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-bold">Có vướng mắc</span>`
+                      : `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">Thông suốt</span>`}
+                  </td>
+                  <td class="py-3 pl-3 text-right font-bold text-teal-700">Mở chi tiết →</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function copyWeeklyProgressReport() {
+  const today = new Date().toLocaleDateString('vi-VN');
+  const lines = [`BÁO CÁO TIẾN ĐỘ TRIỂN KHAI ĐỐI TÁC B2B (${today})`, `Tổng số chuỗi đang quản lý: ${state.merchants.length}`, ``];
+  state.merchants.forEach((m, idx) => {
+    const projs = state.projects.filter(p => p.merchant_id === m.id);
+    const blk = projs.filter(p => p.is_blocked);
+    const projSummary = projs.map(p => `${p.title} (${p.progress}%)`).join('; ') || 'Đang vận hành ổn định';
+    lines.push(`${idx + 1}. ${m.name}: ${projSummary}${blk.length > 0 ? ' | Vướng mắc: ' + blk.map(b => b.blocker_reason).join(', ') : ''}`);
+  });
+  const report = lines.join('\n');
+  if (navigator.clipboard) navigator.clipboard.writeText(report).catch(() => {});
+  if (typeof addNotificationLog === "function") addNotificationLog(`Đã xuất & sao chép Báo cáo tiến độ tuần (${today})`);
+  showToast("Đã sao chép Báo cáo tiến độ tuần vào bộ nhớ tạm!");
+}
+
+function addProjectNote(projId) {
+  const input = document.getElementById(`proj-note-input-${projId}`);
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  const proj = state.projects.find(p => p.id === projId);
+  if (!proj) return;
+  proj.notes = Array.isArray(proj.notes) ? proj.notes : [];
+  proj.notes.unshift({
+    id: "note-" + Date.now().toString().slice(-5),
+    text,
+    time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' • ' + new Date().toLocaleDateString('vi-VN')
+  });
+  saveStateStorage();
+  renderMerchantWorkspaceBody();
+  showToast("Đã lưu ghi chú dự án!");
 }
 
 let showCompletedProjects = false;
@@ -158,6 +343,7 @@ function renderMerchantWorkspaceBody() {
             </div>
           `}
         </div>
+
       </div>
 
       <!-- KHỐI TRA CỨU 2: THÔNG SỐ KỸ THUẬT THANH TOÁN B2B & HỒ SƠ TÀI LIỆU SỐ -->
@@ -187,6 +373,7 @@ function renderMerchantWorkspaceBody() {
             <div class="font-bold text-slate-800 mt-0.5 truncate">${merchant.mdr_rate || 'Nội địa 0.9% • Quốc tế 2.2%'}</div>
           </div>
         </div>
+
       </div>
 
       <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
@@ -228,6 +415,7 @@ function renderMerchantWorkspaceBody() {
             </div>
           `}
         </div>
+
       </div>
     </div>
   `;
@@ -406,6 +594,7 @@ function renderMerchantWorkspaceBody() {
             </div>
           ` : ''}
         </div>
+
       </div>
     `;
   } else {
@@ -455,14 +644,14 @@ function renderMerchantWorkspaceBody() {
               <button onclick="toggleBlocker('${project.id}')" class="px-2.5 py-1.5 rounded-xl text-xs font-bold border transition ${
                 project.is_blocked ? 'bg-rose-100 text-rose-700 border-rose-300' : 'bg-slate-100 text-slate-600 border-slate-200'
               }">
-                ${project.is_blocked ? 'Bật Blocker' : 'Gắn Blocker'}
+                ${project.is_blocked ? 'Đang vướng mắc' : 'Báo vướng mắc'}
               </button>
             </div>
           </div>
 
           ${project.is_blocked ? `
             <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div class="text-xs text-rose-800 font-semibold">⚠ Blocker: ${project.blocker_reason} (${project.blocker_owner})</div>
+              <div class="text-xs text-rose-800 font-semibold">⚠ Vướng mắc: ${project.blocker_reason} (${project.blocker_owner})</div>
               <button onclick="handlePingPIC('${merchant.name}', '${project.title}', '${project.blocker_reason}')" class="shrink-0 px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition">
                 Liên hệ Zalo
               </button>
@@ -475,7 +664,7 @@ function renderMerchantWorkspaceBody() {
           <div class="flex items-center justify-between">
             <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">Đầu Việc Cần Làm (${activeProjTasks.length})</h4>
             <button onclick="openNewTaskModalForProject('${project.id}')" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition">
-              + Thêm Task
+              + Thêm đầu việc
             </button>
           </div>
 
@@ -486,7 +675,7 @@ function renderMerchantWorkspaceBody() {
                   <input type="checkbox" onchange="toggleTaskDone('${t.id}')" class="w-4 h-4 accent-teal-600 rounded cursor-pointer shrink-0">
                   <div class="min-w-0">
                     <div class="text-xs font-bold text-slate-800 truncate">${t.title}</div>
-                    <div class="text-[10px] text-slate-400 mt-0.5">PIC: <strong class="text-slate-600">${t.pic}</strong> • Hạn: <strong class="${t.is_overdue ? 'text-rose-600' : 'text-slate-600'}">${t.due_date}</strong></div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">Phụ trách: <strong class="text-slate-600">${t.pic}</strong> • Hạn: <strong class="${t.is_overdue ? 'text-rose-600' : 'text-slate-600'}">${t.due_date}</strong></div>
                   </div>
                 </div>
                 <div class="flex items-center space-x-1.5 shrink-0">
@@ -497,7 +686,7 @@ function renderMerchantWorkspaceBody() {
               </div>
             `).join('') : `
               <div class="p-4 border border-dashed border-slate-200 rounded-xl text-center text-xs text-slate-400">
-                Chưa có task nào đang chờ xử lý trong dự án này.
+                Chưa có đầu việc nào đang chờ xử lý trong dự án này.
               </div>
             `}
           </div>
@@ -523,6 +712,25 @@ function renderMerchantWorkspaceBody() {
               ` : ''}
             </div>
           ` : ''}
+        </div>
+
+        <!-- NHẬT KÝ TRAO ĐỔI & GHI CHÚ DỰ ÁN -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">Nhật Ký Trao Đổi & Ghi Chú Dự Án (${(project.notes || []).length})</h4>
+          </div>
+          <form onsubmit="event.preventDefault(); addProjectNote('${project.id}')" class="flex items-center gap-2">
+            <input id="proj-note-input-${project.id}" type="text" placeholder="Ghi nhanh nội dung vừa chốt với đối tác / ngân hàng..." class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-teal-500 focus:bg-white transition" />
+            <button type="submit" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold shrink-0 transition">+ Lưu ghi chú</button>
+          </form>
+          <div class="space-y-2">
+            ${(project.notes && project.notes.length > 0) ? project.notes.map(n => `
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/70 flex items-start justify-between gap-2 text-xs">
+                <span class="text-slate-700 font-medium">${n.text}</span>
+                <span class="text-[10px] text-slate-400 font-mono shrink-0">${n.time}</span>
+              </div>
+            `).join('') : `<div class="text-[11px] text-slate-400 text-center py-2">Chưa có ghi chú trao đổi nào cho dự án này.</div>`}
+          </div>
         </div>
       </div>
     `;
