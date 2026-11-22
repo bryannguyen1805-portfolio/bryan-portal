@@ -261,103 +261,124 @@ button.rounded-lg {
   }
 }
 
-/* Dark Appearance Mode — Complete App-Wide Surface, Badge, Hover & Text Palette */
+/* Dark Appearance Mode — Calm Matte Executive Palette (Linear / GitHub Dark, Zero Neon) */
 html.theme-dark body,
 html.theme-dark main,
 html.theme-dark .flex-1.bg-slate-100 {
-  background-color: #0B131E !important;
-  color: #E2E8F0 !important;
+  background-color: #0D1117 !important;
+  color: #E6EDF3 !important;
+}
+html.theme-dark aside {
+  background: linear-gradient(180deg, #101F20 0%, #142B2D 100%) !important;
+  border-right-color: #26313A !important;
 }
 html.theme-dark header {
-  background-color: rgba(15, 23, 42, 0.94) !important;
-  border-bottom-color: rgba(43, 168, 162, 0.25) !important;
+  background-color: rgba(22, 27, 34, 0.94) !important;
+  border-bottom: 1px solid #2B323D !important;
 }
 html.theme-dark #mobile-bottom-nav {
-  background-color: rgba(15, 23, 42, 0.96) !important;
-  border-top-color: rgba(148, 163, 184, 0.2) !important;
+  background-color: rgba(22, 27, 34, 0.96) !important;
+  border-top-color: #2B323D !important;
+}
+html.theme-dark main .bg-white.rounded-2xl {
+  box-shadow: none !important;
+}
+html.theme-dark main #view-DASHBOARD > .grid > .bg-white.rounded-2xl,
+html.theme-dark main #container-task-cards > .bg-white.rounded-2xl {
+  border-left: 1px solid #2B323D !important;
 }
 
 /* Primary & Secondary Surfaces */
 html.theme-dark :is(main, header, #mobile-bottom-nav, [id^="modal-"], #command-center-modal) :is(.bg-white, .bg-white\/95, .bg-white\/90) {
-  background-color: #131C2B !important;
-  border-color: rgba(148, 163, 184, 0.18) !important;
-  color: #E2E8F0 !important;
+  background-color: #161B22 !important;
+  border-color: #2B323D !important;
+  color: #E6EDF3 !important;
 }
 html.theme-dark :is(main, header, [id^="modal-"], #command-center-modal) :is(.bg-slate-50, .bg-slate-50\/50, .bg-slate-50\/60, .bg-slate-50\/70, .bg-slate-50\/80, .bg-slate-100, .bg-slate-100\/90, .bg-slate-200, .bg-slate-200\/80) {
-  background-color: #1A2639 !important;
-  border-color: rgba(148, 163, 184, 0.22) !important;
+  background-color: #1C222B !important;
+  border-color: #2E3642 !important;
 }
 
-/* Pastel Tinted Surfaces & Badges */
+/* Muted Matte Tinted Surfaces & Badges (Low saturation) */
 html.theme-dark :is(main, [id^="modal-"], #command-center-modal) :is(.bg-teal-50, .bg-teal-50\/30, .bg-teal-50\/40, .bg-teal-50\/50, .bg-teal-50\/70, .bg-teal-100, .bg-emerald-50, .bg-emerald-50\/30, .bg-emerald-50\/40, .bg-emerald-50\/60, .bg-emerald-50\/70, .bg-emerald-50\/80, .bg-emerald-100, .from-emerald-50\/80) {
-  background-color: rgba(16, 185, 129, 0.16) !important;
+  background-color: rgba(45, 138, 132, 0.14) !important;
   background-image: none !important;
-  border-color: rgba(45, 212, 191, 0.3) !important;
+  border-color: rgba(79, 163, 157, 0.25) !important;
 }
 html.theme-dark :is(main, [id^="modal-"], #command-center-modal) :is(.bg-sky-50, .bg-sky-100, .bg-blue-50, .bg-blue-50\/60, .bg-blue-100, .from-sky-50) {
-  background-color: rgba(56, 189, 248, 0.14) !important;
+  background-color: rgba(88, 135, 184, 0.14) !important;
   background-image: none !important;
-  border-color: rgba(56, 189, 248, 0.28) !important;
+  border-color: rgba(110, 155, 200, 0.24) !important;
 }
 html.theme-dark :is(main, [id^="modal-"], #command-center-modal) :is(.bg-indigo-50, .bg-indigo-100, .bg-purple-50, .bg-purple-50\/50, .bg-purple-100) {
-  background-color: rgba(139, 92, 246, 0.16) !important;
+  background-color: rgba(125, 114, 178, 0.15) !important;
   background-image: none !important;
-  border-color: rgba(167, 139, 250, 0.28) !important;
+  border-color: rgba(150, 140, 200, 0.24) !important;
 }
 html.theme-dark :is(main, [id^="modal-"], #command-center-modal) :is(.bg-amber-50, .bg-amber-50\/30, .bg-amber-100, .from-amber-50\/90) {
-  background-color: rgba(245, 158, 11, 0.14) !important;
+  background-color: rgba(180, 142, 72, 0.14) !important;
   background-image: none !important;
-  border-color: rgba(251, 191, 36, 0.28) !important;
+  border-color: rgba(196, 160, 92, 0.25) !important;
 }
 html.theme-dark :is(main, [id^="modal-"], #command-center-modal) :is(.bg-rose-50, .bg-rose-50\/30, .bg-rose-50\/50, .bg-rose-50\/60, .bg-rose-100) {
-  background-color: rgba(244, 63, 94, 0.15) !important;
+  background-color: rgba(185, 92, 106, 0.15) !important;
   background-image: none !important;
-  border-color: rgba(251, 113, 133, 0.3) !important;
+  border-color: rgba(205, 115, 128, 0.26) !important;
 }
 
-/* Hover States in Dark Mode (Prevent bright white row/button flash) */
+/* Hover States in Dark Mode */
 html.theme-dark :is(main, header, [id^="modal-"]) :is(.hover\:bg-slate-50:hover, .hover\:bg-slate-100:hover, .hover\:bg-slate-200:hover, .hover\:bg-teal-50:hover, .hover\:bg-teal-50\/30:hover) {
-  background-color: #24334B !important;
+  background-color: #252C37 !important;
 }
 
 /* Borders & Dividers */
 html.theme-dark :is(main, footer, [id^="modal-"]) :is(.border-slate-100, .border-slate-200, .border-slate-200\/70, .border-slate-200\/80, .border-slate-200\/90, .border-slate-300) {
-  border-color: rgba(148, 163, 184, 0.2) !important;
+  border-color: #2B323D !important;
+}
+html.theme-dark main .border-b.border-slate-100,
+html.theme-dark main .border-b.border-slate-200 {
+  border-bottom-color: #2B323D !important;
 }
 html.theme-dark main .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
-  border-color: rgba(148, 163, 184, 0.14) !important;
+  border-color: #232933 !important;
 }
 
-/* Text Contrast */
+/* Calm, Natural Text Contrast */
 html.theme-dark :is(main, footer, [id^="modal-"], #command-center-modal) :is(.text-slate-900, .text-slate-800) {
-  color: #F1F5F9 !important;
+  color: #E6EDF3 !important;
 }
 html.theme-dark :is(main, footer, [id^="modal-"], #command-center-modal) :is(.text-slate-700, .text-slate-600) {
-  color: #CBD5E1 !important;
+  color: #B6C0CC !important;
 }
 html.theme-dark :is(main, footer, [id^="modal-"], #command-center-modal) :is(.text-slate-500, .text-slate-400) {
-  color: #94A3B8 !important;
+  color: #8B949E !important;
 }
 html.theme-dark :is(main, footer, [id^="modal-"]) :is(.text-teal-700, .text-teal-800, .text-teal-900, .text-emerald-700, .text-emerald-800, .text-emerald-900, .text-emerald-700\/80) {
-  color: #5EEAD4 !important;
+  color: #84C7C1 !important;
 }
 html.theme-dark :is(main, [id^="modal-"]) :is(.text-amber-700, .text-amber-800, .text-amber-900, .text-amber-700\/80) {
-  color: #FCD34D !important;
+  color: #DFC282 !important;
 }
 html.theme-dark :is(main, [id^="modal-"]) :is(.text-sky-800, .text-sky-900, .text-blue-700, .text-blue-800, .text-blue-900) {
-  color: #7DD3FC !important;
+  color: #96BFE6 !important;
 }
 html.theme-dark :is(main, [id^="modal-"]) :is(.text-indigo-700, .text-indigo-800, .text-indigo-900, .text-purple-700, .text-purple-800, .text-purple-900) {
-  color: #C4B5FD !important;
+  color: #B9B2DF !important;
 }
 html.theme-dark :is(main, [id^="modal-"]) :is(.text-rose-700, .text-rose-800, .text-rose-900, .text-rose-950) {
-  color: #FDA4AF !important;
+  color: #E29CA6 !important;
 }
 
-/* Active dark/gold buttons keep dark text on gold */
+/* Remove harsh gold glow on CTAs in Dark Mode */
 html.theme-dark button.bg-teal-600,
 html.theme-dark button.bg-teal-700 {
-  color: var(--f7-teal-deep) !important;
+  color: #133A38 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+}
+html.theme-dark #view-DASHBOARD > div:first-child {
+  background: linear-gradient(135deg, #102B2A 0%, #153B3A 60%, #1B4B49 100%) !important;
+  border-color: #2B4544 !important;
+  box-shadow: none !important;
 }
 
 /* Inputs & Selects */
@@ -369,9 +390,9 @@ html.theme-dark input[type="url"],
 html.theme-dark input[type="password"],
 html.theme-dark select,
 html.theme-dark textarea {
-  background-color: #1A2639 !important;
-  color: #F1F5F9 !important;
-  border-color: rgba(43, 168, 162, 0.35) !important;
+  background-color: #0D1117 !important;
+  color: #E6EDF3 !important;
+  border-color: #30363D !important;
 }
 html.theme-dark .footer-logo-light { display: none !important; }
 html.theme-dark .footer-logo-dark { display: block !important; }
