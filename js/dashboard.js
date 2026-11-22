@@ -180,7 +180,7 @@ function syncWelcomeAccountGreeting() {
   renderBnewsMorningBriefing();
 }
 
-const DEFAULT_BNEWS_URL = "https://bryannguyen1805-portfolio.github.io/bnews/";
+const DEFAULT_BNEWS_URL = "https://bryanportfolio.io.vn/fintech-intelligence";
 
 function getBnewsUrl() {
   return (localStorage.getItem("bryan_portal_bnews_url") || DEFAULT_BNEWS_URL).trim();
