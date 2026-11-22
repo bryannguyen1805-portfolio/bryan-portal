@@ -282,10 +282,38 @@ html.theme-dark #mobile-bottom-nav {
 html.theme-dark main .bg-slate-50,
 html.theme-dark main .bg-slate-50\/70,
 html.theme-dark main .bg-slate-50\/80,
-html.theme-dark main .bg-slate-100 {
+html.theme-dark main .bg-slate-100,
+html.theme-dark header .bg-slate-100,
+html.theme-dark header .bg-slate-50 {
   background-color: #1A2538 !important;
-  border-color: rgba(148, 163, 184, 0.18) !important;
+  border-color: rgba(148, 163, 184, 0.22) !important;
+  color: #E2E8F0 !important;
 }
+html.theme-dark main .bg-teal-50,
+html.theme-dark main .bg-emerald-50\/70,
+html.theme-dark main .bg-emerald-50\/60,
+html.theme-dark main .from-emerald-50\/80,
+html.theme-dark main .from-amber-50\/90,
+html.theme-dark main .from-sky-50 {
+  background: #162336 !important;
+  background-image: none !important;
+  border-color: rgba(43, 168, 162, 0.30) !important;
+  color: #E2E8F0 !important;
+}
+html.theme-dark main .text-teal-700,
+html.theme-dark main .text-teal-800,
+html.theme-dark main .text-emerald-800,
+html.theme-dark main .text-emerald-700,
+html.theme-dark main .text-amber-700,
+html.theme-dark main .text-sky-800 {
+  color: #5EEAD4 !important;
+}
+html.theme-dark main .text-emerald-700\/80,
+html.theme-dark main .text-amber-700\/80 {
+  color: #94A3B8 !important;
+}
+html.theme-dark .footer-logo-light { display: none !important; }
+html.theme-dark .footer-logo-dark { display: block !important; }
 html.theme-dark main .text-slate-900,
 html.theme-dark main .text-slate-800,
 html.theme-dark footer .text-slate-800 {
