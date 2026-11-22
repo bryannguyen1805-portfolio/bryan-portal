@@ -628,54 +628,56 @@
       </div>
 
       <!-- ================= SCREEN 4: TASKS & DELIVERY MANAGEMENT ================= -->
-      <div id="view-TASKS" class="hidden space-y-6 max-w-7xl mx-auto">
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+      <div id="view-TASKS" class="hidden space-y-5 md:space-y-6 max-w-7xl mx-auto">
+        <div class="bg-white p-4 md:p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4 mb-4 md:mb-5">
             <div>
-              <h2 class="text-lg font-black text-slate-900 tracking-tight">Nhiệm Vụ & Tiến Độ</h2>
+              <h2 class="text-base md:text-lg font-black text-slate-900 tracking-tight">Nhiệm Vụ & Tiến Độ</h2>
               <p class="text-xs text-slate-500">Theo dõi đầu việc, hạn chót và tiến độ xử lý theo từng chuỗi đối tác</p>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
-              <div class="bg-slate-100 p-1 rounded-xl border border-slate-200 flex items-center space-x-1">
-                <button onclick="switchTaskView('LIST')" id="btn-view-list" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center space-x-1">
-                  <i data-lucide="list" class="w-3.5 h-3.5"></i>
+            <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 w-full sm:w-auto">
+              <div class="bg-slate-100 p-1 rounded-xl border border-slate-200 grid grid-cols-3 sm:inline-flex items-center gap-1">
+                <button onclick="switchTaskView('LIST')" id="btn-view-list" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center justify-center space-x-1 whitespace-nowrap">
+                  <i data-lucide="list" class="w-3.5 h-3.5 shrink-0"></i>
                   <span>Danh Sách</span>
                 </button>
-                <button onclick="switchTaskView('CARDS')" id="btn-view-cards" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-teal-700 shadow-xs flex items-center space-x-1">
-                  <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                <button onclick="switchTaskView('CARDS')" id="btn-view-cards" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold bg-white text-teal-700 shadow-xs flex items-center justify-center space-x-1 whitespace-nowrap">
+                  <i data-lucide="layout-grid" class="w-3.5 h-3.5 shrink-0"></i>
                   <span>Dạng Thẻ</span>
                 </button>
-                <button onclick="switchTaskView('KANBAN')" id="btn-view-kanban" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center space-x-1">
-                  <i data-lucide="columns" class="w-3.5 h-3.5"></i>
-                  <span>Kanban 5 Bước</span>
+                <button onclick="switchTaskView('KANBAN')" id="btn-view-kanban" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold text-slate-600 hover:text-slate-900 flex items-center justify-center space-x-1 whitespace-nowrap">
+                  <i data-lucide="columns" class="w-3.5 h-3.5 shrink-0"></i>
+                  <span>Kanban</span>
                 </button>
               </div>
 
-              <button onclick="clearCompletedTasks()" class="px-3 py-2 bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-600 border border-slate-200 rounded-xl text-xs font-bold transition" title="Dọn các đầu việc đã hoàn tất">
-                Dọn việc xong
-              </button>
+              <div class="flex items-center gap-2">
+                <button onclick="clearCompletedTasks()" class="flex-1 sm:flex-none px-3 py-2 bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-600 border border-slate-200 rounded-xl text-xs font-bold transition whitespace-nowrap" title="Dọn các đầu việc đã hoàn tất">
+                  Dọn việc xong
+                </button>
 
-              <button onclick="openNewTaskModal()" class="px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 shadow-sm transition">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>Tạo Đầu Việc Mới</span>
-              </button>
+                <button onclick="openNewTaskModal()" class="flex-1 sm:flex-none px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow-sm transition whitespace-nowrap">
+                  <i data-lucide="plus" class="w-4 h-4 shrink-0"></i>
+                  <span>Tạo Đầu Việc</span>
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- Status Summary Pills + Quick Search -->
           <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-4">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <button onclick="filterTasksByStatus('OPEN')" id="filter-status-OPEN" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-teal-600 text-white shadow-xs transition">
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0 whitespace-nowrap">
+              <button onclick="filterTasksByStatus('OPEN')" id="filter-status-OPEN" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-teal-600 text-white shadow-xs transition shrink-0 whitespace-nowrap">
                 Đang mở <span id="count-status-OPEN" class="ml-1 opacity-90">0</span>
               </button>
-              <button onclick="filterTasksByStatus('OVERDUE')" id="filter-status-OVERDUE" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-rose-50 transition">
+              <button onclick="filterTasksByStatus('OVERDUE')" id="filter-status-OVERDUE" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-rose-50 transition shrink-0 whitespace-nowrap">
                 Quá hạn <span id="count-status-OVERDUE" class="ml-1 text-rose-600">0</span>
               </button>
-              <button onclick="filterTasksByStatus('DONE')" id="filter-status-DONE" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-emerald-50 transition">
+              <button onclick="filterTasksByStatus('DONE')" id="filter-status-DONE" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-emerald-50 transition shrink-0 whitespace-nowrap">
                 Hoàn tất <span id="count-status-DONE" class="ml-1 text-emerald-600">0</span>
               </button>
-              <button onclick="filterTasksByStatus('ALL')" id="filter-status-ALL" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition">
+              <button onclick="filterTasksByStatus('ALL')" id="filter-status-ALL" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition shrink-0 whitespace-nowrap">
                 Tất cả <span id="count-status-ALL" class="ml-1 text-slate-500">0</span>
               </button>
             </div>
@@ -687,20 +689,20 @@
           </div>
 
           <!-- Type, Merchant & Priority Filters -->
-          <div class="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200 mb-6">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <span class="text-xs font-bold text-slate-500 mr-1">Phân loại:</span>
-              <button onclick="filterTasksByType('ALL')" id="filter-type-ALL" class="px-3 py-1 text-xs font-bold rounded-lg bg-teal-600 text-white shadow-xs">Tất Cả</button>
-              <button onclick="filterTasksByType('COMMERCIAL')" id="filter-type-COMMERCIAL" class="px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100">📋 Thương Mại</button>
-              <button onclick="filterTasksByType('TECH_DELIVERY')" id="filter-type-TECH_DELIVERY" class="px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100">⚙️ Kỹ Thuật</button>
-              <button onclick="filterTasksByType('PERSONAL')" id="filter-type-PERSONAL" class="px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100">👤 Cá Nhân</button>
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-2.5 md:gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200 mb-5 md:mb-6">
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 whitespace-nowrap">
+              <span class="text-xs font-bold text-slate-500 mr-1 shrink-0">Phân loại:</span>
+              <button onclick="filterTasksByType('ALL')" id="filter-type-ALL" class="px-3 py-1 text-xs font-bold rounded-lg bg-teal-600 text-white shadow-xs shrink-0 whitespace-nowrap">Tất Cả</button>
+              <button onclick="filterTasksByType('COMMERCIAL')" id="filter-type-COMMERCIAL" class="px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 shrink-0 whitespace-nowrap">📋 Thương Mại</button>
+              <button onclick="filterTasksByType('TECH_DELIVERY')" id="filter-type-TECH_DELIVERY" class="px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 shrink-0 whitespace-nowrap">⚙️ Kỹ Thuật</button>
+              <button onclick="filterTasksByType('PERSONAL')" id="filter-type-PERSONAL" class="px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 shrink-0 whitespace-nowrap">👤 Cá Nhân</button>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2 text-xs">
-              <select id="filter-task-merchant" onchange="renderTasksMainView()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-medium outline-none max-w-[190px]">
+            <div class="grid grid-cols-2 md:flex items-center gap-2 text-xs w-full md:w-auto">
+              <select id="filter-task-merchant" onchange="renderTasksMainView()" class="w-full md:max-w-[190px] bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-medium outline-none">
                 <option value="ALL">Tất cả chuỗi đối tác</option>
               </select>
-              <select id="filter-task-priority" onchange="renderTasksMainView()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-medium outline-none">
+              <select id="filter-task-priority" onchange="renderTasksMainView()" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-medium outline-none">
                 <option value="ALL">Tất cả mức độ</option>
                 <option value="KHẨN CẤP">Khẩn cấp (SLA)</option>
                 <option value="CAO">Ưu tiên Cao</option>
@@ -719,42 +721,44 @@
       <!-- ================= SCREEN 5: LỊCH HỌP & CỘT MỐC (UNIFIED SMART CALENDAR) ================= -->
       <div id="view-CALENDAR" class="hidden space-y-4 max-w-[1440px] mx-auto">
         <!-- Thanh Điều Khiển Lịch -->
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+        <div class="bg-white p-3.5 md:p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col xl:flex-row xl:items-center justify-between gap-2.5 md:gap-3">
           <!-- Trái: Chuyển Tháng -->
-          <div class="flex items-center space-x-2">
-            <button onclick="changeCalendarMonth(-1)" class="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Tháng trước">
-              <i data-lucide="chevron-left" class="w-4 h-4"></i>
-            </button>
-            <h2 class="text-base font-black text-slate-900 min-w-[150px] text-center" id="cal-month-label">Tháng 11 / 2026</h2>
-            <button onclick="changeCalendarMonth(1)" class="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Tháng sau">
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </button>
-            <button onclick="goToTodayCalendar()" class="ml-2 px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold transition">
+          <div class="flex items-center justify-between xl:justify-start gap-2">
+            <div class="flex items-center space-x-1.5">
+              <button onclick="changeCalendarMonth(-1)" class="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Tháng trước">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+              </button>
+              <h2 class="text-sm md:text-base font-black text-slate-900 min-w-[125px] md:min-w-[150px] text-center" id="cal-month-label">Tháng 11 / 2026</h2>
+              <button onclick="changeCalendarMonth(1)" class="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Tháng sau">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+            <button onclick="goToTodayCalendar()" class="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold transition whitespace-nowrap">
               Hôm nay (21/11)
             </button>
           </div>
 
           <!-- Giữa: Lọc Nguồn Dữ Liệu -->
-          <div class="flex flex-wrap items-center gap-1.5 text-xs">
-            <button onclick="setCalendarFilter('ALL')" id="cal-filter-ALL" class="px-3 py-1.5 rounded-xl font-bold bg-teal-600 text-white transition">Tất cả</button>
-            <button onclick="setCalendarFilter('MEETING')" id="cal-filter-MEETING" class="px-3 py-1.5 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5">
+          <div class="flex items-center gap-1.5 text-xs overflow-x-auto pb-1 xl:pb-0 whitespace-nowrap">
+            <button onclick="setCalendarFilter('ALL')" id="cal-filter-ALL" class="px-3 py-1.5 rounded-xl font-bold bg-teal-600 text-white transition shrink-0 whitespace-nowrap">Tất cả</button>
+            <button onclick="setCalendarFilter('MEETING')" id="cal-filter-MEETING" class="px-3 py-1.5 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5 shrink-0 whitespace-nowrap">
               <span class="w-2 h-2 rounded-full bg-teal-500"></span><span>Lịch họp</span>
             </button>
-            <button onclick="setCalendarFilter('PROJECT')" id="cal-filter-PROJECT" class="px-3 py-1.5 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5">
+            <button onclick="setCalendarFilter('PROJECT')" id="cal-filter-PROJECT" class="px-3 py-1.5 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5 shrink-0 whitespace-nowrap">
               <span class="w-2 h-2 rounded-full bg-purple-500"></span><span>Cột mốc dự án</span>
             </button>
-            <button onclick="setCalendarFilter('TASK')" id="cal-filter-TASK" class="px-3 py-1.5 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5">
+            <button onclick="setCalendarFilter('TASK')" id="cal-filter-TASK" class="px-3 py-1.5 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5 shrink-0 whitespace-nowrap">
               <span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Hạn đầu việc</span>
             </button>
           </div>
 
           <!-- Phải: Chuyển Chế Độ Xem + Thêm Lịch -->
-          <div class="flex items-center space-x-2 shrink-0">
+          <div class="flex items-center justify-between xl:justify-end gap-2 shrink-0">
             <div class="bg-slate-100 p-1 rounded-xl border border-slate-200 flex items-center text-xs font-bold">
-              <button onclick="setCalendarMode('MONTH')" id="cal-mode-MONTH" class="px-3 py-1 rounded-lg bg-white text-teal-700 shadow-2xs">Lịch Tháng</button>
-              <button onclick="setCalendarMode('TIMELINE')" id="cal-mode-TIMELINE" class="px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900">Lộ Trình Mốc</button>
+              <button onclick="setCalendarMode('MONTH')" id="cal-mode-MONTH" class="px-3 py-1 rounded-lg bg-white text-teal-700 shadow-2xs whitespace-nowrap">Lịch Tháng</button>
+              <button onclick="setCalendarMode('TIMELINE')" id="cal-mode-TIMELINE" class="px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 whitespace-nowrap">Lộ Trình Mốc</button>
             </div>
-            <button onclick="openNewMeetingModal(selectedCalendarDate)" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1 shadow-xs transition">
+            <button onclick="openNewMeetingModal(selectedCalendarDate)" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1 shadow-xs transition whitespace-nowrap">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i>
               <span>Thêm lịch</span>
             </button>
@@ -1494,7 +1498,7 @@
   </div>
 
   <!-- Toast Notification (Linear / Pipedrive Dark Slate + 6s Countdown Bar) -->
-  <div id="toast" style="background:#1E232A;border:1px solid #323A46;border-radius:6px;min-height:42px;min-width:320px;max-width:440px;color:#F1F5F9;font-size:13px;" class="fixed bottom-6 left-6 shadow-2xl flex items-center justify-between gap-3 px-3.5 py-2 transition-all duration-200 opacity-0 pointer-events-none z-[9999] overflow-hidden">
+  <div id="toast" style="background:#1E232A;border:1px solid #323A46;border-radius:10px;min-height:42px;max-width:440px;color:#F1F5F9;font-size:13px;" class="fixed bottom-20 md:bottom-6 left-3 right-3 md:left-6 md:right-auto md:min-w-[320px] shadow-2xl flex items-center justify-between gap-3 px-3.5 py-2 transition-all duration-200 opacity-0 pointer-events-none z-[9999] overflow-hidden">
     <span id="toast-message" class="leading-snug font-normal truncate flex-1">Nội dung thông báo</span>
     <button type="button" id="toast-undo-btn" onclick="performGlobalUndo()" class="hidden px-2 py-0.5 rounded bg-slate-700/80 hover:bg-slate-600 text-teal-300 text-xs font-bold whitespace-nowrap shrink-0 transition">Hoàn tác ↩</button>
     <div id="toast-countdown-bar" class="absolute bottom-0 left-0 h-[2px] bg-teal-400" style="width:0%"></div>
@@ -1558,7 +1562,7 @@
   <script src="js/auth.js?v=3.4.2"></script>
   <script src="js/state-sync.js?v=3.4.2"></script>
   <script src="js/dashboard.js?v=3.5.0"></script>
-  <script src="js/projects.js?v=3.3.0"></script>
+  <script src="js/projects.js?v=3.5.0"></script>
   <script src="js/tasks.js?v=3.3.0"></script>
   <script src="js/sla-engine.js?v=3.3.0"></script>
   <script src="js/email-templates.js?v=3.3.0"></script>
@@ -1567,6 +1571,6 @@
   <script src="js/notifications-automation.js?v=3.3.0"></script>
   <script src="js/undo-engine.js?v=3.3.0"></script>
   <script src="js/onboarding.js?v=3.3.0"></script>
-  <script src="js/calendar.js?v=3.3.0"></script>
+  <script src="js/calendar.js?v=3.5.0"></script>
 </body>
 </html>

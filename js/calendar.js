@@ -154,7 +154,7 @@ function renderCalendarGrid() {
 
   // Ô trống đầu tháng
   for (let i = 0; i < startOffset; i++) {
-    cellsHtml += `<div class="min-h-[104px] bg-slate-50/60 p-2"></div>`;
+    cellsHtml += `<div class="min-h-[58px] md:min-h-[104px] bg-slate-50/60 p-1 md:p-2"></div>`;
   }
 
   // Các ngày trong tháng
@@ -181,22 +181,32 @@ function renderCalendarGrid() {
       return `<div class="px-1.5 py-0.5 rounded text-[10px] font-semibold truncate ${cls}" title="${ev.title}">${prefix}${ev.title}</div>`;
     }).join('');
 
+    const dotsHtml = dayEvents.slice(0, 4).map(ev => {
+      let dotCls = "bg-teal-500";
+      if (ev.kind === "PROJECT") dotCls = ev.isBlocked ? "bg-rose-500" : "bg-purple-500";
+      else if (ev.kind === "TASK") dotCls = ev.isDone ? "bg-slate-300" : (ev.isOverdue ? "bg-rose-500" : "bg-amber-500");
+      return `<span class="w-1.5 h-1.5 rounded-full ${dotCls}"></span>`;
+    }).join('');
+
     const moreHtml = dayEvents.length > 3
       ? `<div class="text-[9px] font-bold text-slate-400 pl-1">+${dayEvents.length - 3} mục khác</div>`
       : "";
 
     cellsHtml += `
-      <div onclick="selectCalendarDay('${dateStr}')" class="min-h-[104px] p-2 cursor-pointer transition hover:bg-teal-50/30 flex flex-col justify-between ${
+      <div onclick="selectCalendarDay('${dateStr}')" class="min-h-[58px] md:min-h-[104px] p-1 md:p-2 cursor-pointer transition hover:bg-teal-50/30 flex flex-col justify-between ${
         isSelected ? 'bg-teal-50/50 ring-2 ring-inset ring-teal-500' : 'bg-white'
       }">
         <div>
           <div class="flex items-center justify-between mb-1">
-            <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+            <span class="w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-[11px] md:text-xs font-bold ${
               isToday ? 'bg-teal-600 text-white' : (isSelected ? 'text-teal-800 font-black' : 'text-slate-700')
             }">${d}</span>
             ${dayEvents.length > 0 ? `<span class="text-[9px] font-bold text-slate-400">${dayEvents.length}</span>` : ''}
           </div>
-          <div class="space-y-1">
+          <div class="md:hidden flex flex-wrap items-center gap-0.5 pt-0.5">
+            ${dotsHtml}
+          </div>
+          <div class="hidden md:block space-y-1">
             ${pillsHtml}
             ${moreHtml}
           </div>

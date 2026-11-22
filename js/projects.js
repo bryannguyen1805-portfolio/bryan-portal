@@ -376,31 +376,73 @@ function renderMerchantDirectoryPanel() {
   });
 
   panel.innerHTML = `
-    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+    <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
           <h3 class="text-sm font-black text-slate-900">Danh Mục Chuỗi Đối Tác (${rows.length}/${state.merchants.length})</h3>
           <p class="text-xs text-slate-400">Tìm kiếm nhanh và theo dõi trạng thái toàn bộ chuỗi đang quản lý</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <input value="${merchantDirSearch}" oninput="merchantDirSearch=this.value; renderMerchantDirectoryPanel()" type="text" placeholder="Tìm tên chuỗi, TKVH, ngân hàng..." class="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-teal-500 w-56" />
-          <div class="flex items-center gap-1 text-xs">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
+          <input value="${merchantDirSearch}" oninput="merchantDirSearch=this.value; renderMerchantDirectoryPanel()" type="text" placeholder="Tìm tên chuỗi, TKVH, ngân hàng..." class="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-teal-500 w-full sm:w-56" />
+          <div class="flex items-center gap-1.5 text-xs overflow-x-auto pb-1 sm:pb-0 whitespace-nowrap">
             ${[
               { id: "ALL", label: "Tất cả" },
               { id: "BLOCKED", label: "Có vướng mắc" },
               { id: "ACTIVE", label: "Đang triển khai" },
               { id: "LIVE", label: "Đang vận hành" }
             ].map(f => `
-              <button onclick="merchantDirFilter='${f.id}'; renderMerchantDirectoryPanel()" class="px-2.5 py-1.5 rounded-xl font-bold transition ${
+              <button onclick="merchantDirFilter='${f.id}'; renderMerchantDirectoryPanel()" class="px-3 py-1.5 rounded-xl font-bold transition shrink-0 whitespace-nowrap ${
                 merchantDirFilter === f.id ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }">${f.label}</button>
             `).join('')}
           </div>
         </div>
-
       </div>
 
-      <div class="overflow-x-auto">
+      <!-- Mobile Card View (< md) -->
+      <div class="md:hidden space-y-2.5">
+        ${rows.map(m => {
+          const projs = state.projects.filter(p => p.merchant_id === m.id);
+          const avgPct = projs.length > 0 ? Math.round(projs.reduce((s, p) => s + (p.progress || 0), 0) / projs.length) : 100;
+          const hasBlk = projs.some(p => p.is_blocked);
+          return `
+            <div onclick="selectMerchant('${m.id}')" class="p-3.5 rounded-2xl border border-slate-200/80 bg-slate-50/70 active:bg-teal-50/40 space-y-2.5 cursor-pointer transition">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center space-x-2.5 min-w-0">
+                  ${renderMerchantAvatarHtml(m, "w-9 h-9 rounded-xl", "text-xs")}
+                  <div class="min-w-0">
+                    <div class="font-bold text-sm text-slate-900 leading-snug break-words">${m.name}</div>
+                    <div class="text-[11px] text-slate-400 truncate">${m.industry || 'B2B Partner'}</div>
+                  </div>
+                </div>
+                ${hasBlk
+                  ? `<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-bold shrink-0">Vướng mắc</span>`
+                  : `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold shrink-0">Thông suốt</span>`}
+              </div>
+              <div class="flex items-center justify-between gap-2 text-[11px] pt-1 border-t border-slate-200/60">
+                <span class="font-mono font-bold text-slate-700 truncate">${getMerchantTkvhCode(m, projs)}</span>
+                <span class="font-semibold text-slate-500 shrink-0">${projs.length} dự án</span>
+              </div>
+              <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center space-x-2 flex-1">
+                  <div class="flex-1 bg-slate-200 rounded-full h-1.5"><div class="bg-teal-600 h-1.5 rounded-full" style="width:${avgPct}%"></div></div>
+                  <span class="text-xs font-extrabold text-teal-700 shrink-0">${avgPct}%</span>
+                </div>
+                <div class="flex items-center space-x-1.5 shrink-0">
+                  <span class="text-xs font-bold text-teal-700">Mở →</span>
+                  <button type="button" onclick="deleteMerchant('${m.id}', event)" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition" title="Xóa chuỗi đối tác">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+        ${rows.length === 0 ? `<div class="py-8 text-center text-xs text-slate-400">Không có chuỗi đối tác nào khớp bộ lọc.</div>` : ''}
+      </div>
+
+      <!-- Desktop Table View (>= md) -->
+      <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-left text-xs border-collapse">
           <thead>
             <tr class="border-b border-slate-200 text-[11px] font-extrabold text-slate-500 uppercase">
