@@ -261,7 +261,7 @@ button.rounded-lg {
   }
 }
 
-/* Dark Appearance Mode */
+/* Dark Appearance Mode — Complete App-Wide Surface, Badge, Hover & Text Palette */
 html.theme-dark body,
 html.theme-dark main,
 html.theme-dark .flex-1.bg-slate-100 {
@@ -269,74 +269,109 @@ html.theme-dark .flex-1.bg-slate-100 {
   color: #E2E8F0 !important;
 }
 html.theme-dark header {
-  background-color: rgba(15, 23, 42, 0.92) !important;
+  background-color: rgba(15, 23, 42, 0.94) !important;
   border-bottom-color: rgba(43, 168, 162, 0.25) !important;
 }
-html.theme-dark main .bg-white,
-html.theme-dark footer .bg-white,
 html.theme-dark #mobile-bottom-nav {
+  background-color: rgba(15, 23, 42, 0.96) !important;
+  border-top-color: rgba(148, 163, 184, 0.2) !important;
+}
+
+/* Primary & Secondary Surfaces */
+html.theme-dark :is(main, header, #mobile-bottom-nav, [id^="modal-"], #command-center-modal) :is(.bg-white, .bg-white\/95, .bg-white\/90) {
   background-color: #131C2B !important;
   border-color: rgba(148, 163, 184, 0.18) !important;
   color: #E2E8F0 !important;
 }
-html.theme-dark main .bg-slate-50,
-html.theme-dark main .bg-slate-50\/70,
-html.theme-dark main .bg-slate-50\/80,
-html.theme-dark main .bg-slate-100,
-html.theme-dark header .bg-slate-100,
-html.theme-dark header .bg-slate-50 {
-  background-color: #1A2538 !important;
+html.theme-dark :is(main, header, [id^="modal-"], #command-center-modal) :is(.bg-slate-50, .bg-slate-50\/60, .bg-slate-50\/70, .bg-slate-50\/80, .bg-slate-100, .bg-slate-100\/90, .bg-slate-200, .bg-slate-200\/80) {
+  background-color: #1A2639 !important;
   border-color: rgba(148, 163, 184, 0.22) !important;
-  color: #E2E8F0 !important;
 }
-html.theme-dark main .bg-teal-50,
-html.theme-dark main .bg-emerald-50\/70,
-html.theme-dark main .bg-emerald-50\/60,
-html.theme-dark main .from-emerald-50\/80,
-html.theme-dark main .from-amber-50\/90,
-html.theme-dark main .from-sky-50 {
-  background: #162336 !important;
+
+/* Pastel Tinted Surfaces & Badges */
+html.theme-dark :is(main, [id^="modal-"], #command-center-modal) :is(.bg-teal-50, .bg-teal-50\/70, .bg-teal-100, .bg-emerald-50, .bg-emerald-50\/40, .bg-emerald-50\/60, .bg-emerald-50\/70, .bg-emerald-100, .from-emerald-50\/80) {
+  background-color: rgba(16, 185, 129, 0.14) !important;
   background-image: none !important;
-  border-color: rgba(43, 168, 162, 0.30) !important;
-  color: #E2E8F0 !important;
+  border-color: rgba(45, 212, 191, 0.28) !important;
 }
-html.theme-dark main .text-teal-700,
-html.theme-dark main .text-teal-800,
-html.theme-dark main .text-emerald-800,
-html.theme-dark main .text-emerald-700,
-html.theme-dark main .text-amber-700,
-html.theme-dark main .text-sky-800 {
-  color: #5EEAD4 !important;
+html.theme-dark :is(main, [id^="modal-"], #command-center-modal) :is(.bg-sky-50, .bg-sky-100, .bg-blue-50, .bg-blue-50\/60, .bg-blue-100, .from-sky-50) {
+  background-color: rgba(56, 189, 248, 0.14) !important;
+  background-image: none !important;
+  border-color: rgba(56, 189, 248, 0.28) !important;
 }
-html.theme-dark main .text-emerald-700\/80,
-html.theme-dark main .text-amber-700\/80 {
-  color: #94A3B8 !important;
+html.theme-dark :is(main, [id^="modal-"], #command-center-modal) :is(.bg-indigo-50, .bg-indigo-100, .bg-purple-50, .bg-purple-50\/50, .bg-purple-100) {
+  background-color: rgba(139, 92, 246, 0.16) !important;
+  background-image: none !important;
+  border-color: rgba(167, 139, 250, 0.28) !important;
 }
-html.theme-dark .footer-logo-light { display: none !important; }
-html.theme-dark .footer-logo-dark { display: block !important; }
-html.theme-dark main .text-slate-900,
-html.theme-dark main .text-slate-800,
-html.theme-dark footer .text-slate-800 {
+html.theme-dark :is(main, [id^="modal-"], #command-center-modal) :is(.bg-amber-50, .bg-amber-50\/30, .bg-amber-100, .from-amber-50\/90) {
+  background-color: rgba(245, 158, 11, 0.14) !important;
+  background-image: none !important;
+  border-color: rgba(251, 191, 36, 0.28) !important;
+}
+html.theme-dark :is(main, [id^="modal-"], #command-center-modal) :is(.bg-rose-50, .bg-rose-50\/30, .bg-rose-50\/50, .bg-rose-50\/60, .bg-rose-100) {
+  background-color: rgba(244, 63, 94, 0.15) !important;
+  background-image: none !important;
+  border-color: rgba(251, 113, 133, 0.3) !important;
+}
+
+/* Hover States in Dark Mode (Prevent bright white row/button flash) */
+html.theme-dark :is(main, header, [id^="modal-"]) :is(.hover\:bg-slate-50:hover, .hover\:bg-slate-100:hover, .hover\:bg-slate-200:hover, .hover\:bg-teal-50:hover, .hover\:bg-teal-50\/30:hover) {
+  background-color: #24334B !important;
+}
+
+/* Borders & Dividers */
+html.theme-dark :is(main, footer, [id^="modal-"]) :is(.border-slate-100, .border-slate-200, .border-slate-200\/70, .border-slate-200\/80, .border-slate-200\/90, .border-slate-300) {
+  border-color: rgba(148, 163, 184, 0.2) !important;
+}
+html.theme-dark main .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(148, 163, 184, 0.14) !important;
+}
+
+/* Text Contrast */
+html.theme-dark :is(main, footer, [id^="modal-"], #command-center-modal) :is(.text-slate-900, .text-slate-800) {
   color: #F1F5F9 !important;
 }
-html.theme-dark main .text-slate-700,
-html.theme-dark main .text-slate-600,
-html.theme-dark footer .text-slate-600,
-html.theme-dark footer .text-slate-500 {
+html.theme-dark :is(main, footer, [id^="modal-"], #command-center-modal) :is(.text-slate-700, .text-slate-600) {
   color: #CBD5E1 !important;
 }
-html.theme-dark main .text-slate-500,
-html.theme-dark main .text-slate-400 {
+html.theme-dark :is(main, footer, [id^="modal-"], #command-center-modal) :is(.text-slate-500, .text-slate-400) {
   color: #94A3B8 !important;
 }
+html.theme-dark :is(main, footer, [id^="modal-"]) :is(.text-teal-700, .text-teal-800, .text-emerald-700, .text-emerald-800, .text-emerald-700\/80) {
+  color: #5EEAD4 !important;
+}
+html.theme-dark :is(main, [id^="modal-"]) :is(.text-amber-700, .text-amber-800, .text-amber-700\/80) {
+  color: #FCD34D !important;
+}
+html.theme-dark :is(main, [id^="modal-"]) :is(.text-sky-800, .text-blue-700, .text-blue-800) {
+  color: #7DD3FC !important;
+}
+html.theme-dark :is(main, [id^="modal-"]) :is(.text-indigo-700, .text-indigo-800, .text-purple-700, .text-purple-800) {
+  color: #C4B5FD !important;
+}
+html.theme-dark :is(main, [id^="modal-"]) :is(.text-rose-700, .text-rose-800, .text-rose-950) {
+  color: #FDA4AF !important;
+}
+
+/* Active dark/gold buttons keep dark text on gold */
+html.theme-dark button.bg-teal-600,
+html.theme-dark button.bg-teal-700 {
+  color: var(--f7-teal-deep) !important;
+}
+
+/* Inputs & Selects */
 html.theme-dark input[type="text"],
 html.theme-dark input[type="date"],
 html.theme-dark input[type="number"],
 html.theme-dark input[type="email"],
 html.theme-dark input[type="url"],
+html.theme-dark input[type="password"],
 html.theme-dark select,
 html.theme-dark textarea {
-  background-color: #1A2538 !important;
+  background-color: #1A2639 !important;
   color: #F1F5F9 !important;
   border-color: rgba(43, 168, 162, 0.35) !important;
 }
+html.theme-dark .footer-logo-light { display: none !important; }
+html.theme-dark .footer-logo-dark { display: block !important; }
