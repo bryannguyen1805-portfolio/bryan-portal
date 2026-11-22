@@ -2,10 +2,16 @@
 // 8. ANTIGRAVITY NLP ENGINE (TIẾNG VIỆT)
 // -------------------------------------------------------------
 function setNlpCommand(cmd) {
+  if (window.innerWidth < 768) {
+    openCommandCenter();
+    fillCommandCenterPreset(cmd);
+    return;
+  }
   const input = document.getElementById("nlp-command-input");
   if (input) {
     input.value = cmd;
     input.focus();
+    handleOmnibarLivePreview(cmd);
   }
 }
 
