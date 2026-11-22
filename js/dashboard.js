@@ -16,9 +16,27 @@ function applySidebarCollapseState() {
 }
 
 function toggleSidebarCollapse() {
+  if (window.innerWidth < 768) {
+    closeMobileSidebar();
+    return;
+  }
   const isCollapsed = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === "1";
   localStorage.setItem(SIDEBAR_COLLAPSE_KEY, isCollapsed ? "0" : "1");
   applySidebarCollapseState();
+}
+
+function openMobileSidebar() {
+  const sidebar = document.getElementById("app-sidebar");
+  const backdrop = document.getElementById("mobile-sidebar-backdrop");
+  if (sidebar) sidebar.classList.remove("-translate-x-full");
+  if (backdrop) backdrop.classList.remove("hidden");
+}
+
+function closeMobileSidebar() {
+  const sidebar = document.getElementById("app-sidebar");
+  const backdrop = document.getElementById("mobile-sidebar-backdrop");
+  if (sidebar) sidebar.classList.add("-translate-x-full");
+  if (backdrop) backdrop.classList.add("hidden");
 }
 
 const DAILY_QUOTES = [
@@ -185,6 +203,19 @@ function navigateTo(screenId) {
     targetBtn.classList.remove('text-slate-400');
     targetBtn.classList.add('text-white', 'bg-teal-600/90', 'shadow-sm', 'shadow-teal-700/30');
   }
+
+  // Sync mobile bottom nav active state & close slide-over drawer
+  ['DASHBOARD', 'PROJECTS', 'TASKS', 'CALENDAR'].forEach(id => {
+    const mBtn = document.getElementById(`mnav-${id}`);
+    if (!mBtn) return;
+    const active = id === screenId;
+    mBtn.classList.toggle('text-teal-700', active);
+    mBtn.classList.toggle('bg-teal-50', active);
+    mBtn.classList.toggle('font-bold', active);
+    mBtn.classList.toggle('text-slate-500', !active);
+    mBtn.classList.toggle('font-semibold', !active);
+  });
+  closeMobileSidebar();
 
   if (screenId === 'DASHBOARD') {
     updateAllKpis();
