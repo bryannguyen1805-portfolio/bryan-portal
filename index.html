@@ -265,8 +265,9 @@
           <div id="topbar-notif-list" class="max-h-72 overflow-y-auto p-3 space-y-2 text-xs"></div>
           <div class="p-3 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-[11px]">
             <div class="flex items-center gap-1.5">
-              <button type="button" onclick="requestBrowserNotificationPermission()" class="px-2.5 py-1.5 bg-white hover:bg-teal-50 text-teal-800 border border-slate-300 rounded-xl font-bold transition">Pop-up Laptop</button>
-              <button type="button" onclick="sendAlertsDigestEmail()" class="px-2.5 py-1.5 bg-white hover:bg-indigo-50 text-indigo-800 border border-slate-300 rounded-xl font-bold transition">Gửi Email</button>
+              <button type="button" onclick="openNotifPrefsModal(); closeTopbarNotifPopover();" class="px-2.5 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl font-bold transition">⚙️ Cá nhân hóa</button>
+              <button type="button" onclick="requestBrowserNotificationPermission()" class="px-2.5 py-1.5 bg-white hover:bg-teal-50 text-teal-800 border border-slate-300 rounded-xl font-bold transition">Pop-up</button>
+              <button type="button" onclick="sendAlertsDigestEmail()" class="px-2.5 py-1.5 bg-white hover:bg-indigo-50 text-indigo-800 border border-slate-300 rounded-xl font-bold transition">Email</button>
             </div>
             <button type="button" onclick="navigateTo('NOTIFICATIONS'); closeTopbarNotifPopover();" class="font-bold text-teal-700 hover:underline">Xem tất cả →</button>
           </div>
@@ -1070,6 +1071,33 @@
           </div>
         </div>
 
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Nhắc hẹn</label>
+            <select id="task-reminder-select" class="w-full p-2 bg-white border border-slate-300 rounded-xl outline-none text-xs font-semibold">
+              <option value="none">Không có</option>
+              <option value="0">Vào lúc đến hạn</option>
+              <option value="5">Trước 5 phút</option>
+              <option value="10">Trước 10 phút</option>
+              <option value="15">Trước 15 phút</option>
+              <option value="30">Trước 30 phút</option>
+              <option value="60">Trước 1 giờ</option>
+              <option value="120">Trước 2 giờ</option>
+              <option value="1440" selected>Trước 1 ngày</option>
+              <option value="2880">Trước 2 ngày</option>
+              <option value="10080">Trước 1 tuần</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1.5">Kênh nhận nhắc hẹn</label>
+            <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-700">
+              <label class="inline-flex items-center gap-1 cursor-pointer"><input type="checkbox" id="task-ch-bell" checked class="accent-teal-600 rounded"> 🔔 Chuông</label>
+              <label class="inline-flex items-center gap-1 cursor-pointer"><input type="checkbox" id="task-ch-popup" checked class="accent-teal-600 rounded"> 💻 Pop-up</label>
+              <label class="inline-flex items-center gap-1 cursor-pointer"><input type="checkbox" id="task-ch-email" checked class="accent-teal-600 rounded"> ✉️ Email</label>
+            </div>
+          </div>
+        </div>
+
         <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
           <button type="button" onclick="closeTaskModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">Hủy</button>
           <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-sm">Lưu Đầu Việc</button>
@@ -1504,6 +1532,33 @@
             <input type="text" id="meet-attendees" placeholder="VD: Bryan, Anh Tuấn..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none">
           </div>
         </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Nhắc hẹn</label>
+            <select id="meet-reminder-select" class="w-full p-2 bg-white border border-slate-300 rounded-xl outline-none text-xs font-semibold">
+              <option value="none">Không có</option>
+              <option value="0">Vào lúc diễn ra sự kiện</option>
+              <option value="5">Trước 5 phút</option>
+              <option value="10">Trước 10 phút</option>
+              <option value="15" selected>Trước 15 phút</option>
+              <option value="30">Trước 30 phút</option>
+              <option value="60">Trước 1 giờ</option>
+              <option value="120">Trước 2 giờ</option>
+              <option value="1440">Trước 1 ngày</option>
+              <option value="2880">Trước 2 ngày</option>
+              <option value="10080">Trước 1 tuần</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1.5">Kênh nhận nhắc hẹn</label>
+            <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-700">
+              <label class="inline-flex items-center gap-1 cursor-pointer"><input type="checkbox" id="meet-ch-bell" checked class="accent-teal-600 rounded"> 🔔 Chuông</label>
+              <label class="inline-flex items-center gap-1 cursor-pointer"><input type="checkbox" id="meet-ch-popup" checked class="accent-teal-600 rounded"> 💻 Pop-up</label>
+              <label class="inline-flex items-center gap-1 cursor-pointer"><input type="checkbox" id="meet-ch-email" checked class="accent-teal-600 rounded"> ✉️ Email</label>
+            </div>
+          </div>
+        </div>
+
         <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
           <button type="button" onclick="closeNewMeetingModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">Hủy</button>
           <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-sm">Lưu Lịch Họp</button>
@@ -1615,14 +1670,14 @@
   <!-- ================= 4. CORE JAVASCRIPT ENGINE (VERSIONED CACHE-BUSTING) ================= -->
   <script src="js/auth.js?v=3.4.2"></script>
   <script src="js/state-sync.js?v=3.4.2"></script>
-  <script src="js/dashboard.js?v=3.5.0"></script>
-  <script src="js/projects.js?v=3.5.0"></script>
+  <script src="js/dashboard.js?v=3.6.0"></script>
+  <script src="js/projects.js?v=3.6.0"></script>
   <script src="js/tasks.js?v=3.3.0"></script>
   <script src="js/sla-engine.js?v=3.3.0"></script>
   <script src="js/email-templates.js?v=3.3.0"></script>
   <script src="js/attio-engine.js?v=3.3.0"></script>
   <script src="js/omnibar.js?v=3.5.0"></script>
-  <script src="js/notifications-automation.js?v=3.3.0"></script>
+  <script src="js/notifications-automation.js?v=3.6.0"></script>
   <script src="js/undo-engine.js?v=3.3.0"></script>
   <script src="js/onboarding.js?v=3.3.0"></script>
   <script src="js/calendar.js?v=3.6.0"></script>

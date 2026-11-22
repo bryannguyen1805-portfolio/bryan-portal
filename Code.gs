@@ -310,6 +310,14 @@ function buildUserIcsFeed(userEmail, meetings, projects, tasks) {
     }
     lines.push("SUMMARY:" + esc(m.title));
     if (m.partner) lines.push("LOCATION:" + esc(m.partner));
+    const remMin = Number(m.reminder_minutes);
+    if (!isNaN(remMin) && m.reminder_minutes !== "none" && m.reminder_minutes !== "") {
+      lines.push("BEGIN:VALARM");
+      lines.push("ACTION:DISPLAY");
+      lines.push("DESCRIPTION:Nhắc hẹn BPortal");
+      lines.push(`TRIGGER:-PT${Math.max(0, remMin)}M`);
+      lines.push("END:VALARM");
+    }
     lines.push("END:VEVENT");
   });
 
@@ -595,13 +603,13 @@ function doPost(e) {
       }
       if (Array.isArray(body.tasks)) {
         upsertOwnerRowsToSheet(ss, "Tasks",
-          ["id", "type", "project_id", "title", "pic", "stage", "priority", "due_date", "is_overdue", "completed_at", "owner_email", "updated_at"],
+          ["id", "type", "project_id", "title", "pic", "stage", "priority", "due_date", "reminder_minutes", "notify_channels", "is_overdue", "completed_at", "owner_email", "updated_at"],
           ownerEmail, body.tasks.map(t => ({ ...t, is_overdue: t.is_overdue ? "TRUE" : "FALSE" }))
         );
       }
       if (Array.isArray(body.meetings)) {
         const syncedMeetings = pushMeetingsToGoogleCalendar(ss, ownerEmail, body.meetings);
-        upsertOwnerRowsToSheet(ss, "Meetings", ["id", "date", "time", "title", "partner", "attendees", "gcal_event_id", "owner_email", "updated_at"], ownerEmail, syncedMeetings);
+        upsertOwnerRowsToSheet(ss, "Meetings", ["id", "date", "time", "title", "partner", "attendees", "reminder_minutes", "notify_channels", "gcal_event_id", "owner_email", "updated_at"], ownerEmail, syncedMeetings);
       }
       if (Array.isArray(body.folders)) {
         upsertOwnerRowsToSheet(ss, "Folders", ["id", "merchant_id", "title", "file_name", "path", "action_label", "badge", "owner_email", "updated_at"], ownerEmail, body.folders);
@@ -613,6 +621,16 @@ function doPost(e) {
         );
       }
       return resJSON({ success: true, message: "Đã đồng bộ dữ liệu cô lập cho " + ownerEmail });
+    }
+
+    if (action === "SEND_REMINDER_EMAIL") {
+      const recipient = String(body.recipient_email || ownerEmail).trim();
+      const subject = String(body.subject || "[BPortal] Nhắc hẹn công việc").trim();
+      const textBody = String(body.body || "").trim();
+      if (recipient) {
+        MailApp.sendEmail(recipient, subject, textBody);
+      }
+      return resJSON({ success: true, message: "Đã gửi email nhắc hẹn tới " + recipient });
     }
 
     if (action === "CREATE_TASK") {

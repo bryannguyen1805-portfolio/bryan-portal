@@ -1091,7 +1091,17 @@ function openNewTaskModal() {
     return `<option value="${p.id}">[${m ? m.name : 'Nội bộ'}] ${p.title}</option>`;
   }).join('');
   if (activeProjs.length > 0) sel.value = activeProjs[0].id;
-  
+
+  const prefs = typeof getUserNotifPrefs === "function" ? getUserNotifPrefs() : { defaultTaskReminder: "1440", channels: { bell: true, popup: true, email: true } };
+  const remSel = document.getElementById("task-reminder-select");
+  if (remSel) remSel.value = String(prefs.defaultTaskReminder || "1440");
+  const chBell = document.getElementById("task-ch-bell");
+  const chPopup = document.getElementById("task-ch-popup");
+  const chEmail = document.getElementById("task-ch-email");
+  if (chBell) chBell.checked = prefs.channels?.bell !== false;
+  if (chPopup) chPopup.checked = prefs.channels?.popup !== false;
+  if (chEmail) chEmail.checked = prefs.channels?.email !== false;
+
   document.getElementById("modal-task").classList.remove("hidden");
 }
 
@@ -1139,6 +1149,17 @@ function openEditTaskModal(taskId) {
   }).join('');
   sel.value = t.project_id || "";
 
+  const prefs = typeof getUserNotifPrefs === "function" ? getUserNotifPrefs() : { defaultTaskReminder: "1440", channels: { bell: true, popup: true, email: true } };
+  const remSel = document.getElementById("task-reminder-select");
+  if (remSel) remSel.value = String(t.reminder_minutes !== undefined && t.reminder_minutes !== "" ? t.reminder_minutes : (prefs.defaultTaskReminder || "1440"));
+  const chArr = String(t.notify_channels || "").split(",").filter(Boolean);
+  const chBell = document.getElementById("task-ch-bell");
+  const chPopup = document.getElementById("task-ch-popup");
+  const chEmail = document.getElementById("task-ch-email");
+  if (chBell) chBell.checked = chArr.length ? chArr.includes("bell") : (prefs.channels?.bell !== false);
+  if (chPopup) chPopup.checked = chArr.length ? chArr.includes("popup") : (prefs.channels?.popup !== false);
+  if (chEmail) chEmail.checked = chArr.length ? chArr.includes("email") : (prefs.channels?.email !== false);
+
   document.getElementById("modal-task").classList.remove("hidden");
 }
 
@@ -1156,6 +1177,12 @@ function handleSaveTask(e) {
   const stage = document.getElementById("task-stage-select").value;
   const dueDate = document.getElementById("task-due-date-input").value || "2026-11-30";
   const type = document.querySelector('input[name="modal-task-type"]:checked')?.value || "COMMERCIAL";
+  const reminderVal = document.getElementById("task-reminder-select")?.value || "1440";
+  const notifyChannelsArr = [];
+  if (document.getElementById("task-ch-bell")?.checked) notifyChannelsArr.push("bell");
+  if (document.getElementById("task-ch-popup")?.checked) notifyChannelsArr.push("popup");
+  if (document.getElementById("task-ch-email")?.checked) notifyChannelsArr.push("email");
+  const notifyChannels = notifyChannelsArr.join(",");
 
   if (id) {
     // Cập nhật task cũ
@@ -1168,6 +1195,8 @@ function handleSaveTask(e) {
       task.stage = stage;
       task.due_date = dueDate;
       task.type = type;
+      task.reminder_minutes = reminderVal;
+      task.notify_channels = notifyChannels;
     }
     showToast("✓ Đã cập nhật đầu việc thành công!");
   } else {
@@ -1181,6 +1210,8 @@ function handleSaveTask(e) {
       stage: stage,
       priority: priority,
       due_date: dueDate,
+      reminder_minutes: reminderVal,
+      notify_channels: notifyChannels,
       is_overdue: false
     };
     state.tasks.unshift(newTask);

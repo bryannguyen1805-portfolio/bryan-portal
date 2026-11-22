@@ -432,11 +432,20 @@ function renderDashboardMeetings() {
 }
 
 function openNewMeetingModal(presetDate) {
+  const prefs = typeof getUserNotifPrefs === "function" ? getUserNotifPrefs() : { defaultMeetingReminder: "15", channels: { bell: true, popup: true, email: true } };
   document.getElementById("meet-title").value = "";
-  document.getElementById("meet-date").value = presetDate || "2026-11-21";
+  document.getElementById("meet-date").value = presetDate || new Date().toISOString().slice(0, 10);
   document.getElementById("meet-time").value = "10:00 - 11:00";
   document.getElementById("meet-partner").value = "";
   document.getElementById("meet-attendees").value = "";
+  const remSel = document.getElementById("meet-reminder-select");
+  if (remSel) remSel.value = String(prefs.defaultMeetingReminder || "15");
+  const chBell = document.getElementById("meet-ch-bell");
+  const chPopup = document.getElementById("meet-ch-popup");
+  const chEmail = document.getElementById("meet-ch-email");
+  if (chBell) chBell.checked = prefs.channels?.bell !== false;
+  if (chPopup) chPopup.checked = prefs.channels?.popup !== false;
+  if (chEmail) chEmail.checked = prefs.channels?.email !== false;
   document.getElementById("modal-new-meeting").classList.remove("hidden");
 }
 
@@ -447,10 +456,15 @@ function closeNewMeetingModal() {
 function handleSaveMeeting(e) {
   e.preventDefault();
   const title = document.getElementById("meet-title").value.trim();
-  const date = document.getElementById("meet-date").value || "2026-11-21";
+  const date = document.getElementById("meet-date").value || new Date().toISOString().slice(0, 10);
   const time = document.getElementById("meet-time").value.trim() || "Trong ngày";
   const partner = document.getElementById("meet-partner").value.trim();
   const attendees = document.getElementById("meet-attendees").value.trim() || "Bryan";
+  const reminderVal = document.getElementById("meet-reminder-select")?.value || "15";
+  const notifyChannels = [];
+  if (document.getElementById("meet-ch-bell")?.checked) notifyChannels.push("bell");
+  if (document.getElementById("meet-ch-popup")?.checked) notifyChannels.push("popup");
+  if (document.getElementById("meet-ch-email")?.checked) notifyChannels.push("email");
 
   const beforeMeetings = JSON.parse(JSON.stringify(state.meetings));
   const newMt = {
@@ -459,7 +473,9 @@ function handleSaveMeeting(e) {
     time: time,
     title: title,
     partner: partner,
-    attendees: attendees
+    attendees: attendees,
+    reminder_minutes: reminderVal,
+    notify_channels: notifyChannels.join(",")
   };
   state.meetings.push(newMt);
   saveStateStorage();

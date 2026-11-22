@@ -693,3 +693,264 @@ function renderNotificationsView() {
   lucide.createIcons();
 }
 
+// -------------------------------------------------------------
+// 11C. CÁ NHÂN HÓA NHẮC HẸN & ENGINE CHẠY ĐÚNG MỐC THỜI GIAN
+// -------------------------------------------------------------
+const REMINDER_LABELS = {
+  "none": "Không có",
+  "0": "Vào lúc diễn ra / đến hạn",
+  "5": "Trước 5 phút",
+  "10": "Trước 10 phút",
+  "15": "Trước 15 phút",
+  "30": "Trước 30 phút",
+  "60": "Trước 1 giờ",
+  "120": "Trước 2 giờ",
+  "1440": "Trước 1 ngày",
+  "2880": "Trước 2 ngày",
+  "10080": "Trước 1 tuần",
+  "43200": "Trước 30 ngày"
+};
+
+function getUserNotifPrefsKey() {
+  const email = (typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "default") || "default";
+  return `bryan_portal_notif_prefs_${email}`;
+}
+
+function getUserFiredRemindersKey() {
+  const email = (typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "default") || "default";
+  return `bryan_portal_fired_reminders_${email}`;
+}
+
+function getUserNotifPrefs() {
+  const userEmail = (typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "") || "";
+  const defaults = {
+    email: userEmail,
+    channels: { bell: true, popup: true, email: true },
+    defaultMeetingReminder: "15",
+    defaultTaskReminder: "1440",
+    defaultContractReminder: "43200"
+  };
+  try {
+    const saved = JSON.parse(localStorage.getItem(getUserNotifPrefsKey()) || "null");
+    if (saved && typeof saved === "object") {
+      return {
+        ...defaults,
+        ...saved,
+        channels: { ...defaults.channels, ...(saved.channels || {}) }
+      };
+    }
+  } catch (e) {}
+  return defaults;
+}
+
+function saveUserNotifPrefs(prefs) {
+  localStorage.setItem(getUserNotifPrefsKey(), JSON.stringify(prefs));
+}
+
+function ensureNotifPrefsModal() {
+  if (document.getElementById("modal-notif-prefs")) return;
+  const div = document.createElement("div");
+  div.id = "modal-notif-prefs";
+  div.className = "hidden fixed inset-0 z-[10001] bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4";
+  const optsHtml = Object.entries(REMINDER_LABELS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+  div.innerHTML = `
+    <div class="bg-white w-full max-w-md rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between">
+        <h3 class="text-sm font-black">Cá Nhân Hóa Nhắc Hẹn &amp; Kênh Thông Báo</h3>
+        <button onclick="document.getElementById('modal-notif-prefs').classList.add('hidden')" class="text-slate-300 hover:text-white text-sm">✕</button>
+      </div>
+      <form onsubmit="saveNotifPrefsFromModal(event)" class="p-5 space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Email nhận nhắc hẹn của bạn *</label>
+          <input id="prefs-email-input" type="text" required placeholder="VD: ten.ban@vietunion.com.vn" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none font-medium" />
+          <p class="text-[11px] text-slate-400 mt-1">Có thể nhập nhiều email cách nhau bằng dấu phẩy.</p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+          <div class="font-bold text-slate-700">Kênh nhận thông báo mặc định của bạn</div>
+          <div class="flex flex-wrap gap-3 font-semibold text-slate-700">
+            <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="checkbox" id="prefs-ch-bell" class="accent-teal-600"> 🔔 Icon Chuông</label>
+            <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="checkbox" id="prefs-ch-popup" class="accent-teal-600"> 💻 Pop-up Laptop</label>
+            <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="checkbox" id="prefs-ch-email" class="accent-teal-600"> ✉️ Gửi Email</label>
+          </div>
+        </div>
+
+        <div class="space-y-2.5">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Mặc định nhắc Lịch họp</label>
+            <select id="prefs-meet-rem" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl outline-none font-semibold">${optsHtml}</select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Mặc định nhắc Nhiệm vụ / To-do list</label>
+            <select id="prefs-task-rem" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl outline-none font-semibold">${optsHtml}</select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Mặc định nhắc Gia hạn Hợp đồng</label>
+            <select id="prefs-contract-rem" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-xl outline-none font-semibold">${optsHtml}</select>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="document.getElementById('modal-notif-prefs').classList.add('hidden')" class="px-3.5 py-2 bg-slate-100 rounded-xl font-bold text-slate-600">Hủy</button>
+          <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold">Lưu Cài Đặt Riêng</button>
+        </div>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(div);
+}
+
+function openNotifPrefsModal() {
+  ensureNotifPrefsModal();
+  const p = getUserNotifPrefs();
+  document.getElementById("prefs-email-input").value = p.email || "";
+  document.getElementById("prefs-ch-bell").checked = p.channels.bell !== false;
+  document.getElementById("prefs-ch-popup").checked = p.channels.popup !== false;
+  document.getElementById("prefs-ch-email").checked = p.channels.email !== false;
+  document.getElementById("prefs-meet-rem").value = String(p.defaultMeetingReminder || "15");
+  document.getElementById("prefs-task-rem").value = String(p.defaultTaskReminder || "1440");
+  document.getElementById("prefs-contract-rem").value = String(p.defaultContractReminder || "43200");
+  document.getElementById("modal-notif-prefs").classList.remove("hidden");
+}
+
+function saveNotifPrefsFromModal(e) {
+  e.preventDefault();
+  const prefs = {
+    email: document.getElementById("prefs-email-input").value.trim(),
+    channels: {
+      bell: document.getElementById("prefs-ch-bell").checked,
+      popup: document.getElementById("prefs-ch-popup").checked,
+      email: document.getElementById("prefs-ch-email").checked
+    },
+    defaultMeetingReminder: document.getElementById("prefs-meet-rem").value,
+    defaultTaskReminder: document.getElementById("prefs-task-rem").value,
+    defaultContractReminder: document.getElementById("prefs-contract-rem").value
+  };
+  saveUserNotifPrefs(prefs);
+  document.getElementById("modal-notif-prefs").classList.add("hidden");
+  if (prefs.channels.popup && "Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+  showToast("✓ Đã lưu cài đặt nhắc hẹn cá nhân của bạn!");
+  checkDueRemindersEngine();
+}
+
+function parseReminderTargetTimestamp(dateStr, timeStr) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(dateStr || ""))) return null;
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const tMatch = String(timeStr || "").match(/(\d{1,2}):(\d{2})/);
+  const hh = tMatch ? Number(tMatch[1]) : 9;
+  const mm = tMatch ? Number(tMatch[2]) : 0;
+  return new Date(y, m - 1, d, hh, mm, 0).getTime();
+}
+
+function dispatchPersonalizedReminder(item, prefs) {
+  const channels = item.notify_channels
+    ? String(item.notify_channels).split(",").filter(Boolean)
+    : Object.keys(prefs.channels).filter(k => prefs.channels[k]);
+
+  const label = REMINDER_LABELS[String(item.remMin)] || `Trước ${item.remMin} phút`;
+  const fullMsg = `[Nhắc hẹn • ${label}] ${item.title}`;
+
+  if (channels.includes("bell")) {
+    addNotificationLog(fullMsg);
+    updateNotificationDot();
+    showToast("🔔 " + fullMsg);
+  }
+  if (channels.includes("popup") && "Notification" in window && Notification.permission === "granted") {
+    try {
+      new Notification("BPortal • Nhắc hẹn", { body: `${item.title}\n${item.detail}`, tag: item.dedupKey });
+    } catch (e) {}
+  }
+  if (channels.includes("email") && prefs.email && typeof postDataToGoogleSheets === "function") {
+    postDataToGoogleSheets({
+      action: "SEND_REMINDER_EMAIL",
+      recipient_email: prefs.email,
+      subject: `[BPortal Nhắc Hẹn] ${item.title}`,
+      body: `Xin chào,\n\nĐây là nhắc hẹn tự động (${label}) từ BPortal:\n- Nội dung: ${item.title}\n- Chi tiết: ${item.detail}\n\nTrân trọng,\nBPortal Business Operation`
+    });
+  }
+}
+
+function checkDueRemindersEngine() {
+  if (typeof state === "undefined") return;
+  const prefs = getUserNotifPrefs();
+  const nowMs = Date.now();
+  let fired = {};
+  try {
+    fired = JSON.parse(localStorage.getItem(getUserFiredRemindersKey()) || "{}") || {};
+  } catch (e) { fired = {}; }
+
+  const candidates = [];
+
+  (state.meetings || []).forEach(mt => {
+    const rem = mt.reminder_minutes !== undefined && mt.reminder_minutes !== "" ? String(mt.reminder_minutes) : String(prefs.defaultMeetingReminder || "15");
+    if (rem === "none") return;
+    const targetMs = parseReminderTargetTimestamp(mt.date, mt.time);
+    if (!targetMs) return;
+    const remMin = Number(rem);
+    candidates.push({
+      dedupKey: `mt_${mt.id}_${mt.date}_${rem}`,
+      targetMs,
+      triggerMs: targetMs - remMin * 60000,
+      remMin,
+      notify_channels: mt.notify_channels,
+      title: `Lịch họp: ${mt.title}`,
+      detail: `${mt.date} lúc ${mt.time || 'Trong ngày'} • ${mt.partner || 'Nội bộ'}`
+    });
+  });
+
+  (state.tasks || []).filter(t => t.stage !== "STAGE_DONE").forEach(t => {
+    const rem = t.reminder_minutes !== undefined && t.reminder_minutes !== "" ? String(t.reminder_minutes) : String(prefs.defaultTaskReminder || "1440");
+    if (rem === "none") return;
+    const targetMs = parseReminderTargetTimestamp(t.due_date, "09:00");
+    if (!targetMs) return;
+    const remMin = Number(rem);
+    candidates.push({
+      dedupKey: `task_${t.id}_${t.due_date}_${rem}`,
+      targetMs,
+      triggerMs: targetMs - remMin * 60000,
+      remMin,
+      notify_channels: t.notify_channels,
+      title: `Đầu việc: ${t.title}`,
+      detail: `Hạn chót: ${t.due_date} • Mức độ: ${t.priority}`
+    });
+  });
+
+  (state.merchants || []).filter(m => m.contract_expiry_date).forEach(m => {
+    const rem = m.contract_reminder_minutes !== undefined && m.contract_reminder_minutes !== "" ? String(m.contract_reminder_minutes) : String(prefs.defaultContractReminder || "43200");
+    if (rem === "none") return;
+    const targetMs = parseReminderTargetTimestamp(m.contract_expiry_date, "09:00");
+    if (!targetMs) return;
+    const remMin = Number(rem);
+    candidates.push({
+      dedupKey: `contract_${m.id}_${m.contract_expiry_date}_${rem}`,
+      targetMs,
+      triggerMs: targetMs - remMin * 60000,
+      remMin,
+      notify_channels: m.contract_notify_channels,
+      title: `Gia hạn hợp đồng: ${m.name}`,
+      detail: `Ngày hết hạn: ${m.contract_expiry_date}`
+    });
+  });
+
+  let changed = false;
+  candidates.forEach(c => {
+    // Kích hoạt khi đã tới mốc nhắc và sự kiện chưa trôi qua quá 24h
+    if (!fired[c.dedupKey] && nowMs >= c.triggerMs && nowMs <= c.targetMs + 86400000) {
+      fired[c.dedupKey] = nowMs;
+      changed = true;
+      dispatchPersonalizedReminder(c, prefs);
+    }
+  });
+
+  if (changed) {
+    localStorage.setItem(getUserFiredRemindersKey(), JSON.stringify(fired));
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  setTimeout(checkDueRemindersEngine, 2500);
+  setInterval(checkDueRemindersEngine, 30000);
+});
+
