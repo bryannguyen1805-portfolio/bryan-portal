@@ -25,6 +25,10 @@ window.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("keydown", (e) => {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
     e.preventDefault();
+    if (window.innerWidth < 768) {
+      openCommandCenter();
+      return;
+    }
     const inp = document.getElementById("nlp-command-input");
     if (inp) {
       inp.focus();
@@ -33,8 +37,131 @@ document.addEventListener("keydown", (e) => {
     }
   } else if (e.key === "Escape") {
     hideOmnibarPreview();
+    closeCommandCenter();
   }
 });
+
+function openCommandCenter() {
+  const modal = document.getElementById("command-center-modal");
+  const inp = document.getElementById("cc-command-input");
+  const quickMerchants = document.getElementById("cc-quick-merchants");
+  if (!modal || !inp) return;
+
+  if (quickMerchants && typeof state !== "undefined") {
+    quickMerchants.innerHTML = (state.merchants || []).slice(0, 8).map(m => `
+      <button type="button" onclick="selectMerchant('${m.id}'); navigateTo('PROJECTS'); closeCommandCenter();" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-teal-50 text-slate-800 hover:text-teal-800 border border-slate-200 font-bold transition truncate max-w-[160px]">
+        ${m.name}
+      </button>
+    `).join("") || `<span class="text-slate-400">Chưa có chuỗi đối tác</span>`;
+  }
+
+  modal.classList.remove("hidden");
+  handleCommandCenterInput(inp.value || "");
+  setTimeout(() => inp.focus(), 60);
+  if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+function closeCommandCenter() {
+  document.getElementById("command-center-modal")?.classList.add("hidden");
+}
+
+function fillCommandCenterPreset(preset) {
+  const inp = document.getElementById("cc-command-input");
+  if (!inp) return;
+  inp.value = preset;
+  inp.focus();
+  handleCommandCenterInput(preset);
+}
+
+function handleCommandCenterInput(raw) {
+  handleOmnibarLivePreview(raw);
+  const desktopTokens = document.getElementById("omnibar-preview-tokens");
+  const ccWrap = document.getElementById("cc-preview-wrap");
+  const ccTokens = document.getElementById("cc-preview-tokens");
+  const liveBox = document.getElementById("cc-live-results");
+
+  const q = (raw || "").trim();
+  if (ccWrap && ccTokens && desktopTokens) {
+    if (q) {
+      ccTokens.innerHTML = desktopTokens.innerHTML;
+      ccWrap.classList.remove("hidden");
+    } else {
+      ccWrap.classList.add("hidden");
+    }
+  }
+
+  if (!liveBox) return;
+  if (!q) {
+    liveBox.innerHTML = "";
+    return;
+  }
+
+  const normQ = q.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+  const norm = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+
+  const matchedMerchants = (state?.merchants || []).filter(m =>
+    norm(m.name).includes(normQ) || norm(m.brand_name).includes(normQ) || norm(m.alias).includes(normQ)
+  ).slice(0, 4);
+
+  const matchedObs = (typeof onboardingList !== "undefined" ? onboardingList : []).filter(o =>
+    !o.graduated && (norm(o.merchant_name).includes(normQ) || norm(o.brand_name).includes(normQ))
+  ).slice(0, 3);
+
+  const matchedTasks = (state?.tasks || []).filter(t =>
+    t.stage !== "STAGE_DONE" && norm(t.title).includes(normQ)
+  ).slice(0, 3);
+
+  const items = [];
+  matchedMerchants.forEach(m => {
+    items.push(`
+      <button type="button" onclick="selectMerchant('${m.id}'); navigateTo('PROJECTS'); closeCommandCenter();" class="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between gap-2 text-left transition">
+        <div class="min-w-0">
+          <div class="font-bold text-slate-900 truncate">🏢 ${m.name}</div>
+          <div class="text-[11px] text-slate-500 truncate">${m.brand_name || m.alias || 'Chuỗi Đối Tác'}</div>
+        </div>
+        <span class="text-[11px] font-bold text-teal-700 shrink-0">Mở →</span>
+      </button>
+    `);
+  });
+  matchedObs.forEach(o => {
+    items.push(`
+      <button type="button" onclick="selectOnboardingMerchant('${o.id}'); navigateTo('ONBOARDING'); closeCommandCenter();" class="w-full p-2.5 rounded-xl bg-blue-50/60 hover:bg-blue-100/70 border border-blue-200/80 flex items-center justify-between gap-2 text-left transition">
+        <div class="min-w-0">
+          <div class="font-bold text-slate-900 truncate">🚀 ${o.merchant_name}</div>
+          <div class="text-[11px] text-blue-700 truncate">Onboarding • ${o.channel}</div>
+        </div>
+        <span class="text-[11px] font-bold text-blue-700 shrink-0">Mở →</span>
+      </button>
+    `);
+  });
+  matchedTasks.forEach(t => {
+    items.push(`
+      <button type="button" onclick="navigateTo('TASKS'); closeCommandCenter();" class="w-full p-2.5 rounded-xl bg-amber-50/60 hover:bg-amber-100/70 border border-amber-200/80 flex items-center justify-between gap-2 text-left transition">
+        <div class="min-w-0">
+          <div class="font-bold text-slate-900 truncate">📋 ${t.title}</div>
+          <div class="text-[11px] text-amber-800 truncate">Hạn: ${t.due_date || 'Chưa đặt'} • ${t.priority}</div>
+        </div>
+        <span class="text-[11px] font-bold text-amber-800 shrink-0">Xem →</span>
+      </button>
+    `);
+  });
+
+  liveBox.innerHTML = items.length > 0
+    ? `<div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Kết quả khớp nhanh (${items.length})</div>` + items.join("")
+    : "";
+}
+
+function submitCommandCenter(e) {
+  e.preventDefault();
+  const ccInp = document.getElementById("cc-command-input");
+  const desktopInp = document.getElementById("nlp-command-input");
+  const cmd = (ccInp?.value || "").trim();
+  if (!cmd) return;
+  if (desktopInp) desktopInp.value = cmd;
+  ccInp.value = "";
+  closeCommandCenter();
+  handleCommandSubmit(e);
+}
 
 // Live Token Preview khi người dùng đang gõ trên Omnibar (Mục 2.3 SRS)
 function handleOmnibarLivePreview(raw) {

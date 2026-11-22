@@ -208,10 +208,15 @@
         <i data-lucide="menu" class="w-4 h-4"></i>
       </button>
 
-      <!-- Smart Omnibar (Trung tâm Topbar - Không Vibe Code) -->
+      <!-- Smart Omnibar Trigger (Mobile: nút 🔍 gọn -> mở Command Center; Desktop: thanh gõ trực tiếp) -->
       <div class="flex-1 min-w-0 max-w-2xl relative">
-        <form onsubmit="handleCommandSubmit(event)" class="relative flex items-center">
-          <div class="absolute left-3 md:left-3.5 text-amber-500 flex items-center pointer-events-none">
+        <button type="button" onclick="openCommandCenter()" class="md:hidden w-full flex items-center gap-2 px-3 py-2 bg-slate-100/90 hover:bg-slate-100 text-slate-500 text-xs rounded-xl border border-slate-200 transition font-medium text-left">
+          <i data-lucide="search" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
+          <span class="truncate">Tìm &amp; Lệnh nhanh...</span>
+        </button>
+
+        <form onsubmit="handleCommandSubmit(event)" class="hidden md:flex relative items-center">
+          <div class="absolute left-3.5 text-amber-500 flex items-center pointer-events-none">
             <i data-lucide="zap" class="w-4 h-4 fill-amber-400/30"></i>
           </div>
           <input 
@@ -220,8 +225,8 @@
             autocomplete="off"
             oninput="handleOmnibarLivePreview(this.value)"
             onfocus="handleOmnibarLivePreview(this.value)"
-            placeholder="Tìm đối tác hoặc nhập lệnh..." 
-            class="w-full pl-9 pr-3 md:pl-10 md:pr-16 py-2 bg-slate-100/90 hover:bg-slate-100 focus:bg-white text-slate-800 text-xs rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition font-medium"
+            placeholder="Tìm kiếm đối tác, dự án hoặc nhập lệnh nhanh (Ctrl + K)..." 
+            class="w-full pl-10 pr-16 py-2 bg-slate-100/90 hover:bg-slate-100 focus:bg-white text-slate-800 text-xs rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition font-medium"
           />
           <div class="hidden md:flex absolute right-2.5 items-center space-x-1 pointer-events-none">
             <kbd id="omnibar-shortcut-kbd" class="px-1.5 py-0.5 text-[10px] font-bold text-slate-400 bg-white border border-slate-200 rounded-md shadow-2xs">Ctrl+K</kbd>
@@ -1534,6 +1539,45 @@
     </div>
   </div>
 
+  <!-- Command Center Modal (Mobile & Quick Command Hub - Hướng 3 Hybrid) -->
+  <div id="command-center-modal" onclick="if(event.target===this) closeCommandCenter()" class="hidden fixed inset-0 z-[10002] bg-slate-950/60 backdrop-blur-xs flex items-start justify-center p-3 pt-4 md:pt-16">
+    <div class="bg-white w-full max-w-xl rounded-2xl border border-slate-200 shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
+      <form onsubmit="submitCommandCenter(event)" class="p-3 border-b border-slate-200 flex items-center gap-2 bg-slate-50/70">
+        <div class="relative flex-1 min-w-0">
+          <i data-lucide="zap" class="w-4 h-4 text-amber-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+          <input id="cc-command-input" type="text" autocomplete="off" oninput="handleCommandCenterInput(this.value)" placeholder="Tìm đối tác, việc hoặc gõ lệnh..." class="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-300 focus:border-teal-500 rounded-xl text-base md:text-sm font-medium text-slate-900 outline-none" />
+        </div>
+        <button type="submit" class="px-3.5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-extrabold shrink-0 transition">Chạy →</button>
+        <button type="button" onclick="closeCommandCenter()" class="p-2.5 bg-slate-200/80 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold shrink-0 transition" title="Đóng">✕</button>
+      </form>
+
+      <div class="p-3.5 space-y-4 overflow-y-auto custom-slim-scroll text-xs">
+        <div id="cc-preview-wrap" class="hidden space-y-2">
+          <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Nhận diện lệnh</div>
+          <div id="cc-preview-tokens" class="flex flex-wrap items-center gap-1.5"></div>
+        </div>
+
+        <div id="cc-live-results" class="space-y-1.5"></div>
+
+        <div class="space-y-2">
+          <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Mẫu lệnh 1 chạm (bấm để điền nhanh)</div>
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" onclick="fillCommandCenterPreset('xong B')" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold transition">⚡ Xong bước...</button>
+            <button type="button" onclick="fillCommandCenterPreset('GO LIVE ')" class="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 font-bold transition">🚀 Go Live chuỗi...</button>
+            <button type="button" onclick="fillCommandCenterPreset('Họp với  lúc 14h')" class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 font-bold transition">📅 Đặt lịch họp...</button>
+            <button type="button" onclick="fillCommandCenterPreset('Tạo task ')" class="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold transition">📋 Tạo đầu việc...</button>
+            <button type="button" onclick="fillCommandCenterPreset('Triển khai mới  kênh POS')" class="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 font-bold transition">➕ Triển khai mới...</button>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Mở nhanh Chuỗi Đối Tác</div>
+          <div id="cc-quick-merchants" class="flex flex-wrap gap-1.5"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Sticky Mobile Bottom Navigation Bar -->
   <nav id="mobile-bottom-nav" class="md:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-1.5 py-1.5 flex items-center justify-around shadow-lg">
     <button onclick="navigateTo('DASHBOARD')" id="mnav-DASHBOARD" class="mnav-item flex flex-col items-center justify-center px-2.5 py-1 rounded-xl text-teal-700 bg-teal-50 font-bold text-[10px] gap-0.5 transition">
@@ -1567,7 +1611,7 @@
   <script src="js/sla-engine.js?v=3.3.0"></script>
   <script src="js/email-templates.js?v=3.3.0"></script>
   <script src="js/attio-engine.js?v=3.3.0"></script>
-  <script src="js/omnibar.js?v=3.3.0"></script>
+  <script src="js/omnibar.js?v=3.5.0"></script>
   <script src="js/notifications-automation.js?v=3.3.0"></script>
   <script src="js/undo-engine.js?v=3.3.0"></script>
   <script src="js/onboarding.js?v=3.3.0"></script>
