@@ -177,6 +177,93 @@ function syncWelcomeAccountGreeting() {
     quoteEl.textContent = `"${DAILY_QUOTES[currentQuoteIdx]}"`;
   }
   loadDailyFocusWidget();
+  renderBnewsMorningBriefing();
+}
+
+const DEFAULT_BNEWS_URL = "https://bryannguyen1805-portfolio.github.io/bnews/";
+
+function getBnewsUrl() {
+  return (localStorage.getItem("bryan_portal_bnews_url") || DEFAULT_BNEWS_URL).trim();
+}
+
+function getBnewsReadTodayKey() {
+  const email = (typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "default") || "default";
+  const today = new Date().toISOString().slice(0, 10);
+  return `bryan_portal_bnews_read_${email}_${today}`;
+}
+
+function markBnewsReadToday() {
+  localStorage.setItem(getBnewsReadTodayKey(), "1");
+  renderBnewsMorningBriefing();
+}
+
+function editBnewsUrl() {
+  const current = getBnewsUrl();
+  const next = prompt("Nhập đường dẫn trang Bnews của bạn:", current);
+  if (next === null) return;
+  const trimmed = next.trim();
+  if (!trimmed) return;
+  localStorage.setItem("bryan_portal_bnews_url", trimmed);
+  renderBnewsMorningBriefing();
+  if (typeof showToast === "function") showToast("✓ Đã cập nhật liên kết Bnews!");
+}
+
+function renderBnewsMorningBriefing() {
+  const box = document.getElementById("bnews-morning-briefing");
+  if (!box) return;
+  const bnewsUrl = getBnewsUrl();
+  const isRead = localStorage.getItem(getBnewsReadTodayKey()) === "1";
+
+  if (isRead) {
+    box.innerHTML = `
+      <div class="px-4 py-2.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div class="flex items-center gap-2 text-slate-600 font-semibold">
+          <span class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+          </span>
+          <span>Đã điểm qua <strong class="text-slate-800">40 tin tức hot nhất hôm nay</strong> trên Bnews</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="${bnewsUrl}" target="_blank" rel="noopener noreferrer" class="px-3 py-1 rounded-xl bg-slate-100 hover:bg-teal-50 text-slate-700 hover:text-teal-800 font-bold inline-flex items-center gap-1 transition">
+            <span>Mở lại Bnews</span>
+            <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+          </a>
+          <button type="button" onclick="editBnewsUrl()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition" title="Đổi đường dẫn Bnews">
+            <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  } else {
+    box.innerHTML = `
+      <div class="p-4 md:px-5 md:py-4 rounded-2xl bg-gradient-to-r from-sky-50 via-white to-teal-50/70 border border-sky-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex items-start sm:items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 border border-sky-200/80 flex items-center justify-center shrink-0">
+            <i data-lucide="newspaper" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0 space-y-0.5">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-sky-800">Điểm Tin Đầu Ngày</span>
+              <span class="px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[10px] font-bold">40 tin hot hôm nay</span>
+            </div>
+            <p class="text-xs md:text-sm font-bold text-slate-800 leading-snug">
+              Trước khi vào luồng công việc, bạn đã đọc 40 tin tức hot nhất trong ngày chưa?
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
+          <button type="button" onclick="editBnewsUrl()" class="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-400 hover:text-slate-700 border border-slate-200 transition" title="Cài đặt link Bnews">
+            <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>
+          </button>
+          <a href="${bnewsUrl}" target="_blank" rel="noopener noreferrer" onclick="markBnewsReadToday()" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-teal-700 text-white text-xs font-extrabold inline-flex items-center gap-1.5 shadow-xs transition whitespace-nowrap">
+            <span>Đọc ngay trên Bnews</span>
+            <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+          </a>
+        </div>
+      </div>
+    `;
+  }
+  if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
 window.addEventListener("DOMContentLoaded", () => {
