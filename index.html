@@ -996,26 +996,85 @@
         </div>
       </div>
 
-      <!-- ================= ENTERPRISE CRM FOOTER (BPORTAL) ================= -->
-      <footer class="mt-10 pt-6 pb-4 border-t border-slate-200/90 max-w-[1440px] mx-auto text-xs text-slate-500">
-        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 md:p-6 space-y-5">
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-6">
-            <!-- Cột 1: Thương hiệu & Sứ mệnh -->
-            <div class="lg:col-span-4 space-y-2.5">
-              <img src="assets/brand/BPortal_Horizontal_Business_Operation_Light.svg" alt="BPortal Business Operation" class="h-9 w-auto object-contain" />
-              <p class="text-[11px] text-slate-500 leading-relaxed max-w-sm">
-                Không gian điều phối triển khai &amp; vận hành chuỗi đối tác B2B Payoo — Tập trung hiệu suất, minh bạch tiến độ và tự động hóa nhắc hẹn đa nền tảng.
+      <!-- ================= ENTERPRISE CRM FOOTER (BPORTAL INSTITUTIONAL) ================= -->
+      <footer class="mt-10 max-w-[1440px] mx-auto text-xs text-slate-600">
+        <div class="bg-white rounded-2xl border border-slate-200/90 border-t-2 border-t-teal-700 shadow-xs px-5 py-6 md:px-8 md:py-7 space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-8">
+            <!-- Cột 1: Nhận diện BPortal & Chủ quản -->
+            <div class="lg:col-span-4 space-y-3">
+              <img src="assets/brand/BPortal_Horizontal_Business_Operation_Light.svg" alt="BPortal Business Operation" class="h-8 w-auto object-contain" />
+              <p class="text-[11px] text-slate-500 leading-relaxed">
+                <strong class="text-slate-800">Bryan Portal (BPortal)</strong> — Nền tảng điều phối triển khai &amp; vận hành chuỗi đối tác B2B Payoo. Tối ưu quy trình Onboarding, quản trị tiến độ dự án và đồng bộ nhắc hẹn đa thiết bị.
               </p>
-              <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-bold text-emerald-700">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span>Hệ thống đồng bộ Cloud &amp; Calendar sẵn sàng</span>
+              <div class="text-[11px] text-slate-500 pt-0.5">
+                Đơn vị vận hành: <strong class="text-slate-700">Payoo B2B Ops • TP. Hồ Chí Minh</strong>
               </div>
             </div>
 
-            <!-- Cột 2: Danh mục chính -->
-            <div class="lg:col-span-2 space-y-2">
-              <div class="text-[11px] font-extrabold uppercase tracking-wider text-slate-800">Điều hướng</div>
-              <ul class="space-y-1.5 text-[11px] font-medium">
+            <!-- Cột 2: Hỗ trợ & Hệ thống -->
+            <div class="lg:col-span-3">
+              <div class="text-[11px] font-extrabold uppercase tracking-wider text-teal-800 pb-2 mb-3 border-b border-slate-200">
+                Hỗ Trợ &amp; Hệ Thống
+              </div>
+              <ul class="space-y-2 text-[11px]">
+                <li class="flex items-center gap-2">
+                  <span class="text-slate-400 font-semibold w-16 shrink-0">Quản trị:</span>
+                  <span class="font-bold text-slate-800">Bryan Nguyen</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <span class="text-slate-400 font-semibold w-16 shrink-0">Hotline:</span>
+                  <a href="tel:0838673639" class="font-bold text-slate-800 hover:text-teal-700 transition">0838 673 639</a>
+                </li>
+                <li class="flex items-center gap-2 min-w-0">
+                  <span class="text-slate-400 font-semibold w-16 shrink-0">Email:</span>
+                  <a href="mailto:tri.nguyen2@vietunion.com.vn" class="font-semibold text-teal-700 hover:underline truncate">tri.nguyen2@vietunion.com.vn</a>
+                </li>
+                <li class="flex items-center gap-2">
+                  <span class="text-slate-400 font-semibold w-16 shrink-0">Bảo mật:</span>
+                  <span class="text-slate-700 font-medium">Whitelist + PIN • Cô lập từng User</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Cột 3: Công cụ & Tiện ích CRM -->
+            <div class="lg:col-span-3">
+              <div class="text-[11px] font-extrabold uppercase tracking-wider text-teal-800 pb-2 mb-3 border-b border-slate-200">
+                Tiện Ích Vận Hành
+              </div>
+              <ul class="space-y-2 text-[11px] font-medium">
+                <li>
+                  <button type="button" onclick="openCommandCenter()" class="flex items-center gap-2.5 text-slate-700 hover:text-teal-700 transition w-full text-left">
+                    <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0"><i data-lucide="terminal" class="w-3.5 h-3.5"></i></span>
+                    <span>Command Center (Tìm &amp; Lệnh)</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" onclick="openCalendarSyncModal()" class="flex items-center gap-2.5 text-slate-700 hover:text-teal-700 transition w-full text-left">
+                    <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0"><i data-lucide="calendar-sync" class="w-3.5 h-3.5"></i></span>
+                    <span>Đồng bộ Google / Apple Calendar</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" onclick="openNotifPrefsModal()" class="flex items-center gap-2.5 text-slate-700 hover:text-teal-700 transition w-full text-left">
+                    <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0"><i data-lucide="bell-ring" class="w-3.5 h-3.5"></i></span>
+                    <span>Cá nhân hóa Nhắc hẹn &amp; Email</span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" onclick="copyWeeklyProgressReport()" class="flex items-center gap-2.5 text-slate-700 hover:text-teal-700 transition w-full text-left">
+                    <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0"><i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i></span>
+                    <span>Sao chép Báo cáo Tuần</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Cột 4: Điều hướng danh mục -->
+            <div class="lg:col-span-2">
+              <div class="text-[11px] font-extrabold uppercase tracking-wider text-teal-800 pb-2 mb-3 border-b border-slate-200">
+                Danh Mục
+              </div>
+              <ul class="space-y-2 text-[11px] font-medium text-slate-600">
                 <li><button type="button" onclick="navigateTo('DASHBOARD')" class="hover:text-teal-700 transition">Tổng Quan Hôm Nay</button></li>
                 <li><button type="button" onclick="navigateTo('PROJECTS')" class="hover:text-teal-700 transition">Chuỗi Đối Tác</button></li>
                 <li><button type="button" onclick="navigateTo('ONBOARDING')" class="hover:text-teal-700 transition">Triển Khai Mới (SOP)</button></li>
@@ -1023,36 +1082,16 @@
                 <li><button type="button" onclick="navigateTo('CALENDAR')" class="hover:text-teal-700 transition">Lịch &amp; Cột Mốc</button></li>
               </ul>
             </div>
-
-            <!-- Cột 3: Tiện ích & Tự động hóa -->
-            <div class="lg:col-span-3 space-y-2">
-              <div class="text-[11px] font-extrabold uppercase tracking-wider text-slate-800">Tiện ích nhanh</div>
-              <ul class="space-y-1.5 text-[11px] font-medium">
-                <li><button type="button" onclick="openCommandCenter()" class="hover:text-teal-700 transition">⚡ Command Center (Tìm &amp; Lệnh)</button></li>
-                <li><button type="button" onclick="openCalendarSyncModal()" class="hover:text-teal-700 transition">📅 Đồng bộ Google / Apple Calendar</button></li>
-                <li><button type="button" onclick="openNotifPrefsModal()" class="hover:text-teal-700 transition">🔔 Cá nhân hóa Nhắc hẹn &amp; Email</button></li>
-                <li><button type="button" onclick="copyWeeklyProgressReport()" class="hover:text-teal-700 transition">📊 Sao chép Báo cáo Tuần</button></li>
-              </ul>
-            </div>
-
-            <!-- Cột 4: Quản trị & Hỗ trợ -->
-            <div class="lg:col-span-3 space-y-2">
-              <div class="text-[11px] font-extrabold uppercase tracking-wider text-slate-800">Quản trị &amp; Hỗ trợ</div>
-              <div class="space-y-1.5 text-[11px]">
-                <div>Quản trị viên: <span class="font-bold text-slate-800">Bryan Nguyen</span></div>
-                <div>Email hỗ trợ: <a href="mailto:tri.nguyen2@vietunion.com.vn" class="font-semibold text-teal-700 hover:underline">tri.nguyen2@vietunion.com.vn</a></div>
-                <div>Phiên bản: <span class="font-mono font-bold text-slate-700">v3.6.0 • Business Operation</span></div>
-                <div class="text-[10px] text-slate-400">Bảo mật Whitelist + Mã PIN • Cô lập dữ liệu theo tài khoản</div>
-              </div>
-            </div>
           </div>
 
-          <div class="pt-4 border-t border-dashed border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-400">
-            <div>© 2026 <strong class="text-slate-600">BPortal (Bryan Portal)</strong> • Business Operation. All rights reserved.</div>
-            <div class="flex items-center gap-3">
-              <span>Payoo B2B Ops</span>
+          <div class="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-400">
+            <div>Copyright © 2026 <strong class="text-slate-600">BPortal (Bryan Portal)</strong>. All Rights Reserved.</div>
+            <div class="flex items-center gap-2.5 font-mono text-[10px]">
+              <span>BPORTAL-OPS-V3.6</span>
               <span>•</span>
-              <button type="button" onclick="document.querySelector('main')?.scrollTo({top: 0, behavior: 'smooth'})" class="font-bold text-teal-700 hover:underline">Lên đầu trang ↑</button>
+              <span>Business Operation</span>
+              <span>•</span>
+              <button type="button" onclick="document.querySelector('main')?.scrollTo({top: 0, behavior: 'smooth'})" class="font-sans text-[11px] font-bold text-teal-700 hover:underline">Lên đầu trang ↑</button>
             </div>
           </div>
         </div>
