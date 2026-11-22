@@ -715,3 +715,113 @@ function toggleTaskDone(taskId) {
   }
 }
 
+// -------------------------------------------------------------
+// GIAO DIỆN (SÁNG / TỐI / HỆ THỐNG) & FEEDBACK GỬI VỀ BRYAN
+// -------------------------------------------------------------
+const THEME_STORAGE_KEY = "bryan_portal_theme_v1";
+
+function applyAppearanceTheme(mode) {
+  const saved = mode || localStorage.getItem(THEME_STORAGE_KEY) || "light";
+  const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const isDark = saved === "dark" || (saved === "system" && prefersDark);
+
+  document.documentElement.classList.toggle("theme-dark", isDark);
+
+  const iconEl = document.getElementById("theme-toggle-icon");
+  const labelEl = document.getElementById("theme-toggle-label");
+  if (iconEl) {
+    iconEl.setAttribute("data-lucide", saved === "dark" ? "moon" : (saved === "system" ? "monitor" : "sun"));
+    if (typeof lucide !== "undefined") lucide.createIcons();
+  }
+  if (labelEl) {
+    labelEl.textContent = saved === "dark" ? "Tối" : (saved === "system" ? "Hệ thống" : "Sáng");
+  }
+}
+
+function cycleAppearanceTheme() {
+  const current = localStorage.getItem(THEME_STORAGE_KEY) || "light";
+  const order = ["light", "dark", "system"];
+  const next = order[(order.indexOf(current) + 1) % order.length];
+  localStorage.setItem(THEME_STORAGE_KEY, next);
+  applyAppearanceTheme(next);
+  const labels = { light: "Giao diện Sáng", dark: "Giao diện Tối", system: "Theo Hệ thống" };
+  if (typeof showToast === "function") showToast(`✓ Đã chuyển sang ${labels[next]}`);
+}
+
+function ensureFeedbackModal() {
+  if (document.getElementById("modal-feedback")) return;
+  const div = document.createElement("div");
+  div.id = "modal-feedback";
+  div.className = "hidden fixed inset-0 z-[10002] bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4";
+  div.innerHTML = `
+    <div class="bg-white w-full max-w-md rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between">
+        <h3 class="text-sm font-black">Gửi Feedback &amp; Đề Xuất Cải Tiến</h3>
+        <button onclick="document.getElementById('modal-feedback').classList.add('hidden')" class="text-slate-300 hover:text-white text-sm">✕</button>
+      </div>
+      <form onsubmit="submitUserFeedback(event)" class="p-5 space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Chủ đề góp ý</label>
+          <select id="feedback-type" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none font-semibold">
+            <option value="Đề xuất tính năng mới">Đề xuất tính năng mới</option>
+            <option value="Góp ý giao diện (UI/UX)">Góp ý giao diện (UI/UX)</option>
+            <option value="Báo lỗi hệ thống">Báo lỗi hệ thống</option>
+            <option value="Khác">Khác</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Nội dung chi tiết *</label>
+          <textarea id="feedback-content" rows="4" required placeholder="Mô tả ý kiến hoặc vấn đề bạn gặp phải..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none"></textarea>
+        </div>
+        <div class="text-[11px] text-slate-400">
+          Góp ý sẽ được gửi trực tiếp về email quản trị: <strong class="text-slate-600">quangtritc1805@gmail.com</strong>
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="document.getElementById('modal-feedback').classList.add('hidden')" class="px-3.5 py-2 bg-slate-100 rounded-xl font-bold text-slate-600">Hủy</button>
+          <button type="submit" id="btn-submit-feedback" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold">Gửi Feedback →</button>
+        </div>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(div);
+}
+
+function openFeedbackModal() {
+  ensureFeedbackModal();
+  const ta = document.getElementById("feedback-content");
+  if (ta) ta.value = "";
+  document.getElementById("modal-feedback").classList.remove("hidden");
+  if (typeof closeMobileSidebar === "function") closeMobileSidebar();
+}
+
+async function submitUserFeedback(e) {
+  e.preventDefault();
+  const type = document.getElementById("feedback-type")?.value || "Góp ý";
+  const content = (document.getElementById("feedback-content")?.value || "").trim();
+  if (!content) return;
+
+  const senderEmail = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "user";
+  const senderName = document.getElementById("sidebar-user-name")?.textContent?.trim() || senderEmail;
+  const btn = document.getElementById("btn-submit-feedback");
+  if (btn) { btn.disabled = true; btn.textContent = "Đang gửi..."; }
+
+  try {
+    if (typeof postDataToGoogleSheets === "function") {
+      await postDataToGoogleSheets({
+        action: "SEND_REMINDER_EMAIL",
+        recipient_email: "quangtritc1805@gmail.com",
+        subject: `[BPortal Feedback - ${type}] từ ${senderName}`,
+        body: `Người gửi: ${senderName} (${senderEmail})\nChủ đề: ${type}\nThời gian: ${new Date().toLocaleString("vi-VN")}\n\nNội dung:\n${content}`
+      });
+    }
+    document.getElementById("modal-feedback").classList.add("hidden");
+    if (typeof showToast === "function") showToast("✓ Đã gửi Feedback tới quangtritc1805@gmail.com!");
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "Gửi Feedback →"; }
+  }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  applyAppearanceTheme();
+});
+

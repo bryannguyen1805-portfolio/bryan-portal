@@ -86,7 +86,7 @@
     .custom-slim-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
     .custom-slim-scroll::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
   </style>
-  <link rel="stylesheet" href="css/flip7-theme.css?v=3.5.1" />
+  <link rel="stylesheet" href="css/flip7-theme.css?v=3.8.0" />
 </head>
 <body class="h-full flex overflow-hidden bg-slate-900 text-slate-800">
 
@@ -197,10 +197,16 @@
       </nav>
     </div>
 
-    <!-- Bottom Footer -->
-    <div class="p-4 border-t border-slate-800/80 bg-navy-950/40 text-[11px] text-slate-500 flex items-center justify-between">
-      <span class="font-semibold">Payoo B2B Ops</span>
-      <span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono text-[9px]">v3.0</span>
+    <!-- Bottom Footer: 2 Icon Giao diện & Feedback -->
+    <div class="sidebar-footer-actions p-3 border-t border-white/10 bg-navy-950/35 flex items-center justify-between gap-2">
+      <button type="button" onclick="cycleAppearanceTheme()" id="btn-theme-toggle" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-teal-100 hover:text-white transition flex items-center gap-2" title="Đổi Giao diện (Sáng / Tối / Hệ thống)">
+        <i data-lucide="monitor" class="w-4 h-4 shrink-0" id="theme-toggle-icon"></i>
+        <span class="sidebar-label text-[11px] font-semibold" id="theme-toggle-label">Giao diện</span>
+      </button>
+      <button type="button" onclick="openFeedbackModal()" class="p-2 rounded-xl hover:bg-white/15 text-teal-100 hover:text-amber-300 transition flex items-center gap-1.5" title="Gửi Feedback góp ý về hệ thống">
+        <i data-lucide="lightbulb" class="w-4 h-4 shrink-0"></i>
+        <span class="sidebar-label text-[11px] font-semibold">Feedback</span>
+      </button>
     </div>
   </aside>
 
@@ -1774,7 +1780,7 @@
   <!-- ================= 4. CORE JAVASCRIPT ENGINE (VERSIONED CACHE-BUSTING) ================= -->
   <script src="js/auth.js?v=3.4.2"></script>
   <script src="js/state-sync.js?v=3.4.2"></script>
-  <script src="js/dashboard.js?v=3.7.1"></script>
+  <script src="js/dashboard.js?v=3.8.0"></script>
   <script src="js/projects.js?v=3.6.0"></script>
   <script src="js/tasks.js?v=3.3.0"></script>
   <script src="js/sla-engine.js?v=3.3.0"></script>
