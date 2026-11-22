@@ -744,8 +744,6 @@ function cycleAppearanceTheme() {
   const next = order[(order.indexOf(current) + 1) % order.length];
   localStorage.setItem(THEME_STORAGE_KEY, next);
   applyAppearanceTheme(next);
-  const labels = { light: "Giao diện Sáng", dark: "Giao diện Tối", system: "Theo Hệ thống" };
-  if (typeof showToast === "function") showToast(`✓ Đã chuyển sang ${labels[next]}`);
 }
 
 function ensureFeedbackModal() {

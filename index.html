@@ -1677,10 +1677,11 @@
     </div>
   </div>
 
-  <!-- Toast Notification (Linear / Pipedrive Dark Slate + 6s Countdown Bar) -->
-  <div id="toast" style="background:#1E232A;border:1px solid #323A46;border-radius:10px;min-height:42px;max-width:440px;color:#F1F5F9;font-size:13px;" class="fixed bottom-20 md:bottom-6 left-3 right-3 md:left-6 md:right-auto md:min-w-[320px] shadow-2xl flex items-center justify-between gap-3 px-3.5 py-2 transition-all duration-200 opacity-0 pointer-events-none z-[9999] overflow-hidden">
-    <span id="toast-message" class="leading-snug font-normal truncate flex-1">Nội dung thông báo</span>
-    <button type="button" id="toast-undo-btn" onclick="performGlobalUndo()" class="hidden px-2 py-0.5 rounded bg-slate-700/80 hover:bg-slate-600 text-teal-300 text-xs font-bold whitespace-nowrap shrink-0 transition">Hoàn tác ↩</button>
+  <!-- Toast Notification (Compact Bottom-Right, Never Covers Sidebar) -->
+  <div id="toast" style="background:rgba(30,35,42,0.95);border:1px solid #323A46;border-radius:12px;min-height:36px;max-width:340px;color:#F1F5F9;font-size:12px;" class="fixed bottom-20 md:bottom-5 right-3 md:right-5 left-auto shadow-xl flex items-center justify-between gap-2.5 px-3 py-1.5 transition-all duration-200 opacity-0 pointer-events-none z-[9999] overflow-hidden backdrop-blur-xs">
+    <span id="toast-message" class="leading-snug font-medium truncate flex-1">Nội dung thông báo</span>
+    <button type="button" id="toast-undo-btn" onclick="performGlobalUndo()" class="hidden px-2 py-0.5 rounded bg-slate-700/80 hover:bg-slate-600 text-teal-300 text-[11px] font-bold whitespace-nowrap shrink-0 transition">Hoàn tác ↩</button>
+    <button type="button" onclick="typeof dismissToast === 'function' ? dismissToast() : document.getElementById('toast').classList.add('opacity-0','pointer-events-none')" class="text-slate-400 hover:text-white text-xs shrink-0 px-0.5" title="Đóng">✕</button>
     <div id="toast-countdown-bar" class="absolute bottom-0 left-0 h-[2px] bg-teal-400" style="width:0%"></div>
   </div>
 
@@ -1780,7 +1781,7 @@
   <!-- ================= 4. CORE JAVASCRIPT ENGINE (VERSIONED CACHE-BUSTING) ================= -->
   <script src="js/auth.js?v=3.4.2"></script>
   <script src="js/state-sync.js?v=3.4.2"></script>
-  <script src="js/dashboard.js?v=3.8.0"></script>
+  <script src="js/dashboard.js?v=3.8.1"></script>
   <script src="js/projects.js?v=3.6.0"></script>
   <script src="js/tasks.js?v=3.3.0"></script>
   <script src="js/sla-engine.js?v=3.3.0"></script>
@@ -1788,7 +1789,7 @@
   <script src="js/attio-engine.js?v=3.3.0"></script>
   <script src="js/omnibar.js?v=3.5.0"></script>
   <script src="js/notifications-automation.js?v=3.6.0"></script>
-  <script src="js/undo-engine.js?v=3.3.0"></script>
+  <script src="js/undo-engine.js?v=3.8.0"></script>
   <script src="js/onboarding.js?v=3.3.0"></script>
   <script src="js/calendar.js?v=3.6.0"></script>
 </body>

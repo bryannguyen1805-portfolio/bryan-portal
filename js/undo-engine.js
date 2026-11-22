@@ -87,6 +87,15 @@ function hideToast() {
   }
 }
 
+function dismissToast() {
+  const { toast } = getToastElements();
+  if (toast) {
+    toast.classList.remove("opacity-100");
+    toast.classList.add("opacity-0", "pointer-events-none");
+  }
+  undoWindowActive = false;
+}
+
 // Ghi đè showToast toàn cục để hỗ trợ cả thông báo thường lẫn thông báo có [Hoàn tác ↩]
 function showToast(message, isError = false, enableUndo = false) {
   const { toast, msg, undoBtn } = getToastElements();
@@ -108,7 +117,7 @@ function showToast(message, isError = false, enableUndo = false) {
   toast.classList.remove("opacity-0", "pointer-events-none");
   toast.classList.add("opacity-100");
   toastHovered = false;
-  startToastCountdown(UNDO_WINDOW_MS);
+  startToastCountdown(enableUndo ? UNDO_WINDOW_MS : 2000);
 }
 
 // Đẩy Action Snapshot vào UndoStack (LIFO, tối đa 10)
