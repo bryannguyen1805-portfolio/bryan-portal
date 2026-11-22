@@ -757,12 +757,16 @@
             </button>
           </div>
 
-          <!-- Phải: Chuyển Chế Độ Xem + Thêm Lịch -->
-          <div class="flex items-center justify-between xl:justify-end gap-2 shrink-0">
+          <!-- Phải: Chuyển Chế Độ Xem + Đồng bộ + Thêm Lịch -->
+          <div class="flex flex-wrap items-center justify-between xl:justify-end gap-2 shrink-0">
             <div class="bg-slate-100 p-1 rounded-xl border border-slate-200 flex items-center text-xs font-bold">
               <button onclick="setCalendarMode('MONTH')" id="cal-mode-MONTH" class="px-3 py-1 rounded-lg bg-white text-teal-700 shadow-2xs whitespace-nowrap">Lịch Tháng</button>
               <button onclick="setCalendarMode('TIMELINE')" id="cal-mode-TIMELINE" class="px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 whitespace-nowrap">Lộ Trình Mốc</button>
             </div>
+            <button onclick="openCalendarSyncModal()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl text-xs font-bold flex items-center space-x-1 transition whitespace-nowrap" title="Đồng bộ tự động với Google Calendar & Apple Calendar">
+              <i data-lucide="calendar-sync" class="w-3.5 h-3.5"></i>
+              <span>Đồng bộ Lịch</span>
+            </button>
             <button onclick="openNewMeetingModal(selectedCalendarDate)" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1 shadow-xs transition whitespace-nowrap">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i>
               <span>Thêm lịch</span>
@@ -1615,6 +1619,6 @@
   <script src="js/notifications-automation.js?v=3.3.0"></script>
   <script src="js/undo-engine.js?v=3.3.0"></script>
   <script src="js/onboarding.js?v=3.3.0"></script>
-  <script src="js/calendar.js?v=3.5.0"></script>
+  <script src="js/calendar.js?v=3.6.0"></script>
 </body>
 </html>

@@ -354,3 +354,101 @@ window.addEventListener("DOMContentLoaded", () => {
     addNotificationLog("Bryan Portal khởi động thành công. Sẵn sàng điều phối B2B Delivery!");
   }
 });
+
+// -------------------------------------------------------------
+// ĐỒNG BỘ GOOGLE CALENDAR & APPLE CALENDAR (KHÔNG CẦN UP FILE)
+// -------------------------------------------------------------
+function getCalendarSubscribeUrl() {
+  const apiUrl = (typeof API_ENDPOINT !== "undefined" && API_ENDPOINT) ? API_ENDPOINT : (localStorage.getItem("bryan_portal_api") || "");
+  if (!apiUrl) return "";
+  const email = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "";
+  const pin = typeof getCurrentUserPin === "function" ? getCurrentUserPin() : "";
+  const sep = apiUrl.includes("?") ? "&" : "?";
+  return `${apiUrl}${sep}action=ics&user_email=${encodeURIComponent(email)}&user_pin=${encodeURIComponent(pin)}`;
+}
+
+function ensureCalendarSyncModal() {
+  if (document.getElementById("modal-calendar-sync")) return;
+  const div = document.createElement("div");
+  div.id = "modal-calendar-sync";
+  div.className = "hidden fixed inset-0 z-[10001] bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4";
+  div.innerHTML = `
+    <div class="bg-white w-full max-w-lg rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between">
+        <h3 class="text-sm font-black">Đồng Bộ Google Calendar &amp; Apple Calendar</h3>
+        <button onclick="document.getElementById('modal-calendar-sync').classList.add('hidden')" class="text-slate-300 hover:text-white text-sm">✕</button>
+      </div>
+      <div class="p-5 space-y-4 text-xs">
+        <div class="p-3.5 rounded-xl bg-teal-50/80 border border-teal-200 space-y-2">
+          <div class="font-extrabold text-teal-900">1. Đồng bộ 2 chiều Google Calendar (Tự động)</div>
+          <p class="text-teal-800/90 leading-relaxed">Mỗi lần bạn tạo/sửa/xóa lịch họp trên Portal, hệ thống tự đẩy lên Google Calendar của bạn. Bấm nút dưới để kéo thêm lịch từ Google Calendar về Portal ngay:</p>
+          <button type="button" onclick="syncWithGoogleCalendarNow()" id="btn-gcal-sync-now" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold transition">
+            🔄 Đồng bộ 2 chiều Google Calendar ngay
+          </button>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+          <div class="font-extrabold text-slate-900">2. Link Đăng Ký Tự Động cho Apple Calendar (iPhone / Mac) &amp; Google Calendar</div>
+          <p class="text-slate-600 leading-relaxed">Không cần tải hay up file: copy link dưới đây dán 1 lần vào Apple Calendar (<i>Cài đặt → Lịch → Tài khoản → Thêm lịch đã đăng ký</i>) hoặc Google Calendar (<i>Other calendars → From URL</i>), lịch sẽ tự cập nhật:</p>
+          <div class="flex items-center gap-2">
+            <input id="cal-ics-url-input" type="text" readonly class="flex-1 p-2 bg-white border border-slate-300 rounded-xl font-mono text-[11px] text-slate-700 outline-none" />
+            <button type="button" onclick="copyCalendarSubscribeLink()" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold shrink-0">Copy Link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+}
+
+function openCalendarSyncModal() {
+  ensureCalendarSyncModal();
+  const inp = document.getElementById("cal-ics-url-input");
+  if (inp) inp.value = getCalendarSubscribeUrl() || "Chưa cấu hình URL Google Apps Script";
+  document.getElementById("modal-calendar-sync").classList.remove("hidden");
+}
+
+function copyCalendarSubscribeLink() {
+  const url = getCalendarSubscribeUrl();
+  if (!url) {
+    showToast("Chưa có URL Google Apps Script.", true);
+    return;
+  }
+  navigator.clipboard?.writeText(url).then(() => {
+    showToast("✓ Đã copy Link đồng bộ Lịch! Dán vào Apple Calendar / Google Calendar để tự động cập nhật.");
+  }).catch(() => {
+    const inp = document.getElementById("cal-ics-url-input");
+    if (inp) { inp.select(); document.execCommand("copy"); }
+    showToast("✓ Đã copy Link đồng bộ Lịch!");
+  });
+}
+
+async function syncWithGoogleCalendarNow() {
+  const apiUrl = (typeof API_ENDPOINT !== "undefined" && API_ENDPOINT) ? API_ENDPOINT : (localStorage.getItem("bryan_portal_api") || "");
+  if (!apiUrl) {
+    showToast("Chưa cấu hình URL Google Apps Script.", true);
+    return;
+  }
+  const btn = document.getElementById("btn-gcal-sync-now");
+  if (btn) { btn.disabled = true; btn.textContent = "Đang đồng bộ..."; }
+  try {
+    const email = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "";
+    const pin = typeof getCurrentUserPin === "function" ? getCurrentUserPin() : "";
+    const sep = apiUrl.includes("?") ? "&" : "?";
+    const res = await fetch(`${apiUrl}${sep}action=syncGoogleCalendar&user_email=${encodeURIComponent(email)}&user_pin=${encodeURIComponent(pin)}`);
+    const data = await res.json();
+    if (data && data.success && Array.isArray(data.meetings)) {
+      state.meetings = data.meetings;
+      localStorage.setItem(getUserStateStorageKey(), JSON.stringify(state));
+      renderCalendarView();
+      if (typeof renderDashboardMeetings === "function") renderDashboardMeetings();
+      showToast(`✓ Đã đồng bộ 2 chiều (${state.meetings.length} lịch họp) với Google Calendar!`);
+    } else {
+      showToast(data?.error || "Không thể đồng bộ Google Calendar. Hãy kiểm tra quyền Calendar trên Apps Script.", true);
+    }
+  } catch (err) {
+    showToast("Lỗi kết nối khi đồng bộ Google Calendar.", true);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "🔄 Đồng bộ 2 chiều Google Calendar ngay"; }
+  }
+}

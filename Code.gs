@@ -140,6 +140,204 @@ function runDailyUserPurge() {
 }
 
 /**
+ * Kiểm tra xem email có phải chủ sở hữu Google Calendar mặc định của script không
+ */
+function isCalendarOwnerEmail(email) {
+  const e = String(email || "").trim().toLowerCase();
+  if (e === "tri.nguyen2@vietunion.com.vn" || e === "quantritc1805@gmail.com") return true;
+  try {
+    const active = String(Session.getActiveUser().getEmail() || "").trim().toLowerCase();
+    return active && active === e;
+  } catch (err) {
+    return false;
+  }
+}
+
+function parseMeetingDateRange(dateStr, timeStr) {
+  const dMatch = String(dateStr || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!dMatch) return null;
+  const y = Number(dMatch[1]), m = Number(dMatch[2]) - 1, d = Number(dMatch[3]);
+  const tMatch = String(timeStr || "").match(/(\d{1,2}):(\d{2})(?:\s*-\s*(\d{1,2}):(\d{2}))?/);
+  if (!tMatch) {
+    return { allDay: true, start: new Date(y, m, d), end: new Date(y, m, d + 1) };
+  }
+  const sh = Number(tMatch[1]), sm = Number(tMatch[2]);
+  const start = new Date(y, m, d, sh, sm, 0);
+  const eh = tMatch[3] ? Number(tMatch[3]) : sh + 1;
+  const em = tMatch[4] ? Number(tMatch[4]) : sm;
+  const end = new Date(y, m, d, eh, em, 0);
+  if (end <= start) end.setHours(start.getHours() + 1);
+  return { allDay: false, start: start, end: end };
+}
+
+/**
+ * Đẩy lịch họp từ Portal lên Google Calendar (tạo mới / cập nhật / xóa sự kiện đã xóa)
+ */
+function pushMeetingsToGoogleCalendar(ss, ownerEmail, incomingMeetings) {
+  const list = (incomingMeetings || []).map(m => ({ ...m }));
+  if (typeof CalendarApp === "undefined" || !isCalendarOwnerEmail(ownerEmail)) return list;
+
+  try {
+    const cal = CalendarApp.getDefaultCalendar();
+    if (!cal) return list;
+
+    const existing = filterByOwner(getSheetRowsAsObjects(ss, "Meetings"), ownerEmail);
+    const incomingIds = {};
+    list.forEach(m => { if (m.id) incomingIds[m.id] = true; });
+
+    // Xóa trên Google Calendar những lịch đã bị xóa khỏi Portal
+    existing.forEach(oldM => {
+      if (oldM.id && !incomingIds[oldM.id] && oldM.gcal_event_id) {
+        try {
+          const ev = cal.getEventById(oldM.gcal_event_id);
+          if (ev) ev.deleteEvent();
+        } catch (e) {}
+      }
+    });
+
+    const existingById = {};
+    existing.forEach(oldM => { if (oldM.id) existingById[oldM.id] = oldM; });
+
+    // Tạo hoặc cập nhật lên Google Calendar
+    for (let i = 0; i < list.length; i++) {
+      const m = list[i];
+      const range = parseMeetingDateRange(m.date, m.time);
+      if (!range) continue;
+
+      const gcalId = m.gcal_event_id || (existingById[m.id] && existingById[m.id].gcal_event_id) || "";
+      const title = m.title || "Lịch họp Payoo B2B";
+      const desc = `Đối tác: ${m.partner || "Nội bộ"}\nThành phần: ${m.attendees || "Bryan"}\n[BryanPortal:${m.id || ""}]`;
+
+      let ev = null;
+      if (gcalId) {
+        try { ev = cal.getEventById(gcalId); } catch (e) { ev = null; }
+      }
+
+      if (ev) {
+        ev.setTitle(title);
+        ev.setDescription(desc);
+        if (range.allDay) ev.setAllDayDate(range.start);
+        else ev.setTime(range.start, range.end);
+        m.gcal_event_id = ev.getId();
+      } else {
+        const created = range.allDay
+          ? cal.createAllDayEvent(title, range.start, { description: desc, location: m.partner || "" })
+          : cal.createEvent(title, range.start, range.end, { description: desc, location: m.partner || "" });
+        if (created) m.gcal_event_id = created.getId();
+      }
+    }
+  } catch (err) {
+    Logger.log("Google Calendar push skipped: " + err);
+  }
+  return list;
+}
+
+/**
+ * Đồng bộ 2 chiều: đẩy lịch Portal lên Google Calendar + kéo sự kiện từ Google Calendar về Portal
+ */
+function syncTwoWayGoogleCalendar(ss, ownerEmail) {
+  const existing = filterByOwner(getSheetRowsAsObjects(ss, "Meetings"), ownerEmail);
+  let merged = pushMeetingsToGoogleCalendar(ss, ownerEmail, existing);
+
+  if (typeof CalendarApp !== "undefined" && isCalendarOwnerEmail(ownerEmail)) {
+    try {
+      const cal = CalendarApp.getDefaultCalendar();
+      if (cal) {
+        const startWin = new Date(Date.now() - 14 * 86400000);
+        const endWin = new Date(Date.now() + 60 * 86400000);
+        const gEvents = cal.getEvents(startWin, endWin);
+        const knownGcalIds = {};
+        merged.forEach(m => { if (m.gcal_event_id) knownGcalIds[m.gcal_event_id] = true; });
+
+        gEvents.forEach(ev => {
+          const eid = ev.getId();
+          if (knownGcalIds[eid]) return;
+          const st = ev.getStartTime();
+          const en = ev.getEndTime();
+          const dateStr = Utilities.formatDate(st, "GMT+7", "yyyy-MM-dd");
+          const timeStr = ev.isAllDayEvent()
+            ? "Trong ngày"
+            : `${Utilities.formatDate(st, "GMT+7", "HH:mm")} - ${Utilities.formatDate(en, "GMT+7", "HH:mm")}`;
+          merged.push({
+            id: "gcal-" + eid.replace(/[^a-zA-Z0-9]/g, "").slice(-8),
+            date: dateStr,
+            time: timeStr,
+            title: ev.getTitle() || "Sự kiện Google Calendar",
+            partner: ev.getLocation() || "",
+            attendees: "Google Calendar",
+            gcal_event_id: eid
+          });
+        });
+      }
+    } catch (err) {
+      Logger.log("Google Calendar pull skipped: " + err);
+    }
+  }
+
+  upsertOwnerRowsToSheet(ss, "Meetings", ["id", "date", "time", "title", "partner", "attendees", "gcal_event_id", "owner_email", "updated_at"], ownerEmail, merged);
+  return merged;
+}
+
+/**
+ * Xuất feed iCalendar (.ics) trực tiếp cho Apple Calendar & Google Calendar Subscribe (không cần tải file)
+ */
+function buildUserIcsFeed(userEmail, meetings, projects, tasks) {
+  const esc = (s) => String(s || "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  const fmtDate = (d) => String(d || "").replace(/-/g, "");
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Bryan Portal//Payoo B2B Ops//VI",
+    "CALSCALE:GREGORIAN",
+    "X-WR-CALNAME:Bryan Portal (" + userEmail + ")",
+    "X-WR-TIMEZONE:Asia/Ho_Chi_Minh"
+  ];
+
+  (meetings || []).forEach(m => {
+    const dStr = fmtDate(m.date);
+    if (!/^\d{8}$/.test(dStr)) return;
+    lines.push("BEGIN:VEVENT");
+    lines.push("UID:" + esc(m.id || dStr) + "@bryanportal.io.vn");
+    const tMatch = String(m.time || "").match(/(\d{1,2}):(\d{2})(?:\s*-\s*(\d{1,2}):(\d{2}))?/);
+    if (tMatch) {
+      const sh = String(tMatch[1]).padStart(2, "0"), sm = tMatch[2];
+      const eh = tMatch[3] ? String(tMatch[3]).padStart(2, "0") : String((Number(sh) + 1) % 24).padStart(2, "0");
+      const em = tMatch[4] || sm;
+      lines.push(`DTSTART;TZID=Asia/Ho_Chi_Minh:${dStr}T${sh}${sm}00`);
+      lines.push(`DTEND;TZID=Asia/Ho_Chi_Minh:${dStr}T${eh}${em}00`);
+    } else {
+      lines.push(`DTSTART;VALUE=DATE:${dStr}`);
+    }
+    lines.push("SUMMARY:" + esc(m.title));
+    if (m.partner) lines.push("LOCATION:" + esc(m.partner));
+    lines.push("END:VEVENT");
+  });
+
+  (projects || []).filter(p => p.due_date && Number(p.progress || 0) < 100).forEach(p => {
+    const dStr = fmtDate(p.due_date);
+    if (!/^\d{8}$/.test(dStr)) return;
+    lines.push("BEGIN:VEVENT");
+    lines.push("UID:proj-" + esc(p.id) + "@bryanportal.io.vn");
+    lines.push(`DTSTART;VALUE=DATE:${dStr}`);
+    lines.push("SUMMARY:" + esc("Mốc dự án: " + p.title));
+    lines.push("END:VEVENT");
+  });
+
+  (tasks || []).filter(t => t.due_date && t.stage !== "STAGE_DONE").forEach(t => {
+    const dStr = fmtDate(t.due_date);
+    if (!/^\d{8}$/.test(dStr)) return;
+    lines.push("BEGIN:VEVENT");
+    lines.push("UID:task-" + esc(t.id) + "@bryanportal.io.vn");
+    lines.push(`DTSTART;VALUE=DATE:${dStr}`);
+    lines.push("SUMMARY:" + esc("Hạn việc: " + t.title));
+    lines.push("END:VEVENT");
+  });
+
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n");
+}
+
+/**
  * GET request: Hỗ trợ `action=login` & `action=getData` (Bắt buộc đúng Email + PIN)
  */
 function doGet(e) {
@@ -177,6 +375,19 @@ function doGet(e) {
         purge_after: u.purge_after || ""
       }));
       return resJSON({ success: true, users: allUsers });
+    }
+
+    if (action === "ics") {
+      const myMeetings = filterByOwner(getSheetRowsAsObjects(ss, "Meetings"), userEmail);
+      const myProjects = filterByOwner(getSheetRowsAsObjects(ss, "Projects"), userEmail);
+      const myTasks = filterByOwner(getSheetRowsAsObjects(ss, "Tasks"), userEmail);
+      const icsBody = buildUserIcsFeed(userEmail, myMeetings, myProjects, myTasks);
+      return ContentService.createTextOutput(icsBody).setMimeType(ContentService.MimeType.ICAL);
+    }
+
+    if (action === "syncGoogleCalendar") {
+      const mergedMeetings = syncTwoWayGoogleCalendar(ss, userEmail);
+      return resJSON({ success: true, meetings: mergedMeetings, message: "Đã đồng bộ lịch 2 chiều với Google Calendar!" });
     }
 
     const payload = {
@@ -389,7 +600,8 @@ function doPost(e) {
         );
       }
       if (Array.isArray(body.meetings)) {
-        upsertOwnerRowsToSheet(ss, "Meetings", ["id", "date", "time", "title", "partner", "attendees", "owner_email", "updated_at"], ownerEmail, body.meetings);
+        const syncedMeetings = pushMeetingsToGoogleCalendar(ss, ownerEmail, body.meetings);
+        upsertOwnerRowsToSheet(ss, "Meetings", ["id", "date", "time", "title", "partner", "attendees", "gcal_event_id", "owner_email", "updated_at"], ownerEmail, syncedMeetings);
       }
       if (Array.isArray(body.folders)) {
         upsertOwnerRowsToSheet(ss, "Folders", ["id", "merchant_id", "title", "file_name", "path", "action_label", "badge", "owner_email", "updated_at"], ownerEmail, body.folders);
