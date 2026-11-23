@@ -397,3 +397,70 @@ html.theme-dark textarea {
 }
 html.theme-dark .footer-logo-light { display: none !important; }
 html.theme-dark .footer-logo-dark { display: block !important; }
+
+/* Liquid Glass Sign-In Portal (Light & Dark) */
+.login-liquid-bg {
+  background: radial-gradient(circle at 20% 20%, #D9F2EF 0%, transparent 45%),
+              radial-gradient(circle at 85% 80%, #DBEAFE 0%, transparent 45%),
+              linear-gradient(135deg, #EEF7F6 0%, #F8FAFC 50%, #E7F3F2 100%) !important;
+}
+.login-liquid-header,
+.login-liquid-footer {
+  background: rgba(255, 255, 255, 0.48) !important;
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border-color: rgba(255, 255, 255, 0.65) !important;
+}
+.login-liquid-card {
+  background: rgba(255, 255, 255, 0.54) !important;
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.72) !important;
+  box-shadow: 0 24px 60px rgba(15, 62, 60, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+.login-liquid-input {
+  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+  backdrop-filter: blur(8px);
+}
+.login-liquid-input:focus {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: var(--f7-teal) !important;
+}
+
+/* Liquid Glass — Dark Mode */
+html.theme-dark .login-liquid-bg {
+  background: radial-gradient(circle at 20% 20%, rgba(20, 90, 86, 0.35) 0%, transparent 48%),
+              radial-gradient(circle at 80% 80%, rgba(30, 58, 95, 0.35) 0%, transparent 48%),
+              linear-gradient(135deg, #071014 0%, #0D161E 50%, #091317 100%) !important;
+}
+html.theme-dark .login-liquid-header,
+html.theme-dark .login-liquid-footer {
+  background: rgba(13, 19, 26, 0.55) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+html.theme-dark .login-liquid-pill {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  color: #E6EDF3 !important;
+}
+html.theme-dark .login-liquid-card {
+  background: rgba(18, 28, 36, 0.56) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.58), inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+html.theme-dark .login-liquid-input {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #F1F5F9 !important;
+}
+html.theme-dark .login-liquid-input:focus {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: #5EEAD4 !important;
+}
+html.theme-dark #auth-submit-btn {
+  background: #F1F5F9 !important;
+  background-image: none !important;
+  color: #0F172A !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+}
