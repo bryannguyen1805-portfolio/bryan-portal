@@ -86,7 +86,7 @@
     .custom-slim-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
     .custom-slim-scroll::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
   </style>
-  <link rel="stylesheet" href="css/flip7-theme.css?v=3.9.10" />
+  <link rel="stylesheet" href="css/flip7-theme.css?v=3.9.18" />
 </head>
 <body class="h-full flex overflow-hidden bg-slate-900 text-slate-800">
 
@@ -303,10 +303,7 @@
       <!-- ================= SCREEN 1: TỔNG QUAN ĐIỀU HÀNH (MORNING FOCUS + OPERATIONS TABS) ================= -->
       <div id="view-DASHBOARD" class="space-y-4 md:space-y-5 max-w-[1440px] mx-auto">
         <!-- 1. HERO BANNER TRUYỀN CẢM HỨNG BUỔI SÁNG -->
-        <div class="relative overflow-hidden bg-gradient-to-br from-navy-900 via-teal-900 to-emerald-800 rounded-2xl px-4 py-4 sm:px-6 sm:py-5 md:px-7 md:py-6 text-white shadow-md border border-teal-800/60 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 md:gap-5">
-          <!-- Decorative soft glow -->
-          <div class="pointer-events-none absolute -top-16 -right-16 w-56 h-56 rounded-full bg-amber-400/15 blur-3xl"></div>
-          <div class="pointer-events-none absolute -bottom-20 left-1/3 w-64 h-64 rounded-full bg-teal-400/15 blur-3xl"></div>
+        <div class="relative overflow-hidden bg-white rounded-2xl px-4 py-4 sm:px-6 sm:py-5 md:px-7 md:py-6 text-slate-900 shadow-xs border border-slate-200/80 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 md:gap-5">
 
           <div class="relative z-10 space-y-2.5 max-w-2xl w-full">
             <div class="flex flex-wrap items-center gap-2 text-xs text-teal-200/90 font-semibold">
@@ -315,7 +312,7 @@
             </div>
 
             <h1 class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight leading-tight text-white" id="welcome-title">
-              Chào buổi sáng, <span class="text-amber-300">Bryan</span> ☀️
+              Chào buổi sáng, <span class="text-teal-200">Bryan</span>
             </h1>
 
             <div class="flex items-center gap-2 text-xs md:text-sm text-teal-100/90 italic">
@@ -361,7 +358,7 @@
             <div id="dash-personal-progress-card" class="lg:col-span-5 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-4">
               <div class="space-y-1 min-w-0">
                 <div class="flex items-center gap-2">
-                  <span class="px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200/80 text-[10px] font-extrabold uppercase tracking-wider">Preview • My Cockpit</span>
+                  <span class="px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200/80 text-[10px] font-extrabold uppercase tracking-wider">Preview • My Cockpit</span>
                 </div>
                 <div class="text-sm font-black text-slate-800 truncate" id="dash-progress-headline">Nhịp độ hôm nay</div>
                 <div class="text-xs text-slate-500" id="dash-progress-sub">Đang tính tiến độ công việc của bạn...</div>
@@ -382,17 +379,17 @@
           </div>
 
           <!-- Widget: Mục tiêu số 1 hôm nay -->
-          <div class="bg-gradient-to-r from-amber-50/90 via-white to-teal-50/70 p-4 md:p-5 rounded-2xl border border-amber-200/70 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center space-x-3 flex-1 min-w-0">
-              <button onclick="toggleDailyFocusDone()" id="daily-focus-check" class="w-6 h-6 rounded-full border-2 border-amber-400 flex items-center justify-center text-white transition shrink-0 hover:bg-amber-100" title="Đánh dấu hoàn thành mục tiêu hôm nay">
+              <button onclick="toggleDailyFocusDone()" id="daily-focus-check" class="w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center text-white transition shrink-0 hover:bg-slate-100" title="Đánh dấu hoàn thành mục tiêu hôm nay">
                 <i data-lucide="check" class="w-3.5 h-3.5 hidden"></i>
               </button>
               <div class="flex-1 min-w-0">
-                <div class="text-[10px] font-extrabold uppercase tracking-wider text-amber-700">Mục Tiêu Quan Trọng Nhất Hôm Nay</div>
+                <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Mục Tiêu Quan Trọng Nhất Hôm Nay</div>
                 <input id="daily-focus-input" type="text" placeholder="Hôm nay bạn muốn hoàn thành trọn vẹn điều gì nhất? (Gõ rồi nhấn Enter...)" onchange="saveDailyFocusText()" onkeydown="if(event.key==='Enter'){this.blur();}" class="w-full bg-transparent text-sm font-bold text-slate-800 placeholder:text-slate-400 placeholder:font-normal focus:outline-none mt-0.5">
               </div>
             </div>
-            <span class="text-[11px] font-semibold text-amber-700/80 shrink-0 hidden md:inline">Tự động lưu cho hôm nay</span>
+            <span class="text-[11px] font-semibold text-slate-400 shrink-0 hidden md:inline">Tự động lưu cho hôm nay</span>
           </div>
 
           <!-- 2 Cột Chính: Lịch Họp & Việc Ưu Tiên -->
@@ -401,14 +398,14 @@
             <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col">
               <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2.5 border-b border-slate-100">
                 <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
-                  <div class="w-7 h-7 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
+                  <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
                     <i data-lucide="calendar" class="w-4 h-4"></i>
                   </div>
                   <span>Lịch Họp Hôm Nay</span>
                 </div>
                 <div class="flex items-center space-x-2 shrink-0">
-                  <button onclick="openNewMeetingModal()" class="text-xs text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg font-bold hover:bg-teal-100 transition whitespace-nowrap">+ Thêm lịch</button>
-                  <button onclick="navigateTo('CALENDAR')" class="text-xs text-slate-500 font-semibold hover:text-teal-600 whitespace-nowrap">Lịch tháng →</button>
+                  <button onclick="openNewMeetingModal()" class="text-xs text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg font-bold hover:bg-slate-200 transition whitespace-nowrap">+ Thêm lịch</button>
+                  <button onclick="navigateTo('CALENDAR')" class="text-xs text-slate-500 font-semibold hover:text-slate-900 whitespace-nowrap">Lịch tháng →</button>
                 </div>
               </div>
               <div class="space-y-2.5 min-h-[140px] max-h-[300px] overflow-y-auto pr-1 custom-slim-scroll" id="dash-meetings-list">
@@ -420,15 +417,15 @@
             <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col">
               <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2.5 border-b border-slate-100">
                 <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
-                  <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                  <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
                     <i data-lucide="check-circle-2" class="w-4 h-4"></i>
                   </div>
                   <span>To-Do &amp; Việc Cần Làm</span>
                 </div>
                 <div class="flex items-center space-x-1.5 shrink-0">
-                  <button id="dash-task-scope-btn" onclick="toggleDashTaskScope()" class="text-[11px] px-2 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition whitespace-nowrap" title="Chuyển giữa Việc của tôi và Toàn bộ">Việc của tôi</button>
-                  <button onclick="openNewTaskModal()" class="text-xs text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg font-bold hover:bg-teal-100 transition whitespace-nowrap">+ Chi tiết</button>
-                  <button onclick="navigateTo('TASKS')" class="text-xs text-slate-500 font-semibold hover:text-teal-600 whitespace-nowrap">Tất cả →</button>
+                  <button id="dash-task-scope-btn" onclick="toggleDashTaskScope()" class="text-[11px] px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition whitespace-nowrap" title="Chuyển giữa Việc của tôi và Toàn bộ">Việc của tôi</button>
+                  <button onclick="openNewTaskModal()" class="text-xs text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg font-bold hover:bg-slate-200 transition whitespace-nowrap">+ Chi tiết</button>
+                  <button onclick="navigateTo('TASKS')" class="text-xs text-slate-500 font-semibold hover:text-slate-900 whitespace-nowrap">Tất cả →</button>
                 </div>
               </div>
 
@@ -437,7 +434,7 @@
                 <input id="dash-quick-add-input" type="text" placeholder="Ghi nhanh To-do mới... (phím N để mở nhanh, Enter để lưu)" class="flex-1 bg-transparent px-2 py-1 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none min-w-0" />
                 <div class="flex items-center justify-between sm:justify-end gap-1 shrink-0 flex-wrap">
                   <button type="button" id="quick-priority-btn" onclick="toggleQuickTodoPriority()" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition" title="Đổi mức độ ưu tiên">Thường</button>
-                  <button type="button" onclick="setQuickTodoDuePreset('TODAY')" data-quick-due="TODAY" class="quick-due-chip px-2 py-1 rounded-lg text-[10px] font-bold bg-teal-600 text-white transition">Hôm nay</button>
+                  <button type="button" onclick="setQuickTodoDuePreset('TODAY')" data-quick-due="TODAY" class="quick-due-chip px-2 py-1 rounded-lg text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200 transition">Hôm nay</button>
                   <button type="button" onclick="setQuickTodoDuePreset('TOMORROW')" data-quick-due="TOMORROW" class="quick-due-chip px-2 py-1 rounded-lg text-[10px] font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">Ngày mai</button>
                   <button type="button" onclick="setQuickTodoDuePreset('WEEK')" data-quick-due="WEEK" class="quick-due-chip px-2 py-1 rounded-lg text-[10px] font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">Tuần này</button>
                   <button type="submit" class="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-extrabold transition shadow-xs">Lưu</button>
@@ -447,9 +444,9 @@
               <!-- Checklist Mẫu 1-Click cho việc lặp lại -->
               <div class="mb-3 flex items-center gap-1.5 flex-wrap text-[10px]">
                 <span class="text-slate-400 font-bold uppercase tracking-wider mr-0.5">Mẫu nhanh:</span>
-                <button type="button" onclick="applyQuickTaskTemplate('ONBOARDING')" class="px-2 py-1 rounded-lg bg-teal-50/80 hover:bg-teal-100 text-teal-700 border border-teal-200/70 font-bold transition">+ Onboarding (3 việc)</button>
-                <button type="button" onclick="applyQuickTaskTemplate('FOLLOW_UP')" class="px-2 py-1 rounded-lg bg-sky-50/80 hover:bg-sky-100 text-sky-700 border border-sky-200/70 font-bold transition">+ Follow-up họp (2 việc)</button>
-                <button type="button" onclick="applyQuickTaskTemplate('WEEKLY_SYNC')" class="px-2 py-1 rounded-lg bg-amber-50/80 hover:bg-amber-100 text-amber-700 border border-amber-200/70 font-bold transition">+ Rà soát tuần (2 việc)</button>
+                <button type="button" onclick="applyQuickTaskTemplate('ONBOARDING')" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 font-semibold transition">+ Onboarding (3 việc)</button>
+                <button type="button" onclick="applyQuickTaskTemplate('FOLLOW_UP')" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 font-semibold transition">+ Follow-up họp (2 việc)</button>
+                <button type="button" onclick="applyQuickTaskTemplate('WEEKLY_SYNC')" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 font-semibold transition">+ Rà soát tuần (2 việc)</button>
               </div>
 
               <div class="space-y-2 min-h-[140px] max-h-[290px] overflow-y-auto pr-1 custom-slim-scroll" id="dash-quick-tasks">
@@ -803,10 +800,10 @@
               <span class="w-2 h-2 rounded-full bg-teal-500"></span><span>Lịch họp</span>
             </button>
             <button onclick="setCalendarFilter('PROJECT')" id="cal-filter-PROJECT" class="px-3 py-1.5 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5 shrink-0 whitespace-nowrap">
-              <span class="w-2 h-2 rounded-full bg-purple-500"></span><span>Cột mốc dự án</span>
+              <span class="w-2 h-2 rounded-full bg-teal-600"></span><span>Cột mốc dự án</span>
             </button>
             <button onclick="setCalendarFilter('TASK')" id="cal-filter-TASK" class="px-3 py-1.5 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5 shrink-0 whitespace-nowrap">
-              <span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Hạn đầu việc</span>
+              <span class="w-2 h-2 rounded-full bg-slate-500"></span><span>Hạn đầu việc</span>
             </button>
           </div>
 
@@ -1179,7 +1176,7 @@
 
         <div>
           <label class="block font-bold text-slate-700 mb-1">Tiêu Đề Đầu Việc *</label>
-          <input type="text" id="task-title-input" required placeholder="VD: Họp rà soát biểu phí MDR..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none">
+          <input type="text" id="task-title-input" required placeholder="VD: Gửi checklist onboarding cho đối tác Highlands..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none">
         </div>
 
         <div>
@@ -1658,7 +1655,7 @@
       <form onsubmit="handleSaveMeeting(event)" class="space-y-4 text-xs">
         <div>
           <label class="block font-bold text-slate-700 mb-1">Nội Dung Cuộc Họp *</label>
-          <input type="text" id="meet-title" required placeholder="VD: Họp chốt biểu phí MDR & Quy trình đối soát..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-teal-500">
+          <input type="text" id="meet-title" required placeholder="VD: Họp rà soát tiến độ triển khai đối tác..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-teal-500">
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
@@ -1900,7 +1897,7 @@
   <!-- ================= 4. CORE JAVASCRIPT ENGINE (VERSIONED CACHE-BUSTING) ================= -->
   <script src="js/auth.js?v=3.9.7"></script>
   <script src="js/state-sync.js?v=3.9.5"></script>
-  <script src="js/dashboard.js?v=3.9.6"></script>
+  <script src="js/dashboard.js?v=3.9.16"></script>
   <script src="js/projects.js?v=3.9.3"></script>
   <script src="js/tasks.js?v=3.3.0"></script>
   <script src="js/sla-engine.js?v=3.3.0"></script>
@@ -1910,6 +1907,6 @@
   <script src="js/notifications-automation.js?v=3.6.0"></script>
   <script src="js/undo-engine.js?v=3.8.0"></script>
   <script src="js/onboarding.js?v=3.3.0"></script>
-  <script src="js/calendar.js?v=3.6.0"></script>
+  <script src="js/calendar.js?v=3.9.16"></script>
 </body>
 </html>

@@ -51,9 +51,9 @@ let currentQuoteIdx = new Date().getDate() % DAILY_QUOTES.length;
 
 function getTimeGreetingMeta() {
   const h = new Date().getHours();
-  if (h >= 5 && h < 12) return { prefix: "Chào buổi sáng", emoji: "☀️" };
-  if (h >= 12 && h < 18) return { prefix: "Chiều năng suất nhé", emoji: "☕" };
-  return { prefix: "Buổi tối nhẹ nhàng", emoji: "🌙" };
+  if (h >= 5 && h < 12) return { prefix: "Chào buổi sáng", icon: "sun" };
+  if (h >= 12 && h < 18) return { prefix: "Chiều năng suất nhé", icon: "coffee" };
+  return { prefix: "Buổi tối nhẹ nhàng", icon: "moon" };
 }
 
 function getDailyFocusStorageKey() {
@@ -83,14 +83,14 @@ function applyDailyFocusDoneUI(isDone) {
   if (!input || !checkBtn) return;
   const icon = checkBtn.querySelector("i, svg");
   if (isDone) {
-    checkBtn.classList.add("bg-emerald-500", "border-emerald-500");
-    checkBtn.classList.remove("border-amber-400");
+    checkBtn.classList.add("bg-slate-900", "border-slate-900");
+    checkBtn.classList.remove("border-slate-300", "border-amber-400");
     if (icon) icon.classList.remove("hidden");
     input.classList.add("line-through", "text-slate-400");
     input.classList.remove("text-slate-800");
   } else {
-    checkBtn.classList.remove("bg-emerald-500", "border-emerald-500");
-    checkBtn.classList.add("border-amber-400");
+    checkBtn.classList.remove("bg-slate-900", "border-slate-900", "border-amber-400");
+    checkBtn.classList.add("border-slate-300");
     if (icon) icon.classList.add("hidden");
     input.classList.remove("line-through", "text-slate-400");
     input.classList.add("text-slate-800");
@@ -122,7 +122,7 @@ function toggleDailyFocusDone() {
   localStorage.setItem(getDailyFocusStorageKey(), JSON.stringify(saved));
   applyDailyFocusDoneUI(saved.done);
   if (saved.done && saved.text && typeof showToast === "function") {
-    showToast("🎉 Tuyệt vời! Bạn đã hoàn thành mục tiêu trọng tâm hôm nay!");
+    showToast("✓ Tuyệt vời! Bạn đã hoàn thành mục tiêu trọng tâm hôm nay!");
   }
 }
 
@@ -163,8 +163,9 @@ function syncWelcomeAccountGreeting() {
     const fullName = (nameEl?.textContent || "Bryan").trim();
     const shortName = fullName.split(/\s+/)[0] || "Bryan";
     const safeName = shortName.replace(/[<>&"]/g, "");
-    const { prefix, emoji } = getTimeGreetingMeta();
-    titleEl.innerHTML = `${prefix}, <span class="text-amber-300">${safeName}</span> ${emoji}`;
+    const { prefix, icon } = getTimeGreetingMeta();
+    titleEl.innerHTML = `${prefix}, <span class="text-teal-200">${safeName}</span> <i data-lucide="${icon}" class="inline-block w-5 h-5 text-teal-200 align-text-bottom ml-0.5"></i>`;
+    if (typeof lucide !== "undefined") lucide.createIcons();
   }
   if (dateEl) {
     const now = new Date();
@@ -354,12 +355,12 @@ function renderDashboardBlockers() {
   // Khi không có vướng mắc -> Thu gọn thành dải trạng thái mảnh cao tối đa 32px
   if (blockedProjects.length === 0) {
     section.innerHTML = `
-      <div class="h-8 px-4 rounded-xl bg-emerald-50/70 border border-emerald-200/80 flex items-center justify-between text-xs">
-        <div class="flex items-center space-x-2 text-emerald-800 font-semibold">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+      <div class="h-9 px-4 rounded-xl bg-white border border-slate-200/80 flex items-center justify-between text-xs">
+        <div class="flex items-center space-x-2 text-slate-700 font-semibold">
+          <span class="w-2 h-2 rounded-full bg-teal-600 shrink-0"></span>
           <span>Tiến độ toàn hệ thống thông suốt</span>
         </div>
-        <span class="text-[11px] text-emerald-700 font-bold">0 vướng mắc</span>
+        <span class="text-[11px] text-slate-500 font-semibold">0 vướng mắc</span>
       </div>
     `;
     return;
@@ -476,10 +477,10 @@ function updateDashTaskScopeButton() {
   if (!btn) return;
   if (dashTaskScope === "MINE") {
     btn.textContent = "Việc của tôi";
-    btn.className = "text-[11px] px-2.5 py-1 rounded-lg font-bold bg-teal-50 text-teal-700 border border-teal-200/70 hover:bg-teal-100 transition whitespace-nowrap";
+    btn.className = "text-[11px] px-2.5 py-1 rounded-lg font-bold bg-teal-600 text-white hover:bg-teal-700 transition whitespace-nowrap";
   } else {
     btn.textContent = "Toàn bộ team";
-    btn.className = "text-[11px] px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition whitespace-nowrap";
+    btn.className = "text-[11px] px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition whitespace-nowrap";
   }
 }
 
@@ -495,7 +496,7 @@ function setQuickTodoDuePreset(preset) {
   document.querySelectorAll(".quick-due-chip").forEach(btn => {
     const isActive = btn.getAttribute("data-quick-due") === preset;
     btn.className = isActive
-      ? "quick-due-chip px-2 py-1 rounded-lg text-[10px] font-bold bg-teal-600 text-white transition"
+      ? "quick-due-chip px-2 py-1 rounded-lg text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200 transition"
       : "quick-due-chip px-2 py-1 rounded-lg text-[10px] font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition";
   });
 }
@@ -710,10 +711,10 @@ function renderDashboardPersonalProgress() {
   pctEl.textContent = `${pct}%`;
 
   if (totalTodayBucket === 0) {
-    headlineEl.textContent = "Hôm nay khá nhẹ nhàng ✨";
+    headlineEl.textContent = "Hôm nay khá nhẹ nhàng";
     subEl.textContent = "Chưa có đầu việc nào tới hạn hôm nay — bạn có thể thêm To-do mới.";
   } else if (openUrgentToday === 0) {
-    headlineEl.textContent = `Hoàn tất ${doneToday}/${totalTodayBucket} việc hôm nay 🎉`;
+    headlineEl.textContent = `Hoàn tất ${doneToday}/${totalTodayBucket} việc hôm nay`;
     subEl.textContent = "Xuất sắc! Bạn đã xử lý gọn toàn bộ việc tới hạn.";
   } else {
     headlineEl.textContent = `Đã xong ${doneToday}/${totalTodayBucket} việc hôm nay`;
@@ -764,9 +765,9 @@ function enableBrowserDeadlineNotifications() {
 function getBrowserNotifButtonHtml() {
   if (typeof Notification === "undefined") return "";
   if (isBrowserNotifEnabled()) {
-    return `<span class="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/70 text-[10px] font-bold whitespace-nowrap">🔔 Đang nhắc</span>`;
+    return `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-teal-50 text-teal-700 border border-teal-200/70 text-[10px] font-bold whitespace-nowrap"><i data-lucide="bell-ring" class="w-3 h-3"></i><span>Đang nhắc</span></span>`;
   }
-  return `<button type="button" onclick="enableBrowserDeadlineNotifications()" class="px-2 py-1 rounded-lg bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-[10px] font-bold transition whitespace-nowrap" title="Nhận thông báo trình duyệt khi có việc tới hạn">🔔 Bật nhắc</button>`;
+  return `<button type="button" onclick="enableBrowserDeadlineNotifications()" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-[10px] font-bold transition whitespace-nowrap" title="Nhận thông báo trình duyệt khi có việc tới hạn"><i data-lucide="bell" class="w-3 h-3"></i><span>Bật nhắc</span></button>`;
 }
 
 function renderDashboardDeadlineAlerts() {
@@ -799,7 +800,7 @@ function renderDashboardDeadlineAlerts() {
     stripEl.innerHTML = `
       <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
-          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-slate-100 text-teal-700 flex items-center justify-center shrink-0">
             <i data-lucide="shield-check" class="w-5 h-5"></i>
           </div>
           <div class="min-w-0">
@@ -903,9 +904,9 @@ function renderDashboardQuickTasks() {
 
   if (quickTasks.length === 0) {
     html = `
-      <div class="p-6 rounded-2xl bg-gradient-to-br from-emerald-50/80 to-teal-50/40 border border-emerald-200/60 text-center space-y-1.5">
-        <div class="text-sm font-extrabold text-emerald-800">✨ Mọi việc ưu tiên hôm nay đã gọn gàng!</div>
-        <div class="text-xs text-emerald-700/80">Bạn có thể gõ nhanh ở ô bên trên để thêm To-do mới bất kỳ lúc nào.</div>
+      <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/80 text-center space-y-1.5">
+        <div class="text-sm font-bold text-slate-800">✓ Mọi việc ưu tiên hôm nay đã gọn gàng</div>
+        <div class="text-xs text-slate-500">Bạn có thể gõ nhanh ở ô bên trên để thêm To-do mới bất kỳ lúc nào.</div>
       </div>
     `;
   }
@@ -922,7 +923,7 @@ function renderDashboardMeetings() {
   if (todayMeetings.length === 0) {
     container.innerHTML = `
       <div class="p-6 text-center rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1.5">
-        <div class="text-xs font-bold text-slate-600">🌿 Hôm nay chưa có lịch họp nào</div>
+        <div class="text-xs font-bold text-slate-600 flex items-center justify-center gap-1.5"><i data-lucide="calendar-check-2" class="w-3.5 h-3.5 text-teal-600"></i><span>Hôm nay chưa có lịch họp nào</span></div>
         <div class="text-[11px] text-slate-400">Không gian yên tĩnh tuyệt vời để tập trung xử lý việc sâu! Bấm <b>+ Thêm lịch</b> nếu cần đặt hẹn.</div>
       </div>
     `;
@@ -1087,7 +1088,7 @@ function renderDashboardUpcomingDeadlines() {
     return `
       <div onclick="${it.action}" class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-teal-400 cursor-pointer transition space-y-1.5">
         <div class="flex items-center justify-between gap-2">
-          <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded ${it.kind === 'DỰ ÁN' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}">${it.kind}</span>
+          <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded ${it.kind === 'DỰ ÁN' ? 'bg-teal-50 text-teal-800' : 'bg-slate-100 text-slate-700'}">${it.kind}</span>
           ${badge}
         </div>
         <div class="text-xs font-bold text-slate-800 truncate" title="${it.title}">${it.title}</div>

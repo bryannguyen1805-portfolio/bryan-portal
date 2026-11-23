@@ -169,21 +169,22 @@ function renderCalendarGrid() {
 
     const pillsHtml = dayEvents.slice(0, 3).map(ev => {
       let cls = "bg-teal-100 text-teal-800";
-      let prefix = ev.time ? ev.time.split("-")[0].trim() + " " : "";
+      let label = (ev.time ? ev.time.split("-")[0].trim() + " " : "") + ev.title;
       if (ev.kind === "PROJECT") {
-        cls = ev.isBlocked ? "bg-rose-100 text-rose-800" : "bg-purple-100 text-purple-800";
-        prefix = "Mốc: ";
+        cls = ev.isBlocked ? "bg-rose-100 text-rose-800" : "bg-teal-50 text-teal-800 border border-teal-200/60";
+        const partnerShort = ev.sub ? ev.sub.split("•")[0].trim() : ev.title;
+        label = partnerShort;
       } else if (ev.kind === "TASK") {
         if (ev.isDone) cls = "bg-slate-100 text-slate-400 line-through";
         else if (ev.isOverdue) cls = "bg-rose-100 text-rose-700 font-bold";
-        else cls = "bg-amber-100 text-amber-800";
+        else cls = "bg-slate-100 text-slate-700";
       }
-      return `<div class="px-1.5 py-0.5 rounded text-[10px] font-semibold truncate ${cls}" title="${ev.title}">${prefix}${ev.title}</div>`;
+      return `<div class="px-1.5 py-0.5 rounded text-[10px] font-semibold truncate ${cls}" title="${ev.title} (${ev.sub || ''})">${label}</div>`;
     }).join('');
 
     const dotsHtml = dayEvents.slice(0, 4).map(ev => {
       let dotCls = "bg-teal-500";
-      if (ev.kind === "PROJECT") dotCls = ev.isBlocked ? "bg-rose-500" : "bg-purple-500";
+      if (ev.kind === "PROJECT") dotCls = ev.isBlocked ? "bg-rose-500" : "bg-teal-600";
       else if (ev.kind === "TASK") dotCls = ev.isDone ? "bg-slate-300" : (ev.isOverdue ? "bg-rose-500" : "bg-amber-500");
       return `<span class="w-1.5 h-1.5 rounded-full ${dotCls}"></span>`;
     }).join('');
@@ -254,23 +255,25 @@ function renderCalendarDayDetails() {
       `;
     }
     if (ev.kind === "PROJECT") {
+      const partnerName = ev.sub ? ev.sub.split("•")[0].trim() : ev.title;
+      const stageDetail = ev.sub && ev.sub.includes("•") ? ev.sub.split("•").slice(1).join("•").trim() : "";
       return `
-        <div onclick="selectMerchant('${ev.merchantId}'); selectSubTab('${ev.id}'); navigateTo('PROJECTS');" class="p-3 rounded-xl bg-purple-50/50 border border-purple-200 hover:border-purple-400 cursor-pointer transition space-y-1.5">
+        <div onclick="selectMerchant('${ev.merchantId}'); selectSubTab('${ev.id}'); navigateTo('PROJECTS');" class="p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-teal-400 cursor-pointer transition space-y-1.5">
           <div class="flex items-center justify-between">
-            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-purple-100 text-purple-800">🟣 CỘT MỐC DỰ ÁN</span>
-            <span class="text-[10px] font-bold text-purple-700">Mở dự án →</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-teal-50 text-teal-800">CỘT MỐC DỰ ÁN</span>
+            <span class="text-[10px] font-bold text-teal-700">Mở dự án →</span>
           </div>
-          <div class="text-xs font-bold text-slate-900">${ev.title}</div>
-          <div class="text-[11px] text-slate-500">${ev.sub}</div>
+          <div class="text-xs font-bold text-slate-900">${partnerName}</div>
+          <div class="text-[11px] text-slate-500">${ev.title}${stageDetail ? ' • ' + stageDetail : ''}</div>
         </div>
       `;
     }
     // TASK
     return `
-      <div class="p-3 rounded-xl ${ev.isOverdue ? 'bg-rose-50/60 border-rose-200' : 'bg-amber-50/40 border-amber-200'} border space-y-1.5">
+      <div class="p-3 rounded-xl ${ev.isOverdue ? 'bg-rose-50/60 border-rose-200' : 'bg-slate-50 border-slate-200'} border space-y-1.5">
         <div class="flex items-center justify-between">
-          <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${ev.isOverdue ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}">
-            ${ev.isOverdue ? '🔴 TRỄ HẠN ĐẦU VIỆC' : '🟠 HẠN CHÓT ĐẦU VIỆC'}
+          <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${ev.isOverdue ? 'bg-rose-100 text-rose-700' : 'bg-slate-200 text-slate-700'}">
+            ${ev.isOverdue ? 'TRỄ HẠN ĐẦU VIỆC' : 'HẠN CHÓT ĐẦU VIỆC'}
           </span>
           <input type="checkbox" ${ev.isDone ? 'checked' : ''} onchange="toggleTaskDone('${ev.id}'); renderCalendarView();" class="w-4 h-4 accent-teal-600 rounded cursor-pointer">
         </div>
@@ -299,7 +302,7 @@ function renderCalendarTimeline() {
     let badge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-teal-100 text-teal-800">LỊCH HỌP ${ev.time ? '• ' + ev.time : ''}</span>`;
     let clickAttr = "";
     if (ev.kind === "PROJECT") {
-      badge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-purple-100 text-purple-800">CỘT MỐC DỰ ÁN</span>`;
+      badge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-teal-50 text-teal-800">CỘT MỐC DỰ ÁN</span>`;
       clickAttr = `onclick="selectMerchant('${ev.merchantId}'); selectSubTab('${ev.id}'); navigateTo('PROJECTS');"`;
     } else if (ev.kind === "TASK") {
       badge = `<span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${ev.isOverdue ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}">${ev.isOverdue ? 'QUÁ HẠN' : 'HẠN ĐẦU VIỆC'}</span>`;
