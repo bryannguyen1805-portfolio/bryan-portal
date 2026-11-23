@@ -184,6 +184,35 @@ function submitCommandCenter(e) {
   handleCommandSubmit(e);
 }
 
+function parseOmnibarDueDate(raw) {
+  const lower = (raw || "").toLowerCase();
+  const base = new Date();
+  const toIso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  if (lower.includes("ngày mai") || /\bmai\b/.test(lower)) {
+    base.setDate(base.getDate() + 1);
+    return { iso: toIso(base), label: "Ngày mai" };
+  }
+  if (lower.includes("tuần này") || lower.includes("cuối tuần")) {
+    base.setDate(base.getDate() + 3);
+    return { iso: toIso(base), label: "Tuần này" };
+  }
+  const dMatch = raw.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/);
+  if (dMatch) {
+    const dd = dMatch[1].padStart(2, "0");
+    const mm = dMatch[2].padStart(2, "0");
+    const yyyy = dMatch[3] ? (dMatch[3].length === 2 ? `20${dMatch[3]}` : dMatch[3]) : String(base.getFullYear());
+    return { iso: `${yyyy}-${mm}-${dd}`, label: `${dd}/${mm}/${yyyy}` };
+  }
+  return { iso: toIso(base), label: "Hôm nay" };
+}
+
+function findMatchingOpenTask(query) {
+  const norm = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+  const q = norm(query).trim();
+  if (!q) return null;
+  return (state?.tasks || []).find(t => t.stage !== "STAGE_DONE" && norm(t.title).includes(q)) || null;
+}
+
 // Live Token Preview khi người dùng đang gõ trên Omnibar (Mục 2.3 SRS)
 function handleOmnibarLivePreview(raw) {
   const box = document.getElementById("omnibar-preview");
@@ -235,6 +264,17 @@ function handleOmnibarLivePreview(raw) {
     const mFound = state.merchants.find(m => lower.includes(m.name.toLowerCase()) || lower.includes(m.alias.replace("@","").toLowerCase()));
     if (mFound) chips.push(`<span class="px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 font-bold">🏢 ${mFound.name}</span>`);
   }
+  // 2.5 Hoàn thành nhanh Task: "xong task [tên]" / "xong việc [tên]"
+  else if (/^(xong|hoàn thành|done)\s+(task|việc|nhiệm vụ|todo)\b/i.test(lower)) {
+    const qTitle = val.replace(/^(xong|hoàn thành|done)\s+(task|việc|nhiệm vụ|todo)\s*/i, "").trim();
+    const matched = findMatchingOpenTask(qTitle);
+    chips.push(`<span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 font-bold">✓ Hoàn thành Nhiệm vụ</span>`);
+    if (matched) {
+      chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-bold">${matched.title}</span>`);
+    } else if (qTitle) {
+      chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 font-medium">Tìm việc: "${qTitle}"</span>`);
+    }
+  }
   // 3. Tick bước Onboarding (Context-Aware + Attio NLP Aliases)
   else if (/\b(xong|hoàn thành|done|đã duyệt|duyệt|tới)\b/i.test(lower) || /\bb\d{1,2}\b/i.test(lower) || /\bbước\s*\d{1,2}\b/i.test(lower) || (typeof resolveAttioCommandTarget === "function" && resolveAttioCommandTarget(val).targetStepNo !== null)) {
     chips.push(`<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold">✓ Cập nhật tiến độ (Attio)</span>`);
@@ -248,13 +288,17 @@ function handleOmnibarLivePreview(raw) {
       }
     }
   }
-  // 4. Tạo Task
-  else if (lower.includes("tạo task") || lower.includes("task")) {
-    chips.push(`<span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 font-bold">📋 Tạo đầu việc mới</span>`);
+  // 4. Tạo Task / Thêm việc
+  else if (/^(tạo\s*task|thêm\s*việc|tạo\s*việc|todo|nhiệm\s*vụ)\b/i.test(lower) || lower.includes("tạo task") || lower.includes("thêm việc")) {
+    const dueInfo = parseOmnibarDueDate(val);
+    chips.push(`<span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 font-bold">📋 Tạo đầu việc mới</span>`);
+    chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold">📆 Hạn: ${dueInfo.label}</span>`);
+    if (lower.includes("khẩn")) chips.push(`<span class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 font-bold">Khẩn cấp</span>`);
+    else if (lower.includes("cao") || lower.includes("gấp")) chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold">Ưu tiên Cao</span>`);
   }
   // Mặc định: gợi ý thao tác nhanh
   else {
-    chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium">💡 Gợi ý: <strong>xong B3</strong> • <strong>TBP duyệt</strong> • <strong>Họp Highlands 13h 23/11</strong> • <strong>Triển khai mới [Tên] kênh [POS]</strong></span>`);
+    chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium">💡 Gợi ý: <strong>Tạo task [tên] ngày mai</strong> • <strong>xong task [tên]</strong> • <strong>xong B3</strong> • <strong>Họp 14h</strong></span>`);
   }
 
   tokensEl.innerHTML = chips.join("");
@@ -582,31 +626,55 @@ async function handleCommandSubmit(e) {
     return;
   }
 
+  // 2.5 Hoàn thành nhanh Task: "xong task [tên]" / "xong việc [tên]"
+  if (/^(xong|hoàn thành|done)\s+(task|việc|nhiệm vụ|todo)\b/i.test(lower)) {
+    const qTitle = cmd.replace(/^(xong|hoàn thành|done)\s+(task|việc|nhiệm vụ|todo)\s*/i, "").trim();
+    const matched = findMatchingOpenTask(qTitle);
+    if (matched && typeof toggleTaskDone === "function") {
+      toggleTaskDone(matched.id);
+      showToast(`✓ Đã hoàn thành nhiệm vụ: "${matched.title}"`);
+    } else {
+      showToast(`Không tìm thấy đầu việc đang mở khớp với "${qTitle}".`);
+    }
+    return;
+  }
+
   // 3. Tạo Task mới
-  if (lower.includes("tạo task") || lower.includes("task") || lower.includes("họp")) {
+  if (/^(tạo\s*task|thêm\s*việc|tạo\s*việc|todo|nhiệm\s*vụ)\b/i.test(lower) || lower.includes("tạo task") || lower.includes("thêm việc") || lower.includes("task") || lower.includes("họp")) {
     let matchedProj = state.projects.find(p => p.merchant_id === activeMerchantId) || state.projects[0];
     if (lower.includes("highlands")) matchedProj = state.projects.find(p => p.merchant_id === "m-highlands");
     if (lower.includes("jdv")) matchedProj = state.projects.find(p => p.merchant_id === "m-jdv");
     if (lower.includes("việt thanh") || lower.includes("vietthanh")) matchedProj = state.projects.find(p => p.merchant_id === "m-vietthanh");
 
-    let taskType = "COMMERCIAL";
+    let taskType = "PERSONAL";
+    if (lower.includes("thương mại") || lower.includes("hợp đồng")) taskType = "COMMERCIAL";
     if (lower.includes("kỹ thuật") || lower.includes("test") || lower.includes("ip") || lower.includes("webhook")) taskType = "TECH_DELIVERY";
-    if (lower.includes("cá nhân") || lower.includes("ăn") || lower.includes("cafe")) taskType = "PERSONAL";
+
+    const dueInfo = parseOmnibarDueDate(cmd);
+    const ownerName = (document.getElementById("sidebar-user-name")?.textContent || "Bryan").trim();
+    const cleanTitle = cmd
+      .replace(/^(tạo\s*task|thêm\s*việc|tạo\s*việc|todo|nhiệm\s*vụ)\s*/i, "")
+      .replace(/\b(hôm nay|ngày mai|tuần này|khẩn cấp|gấp)\b/gi, "")
+      .replace(/\s+/g, " ")
+      .trim() || cmd;
 
     const newTask = {
-      id: "t-" + Date.now().toString().slice(-4),
+      id: "TASK-" + Date.now(),
       type: taskType,
       project_id: matchedProj ? matchedProj.id : "",
-      title: cmd.replace(/tạo task/gi, '').trim(),
-      pic: "Bryan",
+      title: cleanTitle,
+      owner: ownerName,
+      pic: ownerName,
       stage: "STAGE_TODO",
-      priority: lower.includes("khẩn") ? "KHẨN CẤP" : (lower.includes("cao") ? "CAO" : "TRUNG BÌNH"),
-      due_date: "2026-11-25",
-      is_overdue: false
+      priority: lower.includes("khẩn") ? "KHẨN CẤP" : ((lower.includes("cao") || lower.includes("gấp")) ? "CAO" : "TRUNG BÌNH"),
+      due_date: dueInfo.iso,
+      is_overdue: false,
+      created_at: new Date().toISOString()
     };
 
     const beforeTasks = JSON.parse(JSON.stringify(state.tasks));
     state.tasks.unshift(newTask);
+    saveStateStorage();
     if (typeof runAutomationRules === "function") {
       runAutomationRules("TASK_CREATED", { title: newTask.title, project_id: newTask.project_id, pic: newTask.pic, taskObj: newTask });
     }
@@ -624,10 +692,10 @@ async function handleCommandSubmit(e) {
         display_label: newTask.title,
         before: { tasks: beforeTasks },
         after: { tasks: state.tasks },
-        toastMessage: `Đã thêm việc mới: "${newTask.title}".`
+        toastMessage: `Đã thêm việc mới (${dueInfo.label}): "${newTask.title}".`
       });
     } else {
-      showToast(`Đã thêm việc mới: "${newTask.title}".`);
+      showToast(`Đã thêm việc mới (${dueInfo.label}): "${newTask.title}".`);
     }
     return;
   }
