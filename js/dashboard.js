@@ -178,6 +178,9 @@ function syncWelcomeAccountGreeting() {
   }
   loadDailyFocusWidget();
   renderBnewsMorningBriefing();
+  if (typeof updateDashTaskScopeButton === "function") updateDashTaskScopeButton();
+  if (typeof renderDashboardPersonalProgress === "function") renderDashboardPersonalProgress();
+  if (typeof renderDashboardDeadlineAlerts === "function") renderDashboardDeadlineAlerts();
 }
 
 const DEFAULT_BNEWS_URL = "https://bryanportfolio.io.vn/fintech-intelligence";
@@ -439,44 +442,303 @@ function renderDashboardOnboardingSummary() {
   }).join('');
 }
 
+let quickTodoDuePreset = "TODAY";
+let dashTaskScope = localStorage.getItem("bryan_portal_dash_task_scope") || "MINE";
+
+function getIsoDateOffset(daysOffset) {
+  const d = new Date();
+  d.setDate(d.getDate() + daysOffset);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function getCurrentUserMatchTokens() {
+  const email = (typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "") || "";
+  const name = (document.getElementById("sidebar-user-name")?.textContent || "").trim();
+  const emailPrefix = email.split("@")[0] || "";
+  return [email, name, emailPrefix]
+    .map(s => s.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+function isTaskMine(task) {
+  if (!task) return false;
+  if (task.type === "PERSONAL" || !task.owner) return true;
+  const ownerLower = String(task.owner).toLowerCase();
+  const tokens = getCurrentUserMatchTokens();
+  return tokens.some(tok => ownerLower.includes(tok) || tok.includes(ownerLower));
+}
+
+function updateDashTaskScopeButton() {
+  const btn = document.getElementById("dash-task-scope-btn");
+  if (!btn) return;
+  if (dashTaskScope === "MINE") {
+    btn.textContent = "Việc của tôi";
+    btn.className = "text-[11px] px-2.5 py-1 rounded-lg font-bold bg-teal-50 text-teal-700 border border-teal-200/70 hover:bg-teal-100 transition whitespace-nowrap";
+  } else {
+    btn.textContent = "Toàn bộ team";
+    btn.className = "text-[11px] px-2.5 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition whitespace-nowrap";
+  }
+}
+
+function toggleDashTaskScope() {
+  dashTaskScope = dashTaskScope === "MINE" ? "ALL" : "MINE";
+  localStorage.setItem("bryan_portal_dash_task_scope", dashTaskScope);
+  updateDashTaskScopeButton();
+  renderDashboardQuickTasks();
+}
+
+function setQuickTodoDuePreset(preset) {
+  quickTodoDuePreset = preset;
+  document.querySelectorAll(".quick-due-chip").forEach(btn => {
+    const isActive = btn.getAttribute("data-quick-due") === preset;
+    btn.className = isActive
+      ? "quick-due-chip px-2 py-1 rounded-lg text-[10px] font-bold bg-teal-600 text-white transition"
+      : "quick-due-chip px-2 py-1 rounded-lg text-[10px] font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition";
+  });
+}
+
+function handleQuickAddTodo(e) {
+  e.preventDefault();
+  const input = document.getElementById("dash-quick-add-input");
+  const title = (input?.value || "").trim();
+  if (!title) {
+    if (input) input.focus();
+    return;
+  }
+
+  let dueOffset = 0;
+  if (quickTodoDuePreset === "TOMORROW") dueOffset = 1;
+  if (quickTodoDuePreset === "WEEK") dueOffset = 4;
+
+  const ownerName = (document.getElementById("sidebar-user-name")?.textContent || "Bryan").trim();
+  const newTask = {
+    id: "TASK-" + Date.now(),
+    title,
+    type: "PERSONAL",
+    priority: quickTodoDuePreset === "TODAY" ? "CAO" : "TRUNG BÌNH",
+    stage: "STAGE_DOING",
+    due_date: getIsoDateOffset(dueOffset),
+    owner: ownerName,
+    project_id: "",
+    is_overdue: false,
+    created_at: new Date().toISOString()
+  };
+
+  state.tasks.unshift(newTask);
+  if (input) input.value = "";
+  if (typeof syncAllAfterTaskChange === "function") {
+    syncAllAfterTaskChange(`Đã thêm To-do nhanh: ${title}`);
+  } else {
+    saveStateStorage();
+    renderDashboardQuickTasks();
+  }
+  showToast(`✓ Đã thêm "${title}" vào danh sách việc cần làm!`);
+}
+
+function formatRelativeDueBadge(task) {
+  if (!task || !task.due_date) {
+    return { label: "Chưa hẹn hạn", badgeCls: "bg-slate-100 text-slate-500", urgencyRank: 4 };
+  }
+  const todayStr = getIsoDateOffset(0);
+  const tomorrowStr = getIsoDateOffset(1);
+
+  if (task.due_date < todayStr) {
+    const diffMs = new Date(todayStr + "T00:00:00") - new Date(task.due_date + "T00:00:00");
+    const days = Math.max(1, Math.round(diffMs / 86400000));
+    return { label: `Quá hạn ${days} ngày`, badgeCls: "bg-rose-100 text-rose-700", urgencyRank: 0 };
+  }
+  if (task.due_date === todayStr) {
+    return { label: "Hôm nay", badgeCls: "bg-amber-100 text-amber-800", urgencyRank: 1 };
+  }
+  if (task.due_date === tomorrowStr) {
+    return { label: "Ngày mai", badgeCls: "bg-orange-100 text-orange-700", urgencyRank: 2 };
+  }
+  const diffMs = new Date(task.due_date + "T00:00:00") - new Date(todayStr + "T00:00:00");
+  const days = Math.max(2, Math.round(diffMs / 86400000));
+  return { label: `Còn ${days} ngày`, badgeCls: "bg-emerald-50 text-emerald-700", urgencyRank: 3 };
+}
+
+function snoozeTaskOneDay(taskId) {
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  const todayStr = getIsoDateOffset(0);
+  const baseStr = task.due_date && task.due_date >= todayStr ? task.due_date : todayStr;
+  const baseDate = new Date(baseStr + "T00:00:00");
+  baseDate.setDate(baseDate.getDate() + 1);
+  const y = baseDate.getFullYear();
+  const m = String(baseDate.getMonth() + 1).padStart(2, "0");
+  const d = String(baseDate.getDate()).padStart(2, "0");
+  task.due_date = `${y}-${m}-${d}`;
+  task.is_overdue = false;
+
+  if (typeof syncAllAfterTaskChange === "function") {
+    syncAllAfterTaskChange(`Đã dời hạn "${task.title}" sang ${task.due_date}`);
+  } else {
+    saveStateStorage();
+    renderDashboardQuickTasks();
+  }
+  showToast(`⏰ Đã dời hạn sang ${d}/${m}`);
+}
+
+function renderDashboardPersonalProgress() {
+  const headlineEl = document.getElementById("dash-progress-headline");
+  const subEl = document.getElementById("dash-progress-sub");
+  const pctEl = document.getElementById("dash-progress-pct");
+  const ringEl = document.getElementById("dash-progress-ring-circle");
+  if (!headlineEl || !subEl || !pctEl || !ringEl) return;
+
+  const todayStr = getIsoDateOffset(0);
+  const scopedTasks = dashTaskScope === "MINE" ? state.tasks.filter(isTaskMine) : state.tasks;
+
+  const doneToday = scopedTasks.filter(t => t.stage === "STAGE_DONE" && t.completed_at && t.completed_at.slice(0, 10) === todayStr).length;
+  const openUrgentToday = scopedTasks.filter(t => t.stage !== "STAGE_DONE" && t.due_date && t.due_date <= todayStr).length;
+  const totalTodayBucket = doneToday + openUrgentToday;
+
+  const pct = totalTodayBucket === 0
+    ? (scopedTasks.some(t => t.stage === "STAGE_DONE") ? 100 : 0)
+    : Math.round((doneToday / totalTodayBucket) * 100);
+
+  const circumference = 138.23;
+  const offset = circumference - (pct / 100) * circumference;
+  ringEl.style.strokeDashoffset = offset.toFixed(2);
+  pctEl.textContent = `${pct}%`;
+
+  if (totalTodayBucket === 0) {
+    headlineEl.textContent = "Hôm nay khá nhẹ nhàng ✨";
+    subEl.textContent = "Chưa có đầu việc nào tới hạn hôm nay — bạn có thể thêm To-do mới.";
+  } else if (openUrgentToday === 0) {
+    headlineEl.textContent = `Hoàn tất ${doneToday}/${totalTodayBucket} việc hôm nay 🎉`;
+    subEl.textContent = "Xuất sắc! Bạn đã xử lý gọn toàn bộ việc tới hạn.";
+  } else {
+    headlineEl.textContent = `Đã xong ${doneToday}/${totalTodayBucket} việc hôm nay`;
+    subEl.textContent = `Còn ${openUrgentToday} đầu việc cần chốt để đạt 100% mục tiêu ngày.`;
+  }
+}
+
+function renderDashboardDeadlineAlerts() {
+  const stripEl = document.getElementById("dash-deadline-alert-strip");
+  if (!stripEl) return;
+
+  const todayStr = getIsoDateOffset(0);
+  const tomorrowStr = getIsoDateOffset(1);
+  const scopedOpen = (dashTaskScope === "MINE" ? state.tasks.filter(isTaskMine) : state.tasks)
+    .filter(t => t.stage !== "STAGE_DONE" && t.due_date);
+
+  const overdueList = scopedOpen.filter(t => t.due_date < todayStr);
+  const dueTodayList = scopedOpen.filter(t => t.due_date === todayStr);
+  const dueTomorrowList = scopedOpen.filter(t => t.due_date === tomorrowStr);
+
+  const urgentCount = overdueList.length + dueTodayList.length;
+  const soonCount = dueTomorrowList.length;
+
+  // Cập nhật badge ngay trên tiêu đề tab trình duyệt
+  if (urgentCount > 0) {
+    document.title = `(${urgentCount}) BPortal — Điều phối vận hành`;
+  } else {
+    document.title = "BPortal — Điều phối vận hành";
+  }
+
+  if (urgentCount === 0 && soonCount === 0) {
+    stripEl.innerHTML = `
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="text-sm font-black text-slate-800">Không có việc sắp trễ hạn</div>
+            <div class="text-xs text-slate-500">Mọi đầu việc trong 48 giờ tới đều đang trong tầm kiểm soát.</div>
+          </div>
+        </div>
+        <button onclick="navigateTo('TASKS')" class="shrink-0 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">Xem To-do</button>
+      </div>
+    `;
+    if (typeof lucide !== "undefined") lucide.createIcons();
+    return;
+  }
+
+  const parts = [];
+  if (overdueList.length > 0) parts.push(`<span class="text-rose-600 font-extrabold">${overdueList.length} quá hạn</span>`);
+  if (dueTodayList.length > 0) parts.push(`<span class="text-amber-700 font-extrabold">${dueTodayList.length} hạn hôm nay</span>`);
+  if (dueTomorrowList.length > 0) parts.push(`<span class="text-orange-600 font-bold">${dueTomorrowList.length} hạn ngày mai</span>`);
+
+  const topTask = overdueList[0] || dueTodayList[0] || dueTomorrowList[0];
+  const isCritical = overdueList.length > 0;
+
+  stripEl.innerHTML = `
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl ${isCritical ? "bg-rose-50 text-rose-600" : "bg-amber-50 text-amber-600"} flex items-center justify-center shrink-0">
+          <i data-lucide="bell-ring" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0">
+          <div class="text-xs font-bold text-slate-800 flex flex-wrap items-center gap-1.5">
+            <span>Nhắc hạn 48h tới:</span>
+            ${parts.join('<span class="text-slate-300">•</span>')}
+          </div>
+          <div class="text-xs text-slate-500 truncate mt-0.5">
+            Ưu tiên xử lý: <strong class="text-slate-700">${topTask ? topTask.title : ""}</strong>
+          </div>
+        </div>
+      </div>
+      ${topTask ? `
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button onclick="toggleTaskDone('${topTask.id}')" class="px-2.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-bold transition whitespace-nowrap">✓ Xong ngay</button>
+        <button onclick="snoozeTaskOneDay('${topTask.id}')" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition whitespace-nowrap">+1 ngày</button>
+      </div>` : ""}
+    </div>
+  `;
+  if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
 function renderDashboardQuickTasks() {
   const container = document.getElementById("dash-quick-tasks");
   if (!container) return;
 
+  updateDashTaskScopeButton();
+  renderDashboardPersonalProgress();
+  renderDashboardDeadlineAlerts();
+
   const priorityRank = { "KHẨN CẤP": 1, "CAO": 2, "TRUNG BÌNH": 3 };
   const quickTasks = state.tasks
     .filter(t => t.stage !== 'STAGE_DONE')
-    .sort((a, b) => (priorityRank[a.priority] || 9) - (priorityRank[b.priority] || 9))
-    .slice(0, 4);
+    .filter(t => dashTaskScope === "MINE" ? isTaskMine(t) : true)
+    .sort((a, b) => {
+      const ua = formatRelativeDueBadge(a).urgencyRank;
+      const ub = formatRelativeDueBadge(b).urgencyRank;
+      if (ua !== ub) return ua - ub;
+      return (priorityRank[a.priority] || 9) - (priorityRank[b.priority] || 9);
+    })
+    .slice(0, 6);
 
   let html = quickTasks.map(t => {
     const proj = state.projects.find(p => p.id === t.project_id);
     const m = proj ? state.merchants.find(merchant => merchant.id === proj.merchant_id) : null;
-
-    let typeBadge = 'Thương mại';
-    let typeCls = 'bg-purple-100 text-purple-700';
-    if (t.type === 'TECH_DELIVERY') { typeBadge = 'Kỹ thuật'; typeCls = 'bg-blue-100 text-blue-700'; }
-    if (t.type === 'PERSONAL') { typeBadge = 'Cá nhân'; typeCls = 'bg-slate-200 text-slate-700'; }
+    const dueMeta = formatRelativeDueBadge(t);
 
     return `
-      <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2 hover:border-teal-300 transition">
+      <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2 hover:border-teal-300 transition group">
         <div class="flex items-center space-x-2.5 min-w-0">
-          <input type="checkbox" onchange="toggleTaskDone('${t.id}')" class="w-4 h-4 accent-teal-600 rounded cursor-pointer shrink-0">
+          <input type="checkbox" onchange="toggleTaskDone('${t.id}')" class="w-4 h-4 accent-teal-600 rounded cursor-pointer shrink-0" title="Đánh dấu hoàn thành">
           <div class="min-w-0">
             <div class="text-xs font-bold text-slate-800 truncate">${t.title}</div>
             <div class="flex flex-wrap items-center gap-1.5 mt-1 text-[10px]">
-              <span class="px-1.5 py-0.2 rounded font-bold ${typeCls}">${typeBadge}</span>
-              <span class="text-slate-500 font-semibold">${m ? m.name : 'Nội bộ'}</span>
-              <span class="text-slate-300">•</span>
-              <span class="${t.is_overdue ? 'text-rose-600 font-bold' : 'text-slate-500'}">Hạn: ${t.due_date}</span>
+              <span class="px-1.5 py-0.5 rounded font-bold ${dueMeta.badgeCls}">${dueMeta.label}</span>
+              <span class="text-slate-500 font-semibold truncate max-w-[140px]">${m ? m.name : 'Việc cá nhân'}</span>
             </div>
           </div>
         </div>
 
-        <span class="shrink-0 px-2 py-0.5 rounded text-[9px] font-extrabold ${
-          t.priority === 'KHẨN CẤP' ? 'bg-rose-100 text-rose-700' :
-          t.priority === 'CAO' ? 'bg-amber-100 text-amber-700' : 'bg-slate-200 text-slate-700'
-        }">${t.priority}</span>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <button type="button" onclick="snoozeTaskOneDay('${t.id}')" class="px-2 py-1 rounded-lg bg-white border border-slate-200 hover:border-teal-300 hover:text-teal-700 text-[10px] font-bold text-slate-600 transition" title="Dời hạn sang ngày mai">+1d</button>
+          <span class="px-2 py-0.5 rounded text-[9px] font-extrabold ${
+            t.priority === 'KHẨN CẤP' ? 'bg-rose-100 text-rose-700' :
+            t.priority === 'CAO' ? 'bg-amber-100 text-amber-700' : 'bg-slate-200 text-slate-700'
+          }">${t.priority}</span>
+        </div>
       </div>
     `;
   }).join('');
@@ -485,7 +747,7 @@ function renderDashboardQuickTasks() {
     html = `
       <div class="p-6 rounded-2xl bg-gradient-to-br from-emerald-50/80 to-teal-50/40 border border-emerald-200/60 text-center space-y-1.5">
         <div class="text-sm font-extrabold text-emerald-800">✨ Mọi việc ưu tiên hôm nay đã gọn gàng!</div>
-        <div class="text-xs text-emerald-700/80">Bạn có thể thêm việc mới hoặc dành thời gian cho mục tiêu chiến lược.</div>
+        <div class="text-xs text-emerald-700/80">Bạn có thể gõ nhanh ở ô bên trên để thêm To-do mới bất kỳ lúc nào.</div>
       </div>
     `;
   }

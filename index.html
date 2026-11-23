@@ -353,8 +353,34 @@
           </div>
         </div>
 
-        <!-- ================= MODE A: TÂM ĐIỂM HÔM NAY (NHẸ NHÀNG, KHÔNG DỒN DẬP) ================= -->
+        <!-- ================= MODE A: TÂM ĐIỂM HÔM NAY (PERSONAL COCKPIT - PREVIEW) ================= -->
         <div id="dash-mode-focus" class="space-y-4 md:space-y-5">
+          <!-- Preview Mode Pill + Daily Progress & Smart Deadline Alert -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <!-- Thanh Tiến Độ Cá Nhân Hôm Nay -->
+            <div id="dash-personal-progress-card" class="lg:col-span-5 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between gap-4">
+              <div class="space-y-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200/80 text-[10px] font-extrabold uppercase tracking-wider">Preview • My Cockpit</span>
+                </div>
+                <div class="text-sm font-black text-slate-800 truncate" id="dash-progress-headline">Nhịp độ hôm nay</div>
+                <div class="text-xs text-slate-500" id="dash-progress-sub">Đang tính tiến độ công việc của bạn...</div>
+              </div>
+              <div class="relative w-14 h-14 shrink-0 flex items-center justify-center">
+                <svg class="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
+                  <circle cx="28" cy="28" r="22" fill="none" stroke="currentColor" stroke-width="5" class="text-slate-100" />
+                  <circle id="dash-progress-ring-circle" cx="28" cy="28" r="22" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-dasharray="138.23" stroke-dashoffset="138.23" class="text-teal-500 transition-all duration-500" />
+                </svg>
+                <span id="dash-progress-pct" class="absolute text-xs font-black text-slate-800">0%</span>
+              </div>
+            </div>
+
+            <!-- Cảnh Báo Task / To-Do Sắp Tới Hạn -->
+            <div id="dash-deadline-alert-strip" class="lg:col-span-7 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-center">
+              <!-- Rendered dynamically by renderDashboardDeadlineAlerts() -->
+            </div>
+          </div>
+
           <!-- Widget: Mục tiêu số 1 hôm nay -->
           <div class="bg-gradient-to-r from-amber-50/90 via-white to-teal-50/70 p-4 md:p-5 rounded-2xl border border-amber-200/70 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center space-x-3 flex-1 min-w-0">
@@ -385,26 +411,39 @@
                   <button onclick="navigateTo('CALENDAR')" class="text-xs text-slate-500 font-semibold hover:text-teal-600 whitespace-nowrap">Lịch tháng →</button>
                 </div>
               </div>
-              <div class="space-y-2.5 min-h-[140px] max-h-[270px] overflow-y-auto pr-1 custom-slim-scroll" id="dash-meetings-list">
+              <div class="space-y-2.5 min-h-[140px] max-h-[300px] overflow-y-auto pr-1 custom-slim-scroll" id="dash-meetings-list">
                 <!-- Rendered dynamically -->
               </div>
             </div>
 
-            <!-- Ô 2: VIỆC CẦN LÀM HÔM NAY -->
+            <!-- Ô 2: VIỆC CẦN LÀM & QUICK ADD TO-DO -->
             <div class="bg-white p-4 md:p-5 rounded-2xl border border-slate-200/70 shadow-xs flex flex-col">
               <div class="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2.5 border-b border-slate-100">
                 <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
                   <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
                     <i data-lucide="check-circle-2" class="w-4 h-4"></i>
                   </div>
-                  <span>Việc Ưu Tiên Hôm Nay</span>
+                  <span>To-Do &amp; Việc Cần Làm</span>
                 </div>
-                <div class="flex items-center space-x-2 shrink-0">
-                  <button onclick="openNewTaskModal()" class="text-xs text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg font-bold hover:bg-teal-100 transition whitespace-nowrap">+ Thêm việc</button>
+                <div class="flex items-center space-x-1.5 shrink-0">
+                  <button id="dash-task-scope-btn" onclick="toggleDashTaskScope()" class="text-[11px] px-2 py-1 rounded-lg font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition whitespace-nowrap" title="Chuyển giữa Việc của tôi và Toàn bộ">Việc của tôi</button>
+                  <button onclick="openNewTaskModal()" class="text-xs text-teal-700 bg-teal-50 px-2.5 py-1 rounded-lg font-bold hover:bg-teal-100 transition whitespace-nowrap">+ Chi tiết</button>
                   <button onclick="navigateTo('TASKS')" class="text-xs text-slate-500 font-semibold hover:text-teal-600 whitespace-nowrap">Tất cả →</button>
                 </div>
               </div>
-              <div class="space-y-2 min-h-[140px] max-h-[270px] overflow-y-auto pr-1 custom-slim-scroll" id="dash-quick-tasks">
+
+              <!-- Quick Capture 3 giây -->
+              <form id="dash-quick-add-form" onsubmit="handleQuickAddTodo(event)" class="mb-3 p-2 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <input id="dash-quick-add-input" type="text" placeholder="Ghi nhanh To-do mới... (Enter để lưu)" class="flex-1 bg-transparent px-2 py-1 text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none min-w-0" />
+                <div class="flex items-center justify-between sm:justify-end gap-1 shrink-0">
+                  <button type="button" onclick="setQuickTodoDuePreset('TODAY')" data-quick-due="TODAY" class="quick-due-chip px-2 py-1 rounded-lg text-[10px] font-bold bg-teal-600 text-white transition">Hôm nay</button>
+                  <button type="button" onclick="setQuickTodoDuePreset('TOMORROW')" data-quick-due="TOMORROW" class="quick-due-chip px-2 py-1 rounded-lg text-[10px] font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">Ngày mai</button>
+                  <button type="button" onclick="setQuickTodoDuePreset('WEEK')" data-quick-due="WEEK" class="quick-due-chip px-2 py-1 rounded-lg text-[10px] font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition">Tuần này</button>
+                  <button type="submit" class="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-extrabold transition shadow-xs">Lưu</button>
+                </div>
+              </form>
+
+              <div class="space-y-2 min-h-[140px] max-h-[290px] overflow-y-auto pr-1 custom-slim-scroll" id="dash-quick-tasks">
                 <!-- Rendered dynamically -->
               </div>
             </div>
