@@ -1693,12 +1693,21 @@
 
     <!-- Center Liquid Glass Sign-In Card with Large BPortal Logo Behind -->
     <div class="relative flex-1 flex items-center justify-center p-4 py-8 overflow-hidden">
-      <!-- Ambient Depth Glows + Large Centered BPortal Logo refracted by Liquid Glass -->
-      <div class="pointer-events-none select-none absolute inset-0 flex items-center justify-center overflow-hidden">
-        <div class="absolute w-[420px] h-[420px] rounded-full bg-teal-400/20 blur-3xl -translate-x-24 -translate-y-16"></div>
-        <div class="absolute w-[380px] h-[380px] rounded-full bg-sky-400/15 blur-3xl translate-x-24 translate-y-16"></div>
-        <img src="assets/brand/BPortal_Stacked_Light.svg" alt="" class="footer-logo-light w-[360px] sm:w-[520px] md:w-[660px] max-w-[92vw] opacity-[0.16] object-contain" />
-        <img src="assets/brand/BPortal_Stacked_Dark.svg" alt="" class="footer-logo-dark hidden w-[360px] sm:w-[520px] md:w-[660px] max-w-[92vw] opacity-[0.14] object-contain" />
+      <!-- Ambient Depth Glows + Flanking BPortal Brand Logos Visible Around Liquid Glass Card -->
+      <div class="pointer-events-none select-none absolute inset-0 overflow-hidden flex items-center justify-center">
+        <div class="absolute w-[460px] h-[460px] rounded-full bg-teal-400/25 blur-3xl -translate-x-48 -translate-y-20"></div>
+        <div class="absolute w-[420px] h-[420px] rounded-full bg-sky-400/20 blur-3xl translate-x-48 translate-y-20"></div>
+
+        <!-- Desktop: 2 Large Flanking Logos so the BPortal mark is clearly visible on left & right of the card -->
+        <div class="w-full max-w-6xl px-6 flex items-center justify-between gap-8 opacity-[0.22]">
+          <img src="assets/brand/BPortal_Stacked_Light.svg" alt="" class="footer-logo-light w-48 sm:w-64 md:w-80 object-contain -rotate-6" />
+          <img src="assets/brand/BPortal_Stacked_Dark.svg" alt="" class="footer-logo-dark hidden w-48 sm:w-64 md:w-80 object-contain -rotate-6" />
+
+          <div class="hidden md:block">
+            <img src="assets/brand/BPortal_Horizontal_Business_Operation_Light.svg" alt="" class="footer-logo-light w-72 lg:w-96 object-contain opacity-90" />
+            <img src="assets/brand/BPortal_Horizontal_Business_Operation_Dark.svg" alt="" class="footer-logo-dark hidden w-72 lg:w-96 object-contain opacity-90" />
+          </div>
+        </div>
       </div>
 
       <div class="login-liquid-card relative z-10 rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5">
