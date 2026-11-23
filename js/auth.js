@@ -6,6 +6,7 @@ const AUTH_EMAIL_KEY = "bryan_portal_current_user_email";
 const AUTH_NAME_KEY = "bryan_portal_current_user_name";
 const AUTH_PIN_KEY = "bryan_portal_current_user_pin";
 const AUTH_ROLE_KEY = "bryan_portal_current_user_role";
+const AUTH_REMEMBER_KEY = "bryan_portal_remember_creds_v1";
 const LOCAL_USERS_KEY = "bryan_portal_omni_users_v1";
 
 // Danh sách tài khoản mặc định (Admin chủ động cấp thêm cho 10 nhân sự phòng Omni)
@@ -77,9 +78,65 @@ function openAuthLoginModal() {
   if (!overlay) return;
   const inp = document.getElementById("auth-email-input");
   const pinInp = document.getElementById("auth-pin-input");
-  if (inp) inp.value = localStorage.getItem(AUTH_EMAIL_KEY) || "";
-  if (pinInp) pinInp.value = "";
+  const remCheck = document.getElementById("auth-remember-check");
+  let savedCreds = null;
+  try {
+    savedCreds = JSON.parse(localStorage.getItem(AUTH_REMEMBER_KEY) || "null");
+  } catch (e) {}
+
+  if (inp) inp.value = (savedCreds && savedCreds.email) || localStorage.getItem(AUTH_EMAIL_KEY) || "";
+  if (pinInp) pinInp.value = (savedCreds && savedCreds.pin) || "";
+  if (remCheck) remCheck.checked = savedCreds ? true : true;
   overlay.classList.remove("hidden");
+  if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+function toggleAuthPinVisibility() {
+  const pinInp = document.getElementById("auth-pin-input");
+  const icon = document.getElementById("auth-pin-eye-icon");
+  if (!pinInp) return;
+  const nextType = pinInp.type === "password" ? "text" : "password";
+  pinInp.type = nextType;
+  if (icon) {
+    icon.setAttribute("data-lucide", nextType === "text" ? "eye-off" : "eye");
+    if (typeof lucide !== "undefined") lucide.createIcons();
+  }
+}
+
+function openForgotPinNote() {
+  if (typeof showToast === "function") {
+    showToast("Vui lòng liên hệ Admin (tri.nguyen2@vietunion.com.vn) để được cấp lại Mã PIN.");
+  } else {
+    alert("Vui lòng liên hệ Admin (tri.nguyen2@vietunion.com.vn) để được cấp lại Mã PIN.");
+  }
+}
+
+function openBportalTermsModal() {
+  let modal = document.getElementById("modal-bportal-terms");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "modal-bportal-terms";
+    modal.className = "fixed inset-0 z-[10005] bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4";
+    modal.innerHTML = `
+      <div class="bg-white w-full max-w-lg rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
+        <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between">
+          <h3 class="text-sm font-black">Điều Khoản &amp; Chính Sách Sử Dụng BPortal</h3>
+          <button onclick="document.getElementById('modal-bportal-terms').classList.add('hidden')" class="text-slate-300 hover:text-white text-sm">✕</button>
+        </div>
+        <div class="p-5 space-y-3 text-xs text-slate-600 leading-relaxed max-h-[65vh] overflow-y-auto">
+          <p><strong class="text-slate-900">1. Phạm vi sử dụng:</strong> BPortal là không gian điều phối công việc và dữ liệu chuỗi đối tác B2B dành cho tài khoản được Admin cấp quyền.</p>
+          <p><strong class="text-slate-900">2. Bảo mật tài khoản:</strong> Người dùng tự chịu trách nhiệm bảo mật Mã PIN / Mật khẩu cá nhân và không chia sẻ tài khoản ra bên ngoài.</p>
+          <p><strong class="text-slate-900">3. Dữ liệu &amp; Quyền riêng tư:</strong> Dữ liệu từng tài khoản được cô lập riêng theo email. Tài khoản khi bị xóa sẽ được lưu trữ tạm 7 ngày trước khi xóa vĩnh viễn.</p>
+          <p class="text-[11px] text-slate-400 italic">(Nội dung chính sách chi tiết sẽ tiếp tục được cập nhật thêm).</p>
+        </div>
+        <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end">
+          <button type="button" onclick="document.getElementById('modal-bportal-terms').classList.add('hidden')" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold">Đã hiểu</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+  modal.classList.remove("hidden");
 }
 
 async function handleAuthLoginSubmit(e) {
@@ -131,6 +188,13 @@ async function handleAuthLoginSubmit(e) {
   localStorage.setItem(AUTH_NAME_KEY, authenticatedUser.name || "Nhân sự Omni");
   localStorage.setItem(AUTH_PIN_KEY, pin);
   localStorage.setItem(AUTH_ROLE_KEY, authenticatedUser.role || "USER");
+
+  const remCheck = document.getElementById("auth-remember-check");
+  if (remCheck && remCheck.checked) {
+    localStorage.setItem(AUTH_REMEMBER_KEY, JSON.stringify({ email: authenticatedUser.email.toLowerCase(), pin }));
+  } else {
+    localStorage.removeItem(AUTH_REMEMBER_KEY);
+  }
 
   // Đồng bộ lại local whitelist với PIN vừa xác thực thành công từ Server (tránh PIN mặc định 180526 đá văng khi reload)
   const localUsers = getLocalOmniUsers();
