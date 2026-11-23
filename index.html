@@ -788,8 +788,8 @@
                 <i data-lucide="chevron-right" class="w-4 h-4"></i>
               </button>
             </div>
-            <button onclick="goToTodayCalendar()" class="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold transition whitespace-nowrap">
-              Hôm nay (21/11)
+            <button id="cal-today-btn" onclick="goToTodayCalendar()" class="px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 text-xs font-bold transition whitespace-nowrap">
+              Hôm nay
             </button>
           </div>
 
@@ -828,14 +828,14 @@
         <div id="cal-view-month" class="grid grid-cols-1 lg:grid-cols-[65fr_35fr] gap-4 items-start">
           <!-- Lưới Calendar 7 Cột -->
           <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div class="grid grid-cols-7 bg-slate-50 border-b border-slate-200 text-center text-[11px] font-black text-slate-500 py-2.5">
-              <div>Thứ 2</div>
-              <div>Thứ 3</div>
-              <div>Thứ 4</div>
-              <div>Thứ 5</div>
-              <div>Thứ 6</div>
-              <div class="text-teal-700">Thứ 7</div>
-              <div class="text-rose-600">Chủ Nhật</div>
+            <div class="grid grid-cols-7 bg-slate-50 border-b border-slate-200 text-center text-[11px] font-black text-slate-500 py-2">
+              <div data-cal-weekday="1" class="py-1 mx-1 rounded-lg">Thứ 2</div>
+              <div data-cal-weekday="2" class="py-1 mx-1 rounded-lg">Thứ 3</div>
+              <div data-cal-weekday="3" class="py-1 mx-1 rounded-lg">Thứ 4</div>
+              <div data-cal-weekday="4" class="py-1 mx-1 rounded-lg">Thứ 5</div>
+              <div data-cal-weekday="5" class="py-1 mx-1 rounded-lg">Thứ 6</div>
+              <div data-cal-weekday="6" class="py-1 mx-1 rounded-lg">Thứ 7</div>
+              <div data-cal-weekday="0" class="py-1 mx-1 rounded-lg text-rose-600">Chủ Nhật</div>
             </div>
             <div class="grid grid-cols-7 divide-x divide-y divide-slate-100" id="cal-grid-cells">
               <!-- Rendered dynamically -->
@@ -1907,6 +1907,6 @@
   <script src="js/notifications-automation.js?v=3.6.0"></script>
   <script src="js/undo-engine.js?v=3.8.0"></script>
   <script src="js/onboarding.js?v=3.3.0"></script>
-  <script src="js/calendar.js?v=3.9.16"></script>
+  <script src="js/calendar.js?v=3.9.22"></script>
 </body>
 </html>

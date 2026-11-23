@@ -1,9 +1,29 @@
 // -------------------------------------------------------------
 // 13. UNIFIED SMART CALENDAR ENGINE (LỊCH THÁNG + LỘ TRÌNH CỘT MỐC)
 // -------------------------------------------------------------
-let calYear = 2026;
-let calMonth = 10; // 0-indexed: 10 = Tháng 11
-let selectedCalendarDate = "2026-11-21";
+function getCalendarTodayInfo() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const d = now.getDate();
+  const mm = String(m + 1).padStart(2, "0");
+  const dd = String(d).padStart(2, "0");
+  const weekdays = ["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
+  return {
+    year: y,
+    month: m,
+    day: d,
+    weekdayIdx: now.getDay(),
+    weekdayLabel: weekdays[now.getDay()],
+    shortDate: `${dd}/${mm}`,
+    iso: `${y}-${mm}-${dd}`
+  };
+}
+
+const _initToday = getCalendarTodayInfo();
+let calYear = _initToday.year;
+let calMonth = _initToday.month; // 0-indexed
+let selectedCalendarDate = _initToday.iso;
 let calendarFilter = "ALL"; // ALL | MEETING | PROJECT | TASK
 let calendarMode = "MONTH"; // MONTH | TIMELINE
 
@@ -20,9 +40,10 @@ function changeCalendarMonth(delta) {
 }
 
 function goToTodayCalendar() {
-  calYear = 2026;
-  calMonth = 10;
-  selectedCalendarDate = "2026-11-21";
+  const today = getCalendarTodayInfo();
+  calYear = today.year;
+  calMonth = today.month;
+  selectedCalendarDate = today.iso;
   renderCalendarView();
 }
 
@@ -142,6 +163,26 @@ function renderCalendarGrid() {
   const grid = document.getElementById("cal-grid-cells");
   if (!grid) return;
 
+  const todayInfo = getCalendarTodayInfo();
+  const todayBtn = document.getElementById("cal-today-btn");
+  if (todayBtn) {
+    todayBtn.textContent = `Hôm nay • ${todayInfo.weekdayLabel} (${todayInfo.shortDate})`;
+  }
+
+  // Highlight cột Thứ của hôm nay khi đang xem tháng hiện tại (giống Google Calendar)
+  const isViewingCurrentMonth = calYear === todayInfo.year && calMonth === todayInfo.month;
+  document.querySelectorAll("[data-cal-weekday]").forEach(el => {
+    const wd = Number(el.getAttribute("data-cal-weekday"));
+    const isTodayCol = isViewingCurrentMonth && wd === todayInfo.weekdayIdx;
+    if (isTodayCol) {
+      el.className = "py-1 mx-1 rounded-lg bg-teal-50 text-teal-700 font-black";
+    } else if (wd === 0) {
+      el.className = "py-1 mx-1 rounded-lg text-rose-600";
+    } else {
+      el.className = "py-1 mx-1 rounded-lg";
+    }
+  });
+
   const events = getAllCalendarEvents();
   const firstDay = new Date(calYear, calMonth, 1);
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
@@ -163,7 +204,7 @@ function renderCalendarGrid() {
     const dd = String(d).padStart(2, "0");
     const dateStr = `${calYear}-${mm}-${dd}`;
 
-    const isToday = dateStr === "2026-11-21";
+    const isToday = dateStr === todayInfo.iso;
     const isSelected = dateStr === selectedCalendarDate;
     const dayEvents = events.filter(ev => ev.date === dateStr);
 
