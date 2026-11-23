@@ -213,20 +213,54 @@ function findMatchingOpenTask(query) {
   return (state?.tasks || []).find(t => t.stage !== "STAGE_DONE" && norm(t.title).includes(q)) || null;
 }
 
+function completeTaskFromOmnibar(taskId) {
+  const t = (state?.tasks || []).find(item => item.id === taskId);
+  if (!t || typeof toggleTaskDone !== "function") return;
+  toggleTaskDone(t.id);
+  const inp = document.getElementById("nlp-command-input");
+  if (inp) inp.value = "";
+  hideOmnibarPreview();
+  showToast(`✓ Đã hoàn thành nhiệm vụ: "${t.title}"`);
+}
+
+function appendOmnibarText(snippet) {
+  const inp = document.getElementById("nlp-command-input");
+  if (!inp) return;
+  inp.value = (inp.value.trim() ? inp.value.trim() + " " : "") + snippet;
+  inp.focus();
+  handleOmnibarLivePreview(inp.value);
+}
+
 // Live Token Preview khi người dùng đang gõ trên Omnibar (Mục 2.3 SRS)
 function handleOmnibarLivePreview(raw) {
   const box = document.getElementById("omnibar-preview");
   const tokensEl = document.getElementById("omnibar-preview-tokens");
+  const suggEl = document.getElementById("omnibar-preview-suggestions");
   if (!box || !tokensEl) return;
 
   const val = (raw || "").trim();
+  const norm = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+
   if (!val) {
-    box.classList.add("hidden");
+    tokensEl.innerHTML = `<span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Lệnh nhanh:</span>`;
+    if (suggEl) {
+      suggEl.innerHTML = `
+        <div class="flex flex-wrap gap-1.5 pt-0.5">
+          <button type="button" onclick="setNlpCommand('xong task ')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-teal-50 text-slate-700 hover:text-teal-800 text-[11px] font-bold transition">✓ Xong task...</button>
+          <button type="button" onclick="setNlpCommand('Tạo task ')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-teal-50 text-slate-700 hover:text-teal-800 text-[11px] font-bold transition">+ Tạo task...</button>
+          <button type="button" onclick="setNlpCommand('xong B')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-teal-50 text-slate-700 hover:text-teal-800 text-[11px] font-bold transition">⚡ Xong bước...</button>
+          <button type="button" onclick="setNlpCommand('GO LIVE ')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-teal-50 text-slate-700 hover:text-teal-800 text-[11px] font-bold transition">🚀 Go Live...</button>
+          <button type="button" onclick="setNlpCommand('Họp với  lúc 14h')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-teal-50 text-slate-700 hover:text-teal-800 text-[11px] font-bold transition">📅 Đặt lịch họp...</button>
+        </div>
+      `;
+    }
+    box.classList.remove("hidden");
     return;
   }
 
   const lower = val.toLowerCase();
   const chips = [];
+  let suggHtml = "";
 
   // 0. Lệnh GO LIVE nhanh: "go live [Tên thương hiệu / Tên đối tác]"
   if (/^(go\s*-?\s*live|golive|bàn giao)\b/i.test(lower)) {
@@ -237,6 +271,16 @@ function handleOmnibarLivePreview(raw) {
       chips.push(`<span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 font-bold">🏢 ${matchedOb.brand_name || matchedOb.merchant_name}</span>`);
     } else if (qName) {
       chips.push(`<span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 font-bold">Tìm đối tác: ${qName}</span>`);
+    }
+    const obs = (typeof onboardingList !== "undefined" ? onboardingList : [])
+      .filter(o => !o.graduated && (!qName || norm(o.brand_name || o.merchant_name).includes(norm(qName)) || norm(o.merchant_name).includes(norm(qName))))
+      .slice(0, 5);
+    if (obs.length > 0) {
+      suggHtml = `<div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Chọn chuỗi để Go Live:</div>` +
+        obs.map(o => {
+          const label = o.brand_name || o.merchant_name;
+          return `<button type="button" onclick="setNlpCommand('GO LIVE ${label.replace(/'/g, "\\'")}')" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between text-left text-xs transition"><span class="font-bold text-slate-800 truncate">${label}</span><span class="text-[10px] font-bold text-teal-700 shrink-0">${o.channel} • Chọn →</span></button>`;
+        }).join("");
     }
   }
   // 1. Tạo quy trình mới
@@ -264,18 +308,27 @@ function handleOmnibarLivePreview(raw) {
     const mFound = state.merchants.find(m => lower.includes(m.name.toLowerCase()) || lower.includes(m.alias.replace("@","").toLowerCase()));
     if (mFound) chips.push(`<span class="px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 font-bold">🏢 ${mFound.name}</span>`);
   }
-  // 2.5 Hoàn thành nhanh Task: "xong task [tên]" / "xong việc [tên]"
+  // 2.5 Hoàn thành nhanh Task: "xong task [tên]" / "xong việc [tên]" -> Hiện danh sách task chưa xong để chọn ngay!
   else if (/^(xong|hoàn thành|done)\s+(task|việc|nhiệm vụ|todo)\b/i.test(lower)) {
     const qTitle = val.replace(/^(xong|hoàn thành|done)\s+(task|việc|nhiệm vụ|todo)\s*/i, "").trim();
-    const matched = findMatchingOpenTask(qTitle);
+    const openTasks = (state?.tasks || []).filter(t => t.stage !== "STAGE_DONE" && (!qTitle || norm(t.title).includes(norm(qTitle))));
     chips.push(`<span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 font-bold">✓ Hoàn thành Nhiệm vụ</span>`);
-    if (matched) {
-      chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-bold">${matched.title}</span>`);
-    } else if (qTitle) {
-      chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 font-medium">Tìm việc: "${qTitle}"</span>`);
+    if (openTasks.length > 0) {
+      suggHtml = `<div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Chọn việc chưa xong để chốt ngay (${openTasks.length}):</div>` +
+        openTasks.slice(0, 6).map(t => `
+          <button type="button" onclick="completeTaskFromOmnibar('${t.id}')" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between gap-2 text-left text-xs transition">
+            <div class="min-w-0">
+              <div class="font-bold text-slate-800 truncate">${t.title}</div>
+              <div class="text-[10px] text-slate-500">Hạn: ${t.due_date || 'Chưa đặt'} • ${t.priority || 'TRUNG BÌNH'}</div>
+            </div>
+            <span class="px-2 py-0.5 rounded bg-teal-600 text-white text-[10px] font-bold shrink-0">✓ Xong</span>
+          </button>
+        `).join("");
+    } else {
+      suggHtml = `<div class="text-xs text-slate-400 py-2">Không có đầu việc đang mở${qTitle ? ` khớp với "${qTitle}"` : ""}.</div>`;
     }
   }
-  // 3. Tick bước Onboarding (Context-Aware + Attio NLP Aliases)
+  // 3. Tick bước Onboarding (Context-Aware + Attio NLP Aliases) -> Hiện các Onboarding đang chạy để chọn nhanh
   else if (/\b(xong|hoàn thành|done|đã duyệt|duyệt|tới)\b/i.test(lower) || /\bb\d{1,2}\b/i.test(lower) || /\bbước\s*\d{1,2}\b/i.test(lower) || (typeof resolveAttioCommandTarget === "function" && resolveAttioCommandTarget(val).targetStepNo !== null)) {
     chips.push(`<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold">✓ Cập nhật tiến độ (Attio)</span>`);
     const resolved = typeof resolveAttioCommandTarget === "function" ? resolveAttioCommandTarget(val) : null;
@@ -287,21 +340,49 @@ function handleOmnibarLivePreview(raw) {
         if (st) chips.push(`<span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 font-semibold">B${st.step_no}: ${st.title}</span>`);
       }
     }
+    const activeObs = (typeof onboardingList !== "undefined" ? onboardingList : []).filter(o => !o.graduated).slice(0, 4);
+    if (activeObs.length > 0 && !resolved?.targetOb) {
+      suggHtml = `<div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Chọn chuỗi Onboarding:</div>` +
+        activeObs.map(o => {
+          const nextStep = (o.tasks || []).find(t => !t.done);
+          const brand = o.brand_name || o.merchant_name;
+          const cmdText = nextStep ? `xong B${nextStep.step_no} ${brand}` : `xong B1 ${brand}`;
+          return `<button type="button" onclick="setNlpCommand('${cmdText.replace(/'/g, "\\'")}')" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between gap-2 text-left text-xs transition"><span class="font-bold text-slate-800 truncate">${brand}</span><span class="text-[10px] text-teal-700 font-semibold shrink-0">${nextStep ? `B${nextStep.step_no}: ${nextStep.title.slice(0, 26)}...` : 'Sẵn sàng Go-Live'}</span></button>`;
+        }).join("");
+    }
   }
-  // 4. Tạo Task / Thêm việc
+  // 4. Tạo Task / Thêm việc -> Hiện chip chọn nhanh hạn chót
   else if (/^(tạo\s*task|thêm\s*việc|tạo\s*việc|todo|nhiệm\s*vụ)\b/i.test(lower) || lower.includes("tạo task") || lower.includes("thêm việc")) {
     const dueInfo = parseOmnibarDueDate(val);
     chips.push(`<span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 font-bold">📋 Tạo đầu việc mới</span>`);
     chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold">📆 Hạn: ${dueInfo.label}</span>`);
     if (lower.includes("khẩn")) chips.push(`<span class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 font-bold">Khẩn cấp</span>`);
     else if (lower.includes("cao") || lower.includes("gấp")) chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold">Ưu tiên Cao</span>`);
+    suggHtml = `
+      <div class="flex flex-wrap items-center gap-1.5 pt-1 text-[10px]">
+        <span class="text-slate-400 font-bold">Thêm nhanh:</span>
+        <button type="button" onclick="appendOmnibarText('hôm nay')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-teal-50 text-slate-700 font-bold transition">+ Hôm nay</button>
+        <button type="button" onclick="appendOmnibarText('ngày mai')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-teal-50 text-slate-700 font-bold transition">+ Ngày mai</button>
+        <button type="button" onclick="appendOmnibarText('tuần này')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-teal-50 text-slate-700 font-bold transition">+ Tuần này</button>
+        <button type="button" onclick="appendOmnibarText('khẩn cấp')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-rose-50 text-rose-700 font-bold transition">+ Khẩn cấp</button>
+      </div>
+    `;
   }
-  // Mặc định: gợi ý thao tác nhanh
+  // Mặc định: gợi ý thao tác nhanh + tìm kiếm hệ thống công ty
   else {
-    chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium">💡 Gợi ý: <strong>Tạo task [tên] ngày mai</strong> • <strong>xong task [tên]</strong> • <strong>xong B3</strong> • <strong>Họp 14h</strong></span>`);
+    chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium">💡 Gợi ý: <strong>Tạo task [tên] ngày mai</strong> • <strong>xong task</strong> • <strong>xong B3</strong></span>`);
+    const qNorm = norm(val);
+    const matchedTasks = (state?.tasks || []).filter(t => t.stage !== "STAGE_DONE" && norm(t.title).includes(qNorm)).slice(0, 3);
+    const matchedApps = (typeof getAllCompanyPortalApps === "function" ? getAllCompanyPortalApps() : []).filter(a => norm(a.name).includes(qNorm) || norm(a.desc).includes(qNorm) || norm(a.keywords).includes(qNorm)).slice(0, 3);
+    const rows = [
+      ...matchedTasks.map(t => `<button type="button" onclick="completeTaskFromOmnibar('${t.id}')" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between text-left text-xs transition"><span class="font-bold text-slate-800 truncate">${t.title}</span><span class="text-[10px] font-bold text-teal-700 shrink-0">✓ Xong</span></button>`),
+      ...matchedApps.map(a => `<a href="${a.url}" target="_blank" rel="noopener" onclick="hideOmnibarPreview()" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between text-left text-xs transition"><span class="font-bold text-slate-800 truncate">${a.name} <span class="font-normal text-slate-500">• ${a.desc}</span></span><span class="text-[10px] font-bold text-teal-700 shrink-0">Mở ↗</span></a>`)
+    ];
+    if (rows.length > 0) suggHtml = rows.join("");
   }
 
   tokensEl.innerHTML = chips.join("");
+  if (suggEl) suggEl.innerHTML = suggHtml;
   box.classList.remove("hidden");
 }
 
