@@ -209,43 +209,61 @@ function parseOmnibarDueDate(raw) {
   return { iso: toIso(base), label: "Hôm nay" };
 }
 
-function findPartnerProjectFromOmnibarText(raw) {
+function findMatchingMerchantsFromOmnibarText(raw) {
   const norm = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").trim();
   const q = norm(raw);
-  if (!q) return { merchant: null, project: null };
+  if (!q) return [];
 
-  const stopWords = new Set(["cong", "tnhh", "co", "phan", "thuong", "mai", "dich", "vu", "viet", "nam", "tao", "task", "them", "viec", "cho", "hom", "nay", "ngay", "mai", "tuan", "khan", "cap", "clear", "phi"]);
-  const qWords = q.split(/[^a-z0-9]+/).filter(w => w.length >= 3 && !stopWords.has(w));
-
+  const stopWords = new Set(["cong", "tnhh", "co", "phan", "thuong", "mai", "dich", "vu", "tao", "task", "them", "viec", "cho", "hom", "nay", "ngay", "mai", "tuan", "khan", "cap", "clear", "phi", "hop", "voi", "luc", "xong", "buoc", "golive", "live"]);
+  const qWords = q.split(/[^a-z0-9]+/).filter(w => w.length >= 2 && !stopWords.has(w));
   const merchants = state?.merchants || [];
-  let matchedM = null;
-  // 1. Ưu tiên khớp trọn chuỗi brand_name, alias, hoặc tên đầy đủ
-  for (const m of merchants) {
+
+  // 1. Khớp trọn chuỗi brand_name / alias / name
+  const exactHits = merchants.filter(m => {
     const brand = norm(m.brand_name);
     const alias = norm((m.alias || "").replace("@", ""));
     const full = norm(m.name);
-    if ((brand && brand.length >= 2 && q.includes(brand)) ||
-        (alias && alias.length >= 2 && q.includes(alias)) ||
-        (full && q.includes(full))) {
-      matchedM = m;
-      break;
-    }
-  }
-  // 2. Nếu gõ tắt 1 từ thương hiệu (VD: gõ "TDP" cho "TDP IELTS")
-  if (!matchedM && qWords.length > 0) {
-    for (const m of merchants) {
-      const mTokens = norm(`${m.brand_name || ""} ${m.name || ""} ${(m.alias || "").replace("@", "")}`)
-        .split(/[^a-z0-9]+/)
-        .filter(w => w.length >= 3 && !stopWords.has(w));
-      if (qWords.some(qw => mTokens.includes(qw))) {
-        matchedM = m;
-        break;
-      }
-    }
-  }
-  if (!matchedM) return { merchant: null, project: null };
+    return (brand && brand.length >= 2 && q.includes(brand)) ||
+           (alias && alias.length >= 2 && q.includes(alias)) ||
+           (full && q.includes(full));
+  });
+  if (exactHits.length > 0) return exactHits;
+
+  // 2. Khớp từ khóa ngắn / gõ dở (VD: "tdp" -> "TDP IELTS", "viet" -> "Việt Thanh")
+  if (qWords.length === 0) return [];
+  const lastWord = qWords[qWords.length - 1];
+  const partialHits = merchants.filter(m => {
+    const hay = norm(`${m.brand_name || ""} ${m.name || ""} ${(m.alias || "").replace("@", "")}`);
+    return hay.includes(lastWord) || qWords.some(w => w.length >= 3 && hay.includes(w));
+  });
+  return partialHits;
+}
+
+function findPartnerProjectFromOmnibarText(raw) {
+  const matches = findMatchingMerchantsFromOmnibarText(raw);
+  if (matches.length === 0) return { merchant: null, project: null };
+  const matchedM = matches[0];
   const proj = (state?.projects || []).find(p => p.merchant_id === matchedM.id) || null;
   return { merchant: matchedM, project: proj };
+}
+
+function selectOmnibarPartner(merchantId) {
+  const m = (state?.merchants || []).find(item => item.id === merchantId);
+  const inp = document.getElementById("nlp-command-input");
+  if (!m || !inp) return;
+  const label = m.brand_name || m.name;
+  const norm = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").trim();
+  const hay = norm(`${m.brand_name || ""} ${m.name || ""} ${(m.alias || "").replace("@", "")}`);
+  const tokens = inp.value.trim().split(/\s+/);
+  // Nếu từ cuối đang là từ gõ dở của đối tác (VD: "TDP", "Việt") thì thay bằng tên đầy đủ
+  if (tokens.length > 1 && hay.includes(norm(tokens[tokens.length - 1]))) {
+    tokens[tokens.length - 1] = label;
+    inp.value = tokens.join(" ") + " ";
+  } else if (!norm(inp.value).includes(norm(label))) {
+    inp.value = inp.value.trim() + " " + label + " ";
+  }
+  inp.focus();
+  handleOmnibarLivePreview(inp.value);
 }
 
 function findMatchingOpenTask(query) {
@@ -393,32 +411,43 @@ function handleOmnibarLivePreview(raw) {
         }).join("");
     }
   }
-  // 4. Tạo Task / Thêm việc -> Hiện chip chọn nhanh hạn chót & nhận diện đối tác tự động
+  // 4. Tạo Task / Thêm việc -> Hiện chip chọn nhanh hạn chót & đối tác gợi ý
   else if (/^(tạo\s*task|thêm\s*việc|tạo\s*việc|todo|nhiệm\s*vụ)\b/i.test(lower) || lower.includes("tạo task") || lower.includes("thêm việc")) {
     const dueInfo = parseOmnibarDueDate(val);
-    const { merchant } = findPartnerProjectFromOmnibarText(val);
+    const matchedMerchants = findMatchingMerchantsFromOmnibarText(val);
+    const primaryMerchant = matchedMerchants[0] || null;
     chips.push(`<span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 font-bold">📋 Tạo đầu việc mới</span>`);
-    if (merchant) chips.push(`<span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 font-bold">🏢 ${merchant.brand_name || merchant.name}</span>`);
+    if (primaryMerchant) chips.push(`<span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 font-bold">🏢 ${primaryMerchant.brand_name || primaryMerchant.name}</span>`);
     chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold">📆 Hạn: ${dueInfo.label}</span>`);
     if (lower.includes("khẩn")) chips.push(`<span class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 font-bold">Khẩn cấp</span>`);
     else if (lower.includes("cao") || lower.includes("gấp")) chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold">Ưu tiên Cao</span>`);
+
+    const partnerChips = (matchedMerchants.length > 0 ? matchedMerchants : (state?.merchants || [])).slice(0, 5)
+      .map(m => `<button type="button" onclick="selectOmnibarPartner('${m.id}')" class="px-2 py-0.5 rounded bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200/70 font-bold transition">🏢 ${m.brand_name || m.name}</button>`)
+      .join("");
+
     suggHtml = `
-      <div class="flex flex-wrap items-center gap-1.5 pt-1 text-[10px]">
-        <span class="text-slate-400 font-bold">Thêm nhanh:</span>
-        <button type="button" onclick="appendOmnibarText('hôm nay')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-teal-50 text-slate-700 font-bold transition">+ Hôm nay</button>
-        <button type="button" onclick="appendOmnibarText('ngày mai')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-teal-50 text-slate-700 font-bold transition">+ Ngày mai</button>
-        <button type="button" onclick="appendOmnibarText('tuần này')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-teal-50 text-slate-700 font-bold transition">+ Tuần này</button>
-        <button type="button" onclick="appendOmnibarText('khẩn cấp')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-rose-50 text-rose-700 font-bold transition">+ Khẩn cấp</button>
+      <div class="space-y-1.5 pt-1 text-[10px]">
+        ${partnerChips ? `<div class="flex flex-wrap items-center gap-1"><span class="text-slate-400 font-bold">Đối tác:</span>${partnerChips}</div>` : ""}
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="text-slate-400 font-bold">Hạn nhanh:</span>
+          <button type="button" onclick="appendOmnibarText('hôm nay')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-teal-50 text-slate-700 font-bold transition">+ Hôm nay</button>
+          <button type="button" onclick="appendOmnibarText('ngày mai')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-teal-50 text-slate-700 font-bold transition">+ Ngày mai</button>
+          <button type="button" onclick="appendOmnibarText('tuần này')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-teal-50 text-slate-700 font-bold transition">+ Tuần này</button>
+          <button type="button" onclick="appendOmnibarText('khẩn cấp')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-rose-50 text-rose-700 font-bold transition">+ Khẩn cấp</button>
+        </div>
       </div>
     `;
   }
-  // Mặc định: gợi ý thao tác nhanh + tìm kiếm hệ thống công ty
+  // Mặc định: gợi ý thao tác nhanh + tìm kiếm đối tác, việc, hệ thống công ty
   else {
     chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium">💡 Gợi ý: <strong>Tạo task [tên] ngày mai</strong> • <strong>xong task</strong> • <strong>xong B3</strong></span>`);
     const qNorm = norm(val);
+    const matchedPartners = (state?.merchants || []).filter(m => norm(m.brand_name).includes(qNorm) || norm(m.name).includes(qNorm) || norm(m.alias).includes(qNorm)).slice(0, 4);
     const matchedTasks = (state?.tasks || []).filter(t => t.stage !== "STAGE_DONE" && norm(t.title).includes(qNorm)).slice(0, 3);
     const matchedApps = (typeof getAllCompanyPortalApps === "function" ? getAllCompanyPortalApps() : []).filter(a => norm(a.name).includes(qNorm) || norm(a.desc).includes(qNorm) || norm(a.keywords).includes(qNorm)).slice(0, 3);
     const rows = [
+      ...matchedPartners.map(m => `<button type="button" onclick="selectMerchant('${m.id}'); navigateTo('PROJECTS'); hideOmnibarPreview();" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between text-left text-xs transition"><span class="font-bold text-slate-800 truncate">🏢 ${m.brand_name || m.name} <span class="font-normal text-slate-500">• ${m.name}</span></span><span class="text-[10px] font-bold text-teal-700 shrink-0">Mở chuỗi →</span></button>`),
       ...matchedTasks.map(t => `<button type="button" onclick="completeTaskFromOmnibar('${t.id}')" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between text-left text-xs transition"><span class="font-bold text-slate-800 truncate">${t.title}</span><span class="text-[10px] font-bold text-teal-700 shrink-0">✓ Xong</span></button>`),
       ...matchedApps.map(a => `<a href="${a.url}" target="_blank" rel="noopener" onclick="hideOmnibarPreview()" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between text-left text-xs transition"><span class="font-bold text-slate-800 truncate">${a.name} <span class="font-normal text-slate-500">• ${a.desc}</span></span><span class="text-[10px] font-bold text-teal-700 shrink-0">Mở ↗</span></a>`)
     ];
