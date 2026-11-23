@@ -612,7 +612,7 @@ function doPost(e) {
         upsertOwnerRowsToSheet(ss, "Meetings", ["id", "date", "time", "title", "partner", "attendees", "reminder_minutes", "notify_channels", "gcal_event_id", "owner_email", "updated_at"], ownerEmail, syncedMeetings);
       }
       if (Array.isArray(body.folders)) {
-        upsertOwnerRowsToSheet(ss, "Folders", ["id", "merchant_id", "title", "file_name", "path", "action_label", "badge", "owner_email", "updated_at"], ownerEmail, body.folders);
+        upsertOwnerRowsToSheet(ss, "Folders", ["id", "merchant_id", "title", "file_name", "path", "note", "action_label", "badge", "owner_email", "updated_at"], ownerEmail, body.folders);
       }
       if (Array.isArray(body.onboarding)) {
         upsertOwnerRowsToSheet(ss, "Onboarding",

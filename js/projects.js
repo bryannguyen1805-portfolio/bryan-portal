@@ -1387,6 +1387,7 @@ function handleSaveStakeholder(e) {
     showToast("✓ Đã thêm nhân sự vào danh bạ!");
   }
 
+  saveStateStorage();
   closeStakeholderModal();
   renderMerchantWorkspaceBody();
 }
@@ -1446,6 +1447,7 @@ function handleSaveFolder(e) {
     showToast("✓ Đã lưu đường dẫn thư mục máy tính!");
   }
 
+  saveStateStorage();
   closeFolderModal();
   renderMerchantWorkspaceBody();
 }
@@ -1453,6 +1455,7 @@ function handleSaveFolder(e) {
 function deleteFolder(fId) {
   if (confirm("Bạn có chắc muốn xóa đường dẫn thư mục này?")) {
     state.folders = state.folders.filter(f => f.id !== fId);
+    saveStateStorage();
     renderMerchantWorkspaceBody();
     showToast("✓ Đã xóa đường dẫn thư mục!");
   }
