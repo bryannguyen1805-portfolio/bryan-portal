@@ -2,25 +2,27 @@
 // BỘ MẪU THƯ ĐIỀU PHỐI TỰ ĐỘNG 1 CHẠM (CHẶNG 3: B9, B10, B12)
 // -------------------------------------------------------------
 
-function generatePartnerCodeUpper(merchantName) {
-  const norm = (merchantName || "PARTNER")
+function generatePartnerCodeUpper(brandOrMerchantName) {
+  const norm = (brandOrMerchantName || "PARTNER")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d")
     .replace(/Đ/g, "D")
     .replace(/[^a-zA-Z0-9\s]/g, "")
     .trim();
-  const firstToken = norm.split(/\s+/)[0] || "PARTNER";
-  return firstToken.toUpperCase();
+  const compact = norm.replace(/\s+/g, "");
+  return (compact || "PARTNER").toUpperCase();
 }
 
 function getOnboardingEmailMeta(obRecord) {
-  const brand = obRecord?.merchant_name || "Đối Tác Mới";
+  const legalFallback = obRecord?.merchant_name || "Đối Tác Mới";
+  const brand = (obRecord?.brand_name || "").trim() || legalFallback;
   const saved = obRecord?.email_meta || {};
   const partnerCode = saved.partnerCode || generatePartnerCodeUpper(brand);
+  const defaultLegal = /^công\s*ty/i.test(legalFallback) ? legalFallback : `Công ty Cổ phần ${legalFallback}`;
   return {
     brand,
-    legalName: saved.legalName || `Công ty Cổ phần ${brand}`,
+    legalName: saved.legalName || defaultLegal,
     partnerCode,
     acqBank: saved.acqBank || "Pvcombank / VietinBank",
     posCount: saved.posCount || "10",
@@ -37,21 +39,22 @@ function buildStepEmailDraft(obRecord, stepNo) {
   const m = getOnboardingEmailMeta(obRecord);
   const tkpyOffline = `PY7_${m.partnerCode}_POS`;
   const tkpyOnline = `PY7_${m.partnerCode}_PGW`;
+  const channelCode = (obRecord?.channel || "POS").trim();
 
   if (stepNo === 9) {
     return {
       stepNo: 9,
       stepLabel: "Bước B9: Yêu cầu cấp thiết bị SmartPOS (BM_03)",
-      to: "ASM Phụ Trách; T.OP HCM/HN",
-      cc: "Trưởng Bộ Phận (TBP); Điều phối dự án",
-      subject: `[Payoo KD] Gửi BM_03 triển khai SmartPOS - ${m.brand}`,
+      to: "ASM Dept <asm.div@vietunion.com.vn>; OP PosHCM <op.poshcm@vietunion.com.vn>; OP PosHN <op.poshn@vietunion.com.vn>",
+      cc: "Omni Dept <omni.div@vietunion.com.vn>; Control Fee Group <_ic.fee@vietunion.com.vn>; Technical Terminal Operation <tech.tops@vietunion.com.vn>",
+      subject: `[${m.brand}] Yêu cầu cài đặt TK và Lắp đặt TBTT cho PY7_${m.partnerCode}_${channelCode} _ Đợt 1 (MN&MB)`,
       tkpyLabel: `TKPY Offline: ${tkpyOffline}`,
       body: `Dear ASM và T.OP HCM/HN,
 
 KD gửi BM_03 triển khai SmartPOS cho Đối Tác mới ${m.brand}
 - TKPY Offline: ${tkpyOffline}
 - ACQ Bank: ${m.acqBank}
-- Smart POS: ${m.posCount} máy (${m.posModel})
+- Smart POS: ${m.posCount} máy
 - Hình ảnh cửa hàng: Tệp Đính kèm
 - Ghi chú: có thông số ngân hàng nào thỏa ưu tiên thì cài đặt và giao trước.
 
