@@ -264,7 +264,8 @@ button.rounded-lg {
 /* Dark Appearance Mode — Calm Matte Executive Palette (Linear / GitHub Dark, Zero Neon) */
 html.theme-dark body,
 html.theme-dark main,
-html.theme-dark .flex-1.bg-slate-100 {
+html.theme-dark .flex-1.bg-slate-100,
+html.theme-dark #auth-login-overlay {
   background-color: #0D1117 !important;
   color: #E6EDF3 !important;
 }
@@ -289,18 +290,18 @@ html.theme-dark main #container-task-cards > .bg-white.rounded-2xl {
 }
 
 /* Primary & Secondary Surfaces */
-html.theme-dark :is(main, header, #mobile-bottom-nav, [id^="modal-"], #command-center-modal) :is(.bg-white, .bg-white\/95, .bg-white\/90) {
+html.theme-dark :is(main, header, #mobile-bottom-nav, #auth-login-overlay, [id^="modal-"], #command-center-modal) :is(.bg-white, .bg-white\/95, .bg-white\/90) {
   background-color: #161B22 !important;
   border-color: #2B323D !important;
   color: #E6EDF3 !important;
 }
-html.theme-dark :is(main, header, [id^="modal-"], #command-center-modal) :is(.bg-slate-50, .bg-slate-50\/50, .bg-slate-50\/60, .bg-slate-50\/70, .bg-slate-50\/80, .bg-slate-100, .bg-slate-100\/90, .bg-slate-200, .bg-slate-200\/80) {
+html.theme-dark :is(main, header, #auth-login-overlay, [id^="modal-"], #command-center-modal) :is(.bg-slate-50, .bg-slate-50\/50, .bg-slate-50\/60, .bg-slate-50\/70, .bg-slate-50\/80, .bg-slate-100, .bg-slate-100\/90, .bg-slate-200, .bg-slate-200\/80) {
   background-color: #1C222B !important;
   border-color: #2E3642 !important;
 }
 
 /* Muted Matte Tinted Surfaces & Badges (Low saturation) */
-html.theme-dark :is(main, [id^="modal-"], #command-center-modal) :is(.bg-teal-50, .bg-teal-50\/30, .bg-teal-50\/40, .bg-teal-50\/50, .bg-teal-50\/70, .bg-teal-100, .bg-emerald-50, .bg-emerald-50\/30, .bg-emerald-50\/40, .bg-emerald-50\/60, .bg-emerald-50\/70, .bg-emerald-50\/80, .bg-emerald-100, .from-emerald-50\/80) {
+html.theme-dark :is(main, #auth-login-overlay, [id^="modal-"], #command-center-modal) :is(.bg-teal-50, .bg-teal-50\/30, .bg-teal-50\/40, .bg-teal-50\/50, .bg-teal-50\/70, .bg-teal-100, .bg-emerald-50, .bg-emerald-50\/30, .bg-emerald-50\/40, .bg-emerald-50\/60, .bg-emerald-50\/70, .bg-emerald-50\/80, .bg-emerald-100, .from-emerald-50\/80) {
   background-color: rgba(45, 138, 132, 0.14) !important;
   background-image: none !important;
   border-color: rgba(79, 163, 157, 0.25) !important;
@@ -344,16 +345,16 @@ html.theme-dark main .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
 }
 
 /* Calm, Natural Text Contrast */
-html.theme-dark :is(main, footer, [id^="modal-"], #command-center-modal) :is(.text-slate-900, .text-slate-800) {
+html.theme-dark :is(main, footer, #auth-login-overlay, [id^="modal-"], #command-center-modal) :is(.text-slate-900, .text-slate-800) {
   color: #E6EDF3 !important;
 }
-html.theme-dark :is(main, footer, [id^="modal-"], #command-center-modal) :is(.text-slate-700, .text-slate-600) {
+html.theme-dark :is(main, footer, #auth-login-overlay, [id^="modal-"], #command-center-modal) :is(.text-slate-700, .text-slate-600) {
   color: #B6C0CC !important;
 }
-html.theme-dark :is(main, footer, [id^="modal-"], #command-center-modal) :is(.text-slate-500, .text-slate-400) {
+html.theme-dark :is(main, footer, #auth-login-overlay, [id^="modal-"], #command-center-modal) :is(.text-slate-500, .text-slate-400) {
   color: #8B949E !important;
 }
-html.theme-dark :is(main, footer, [id^="modal-"]) :is(.text-teal-700, .text-teal-800, .text-teal-900, .text-emerald-700, .text-emerald-800, .text-emerald-900, .text-emerald-700\/80) {
+html.theme-dark :is(main, footer, #auth-login-overlay, [id^="modal-"]) :is(.text-teal-700, .text-teal-800, .text-teal-900, .text-emerald-700, .text-emerald-800, .text-emerald-900, .text-emerald-700\/80) {
   color: #84C7C1 !important;
 }
 html.theme-dark :is(main, [id^="modal-"]) :is(.text-amber-700, .text-amber-800, .text-amber-900, .text-amber-700\/80) {
