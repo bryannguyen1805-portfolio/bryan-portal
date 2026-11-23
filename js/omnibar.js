@@ -330,6 +330,37 @@ function parseOmnibarBatchCommands(raw) {
   return steps;
 }
 
+function parseNewOnboardingOmnibarCommand(cmd) {
+  const cleanText = (cmd || "").replace(/^(triển khai mới|onboarding mới|onboard mới)\s*/i, "").trim();
+  let partnerRaw = cleanText;
+  let channelPart = (cmd || "").toLowerCase();
+
+  const kenhMatch = cleanText.match(/^(.*?)\s+kênh\s+(.+)$/i);
+  if (kenhMatch) {
+    partnerRaw = kenhMatch[1].trim();
+    channelPart = kenhMatch[2].toLowerCase();
+  } else {
+    partnerRaw = cleanText.replace(/\b(pos\s*&\s*paylink|pos\s*&\s*pgw|paylink|pgw|pos)\b/gi, "").trim();
+  }
+
+  let merchantName = partnerRaw;
+  let brandName = "";
+  const splitMatch = partnerRaw.match(/^(.+?)\s+và\s+(.+)$/i);
+  if (splitMatch) {
+    merchantName = splitMatch[1].trim();
+    brandName = splitMatch[2].trim();
+  }
+  if (!merchantName) merchantName = "Đối Tác Mới";
+  if (!brandName) brandName = merchantName;
+
+  let channelKey = "POS";
+  if (channelPart.includes("paylink")) channelKey = "POS_PAYLINK";
+  else if (channelPart.includes("pos") && channelPart.includes("pgw")) channelKey = "POS_PGW";
+  else if (channelPart.includes("pgw")) channelKey = "PGW";
+
+  return { merchantName, brandName, channelKey };
+}
+
 // Live Token Preview khi người dùng đang gõ trên Omnibar (Mục 2.3 SRS)
 function handleOmnibarLivePreview(raw) {
   const box = document.getElementById("omnibar-preview");
@@ -414,13 +445,17 @@ function handleOmnibarLivePreview(raw) {
     }
   }
   // 1. Tạo quy trình mới
-  else if (lower.includes("triển khai mới") || lower.includes("onboard mới")) {
-    chips.push(`<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold">🚀 Khởi tạo quy trình mới</span>`);
-    let ch = "POS (15 bước)";
-    if (lower.includes("paylink")) ch = "POS & Paylink (18 bước)";
-    else if (lower.includes("pos") && lower.includes("pgw")) ch = "POS & PGW (18 bước)";
-    else if (lower.includes("pgw")) ch = "PGW (19 bước)";
-    chips.push(`<span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 font-bold">Kênh: ${ch}</span>`);
+  else if (lower.includes("triển khai mới") || lower.includes("onboard mới") || lower.includes("onboarding mới")) {
+    const parsedOb = parseNewOnboardingOmnibarCommand(val);
+    chips.push(`<span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 font-bold">🚀 Khởi tạo quy trình mới</span>`);
+    if (parsedOb.merchantName && parsedOb.merchantName !== "Đối Tác Mới") {
+      chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-bold">🏢 Pháp nhân: ${parsedOb.merchantName}</span>`);
+    }
+    if (parsedOb.brandName && parsedOb.brandName !== parsedOb.merchantName) {
+      chips.push(`<span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 font-bold">🏷️ Thương hiệu: ${parsedOb.brandName}</span>`);
+    }
+    const chLabel = (typeof SOP_CHANNELS !== "undefined" && SOP_CHANNELS[parsedOb.channelKey]) ? SOP_CHANNELS[parsedOb.channelKey].label : parsedOb.channelKey;
+    chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold">Kênh: ${chLabel}</span>`);
   }
   // 2. Đặt lịch họp
   else if ((lower.startsWith("họp") || lower.includes("lịch họp")) && !lower.includes("tạo task")) {
@@ -658,38 +693,15 @@ async function executeSingleOmnibarStep(cmd, stepCtx, isBatch) {
     }
   }
 
-  // 0A. TỰ ĐỘNG HÓA ONBOARDING SOP: "Triển khai mới [Tên] kênh [Kênh]"
+  // 0A. TỰ ĐỘNG HÓA ONBOARDING SOP: "Triển khai mới [Pháp nhân] và [Thương hiệu] kênh [Kênh]"
   if (lower.includes("triển khai mới") || lower.includes("onboard mới") || lower.includes("onboarding mới")) {
-    // Trích xuất tên đối tác (giữa prefix và chữ 'kênh', hoặc phần còn lại)
-    let cleanText = cmd.replace(/^(triển khai mới|onboarding mới|onboard mới)\s*/i, "").trim();
-    let merchantName = cleanText;
-    let channelPart = lower;
-
-    const kenhMatch = cleanText.match(/^(.*?)\s+kênh\s+(.+)$/i);
-    if (kenhMatch) {
-      merchantName = kenhMatch[1].trim();
-      channelPart = kenhMatch[2].toLowerCase();
-    } else {
-      // Loại bỏ tên kênh nếu không có chữ "kênh"
-      merchantName = cleanText.replace(/\b(pos\s*&\s*paylink|pos\s*&\s*pgw|paylink|pgw|pos)\b/gi, "").trim();
-    }
-
-    if (!merchantName) merchantName = "Đối Tác Mới";
-
-    // Xác định kênh triển khai
-    let channelKey = "POS";
-    if (channelPart.includes("paylink")) {
-      channelKey = "POS_PAYLINK";
-    } else if (channelPart.includes("pos") && channelPart.includes("pgw")) {
-      channelKey = "POS_PGW";
-    } else if (channelPart.includes("pgw")) {
-      channelKey = "PGW";
-    }
+    const { merchantName, brandName, channelKey } = parseNewOnboardingOmnibarCommand(cmd);
 
     const tasks = generateSopTasks(channelKey, 0);
     const newOb = {
       id: "ob-" + Date.now().toString().slice(-5),
       merchant_name: merchantName,
+      brand_name: brandName,
       channel: channelKey,
       total_steps: tasks.length,
       tasks: tasks
@@ -698,9 +710,11 @@ async function executeSingleOmnibarStep(cmd, stepCtx, isBatch) {
     onboardingList.unshift(newOb);
     activeOnboardingId = newOb.id;
     saveOnboardingStorage();
-    navigateTo("ONBOARDING");
-    showToast(`✓ Đã tự động tạo Onboarding "${merchantName}" (${SOP_CHANNELS[channelKey].label})!`);
-    return;
+    if (!isBatch) {
+      navigateTo("ONBOARDING");
+      showToast(`✓ Đã tạo Onboarding "${brandName}" (${merchantName} • ${SOP_CHANNELS[channelKey].label})!`);
+    }
+    return `Onboarding ${brandName}`;
   }
 
   // 0B. TỰ ĐỘNG TICK XONG TỚI BƯỚC ONBOARDING (ATTIO CONTEXT & ROLLUP ENGINE)
