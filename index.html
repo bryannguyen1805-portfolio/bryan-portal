@@ -86,7 +86,7 @@
     .custom-slim-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
     .custom-slim-scroll::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
   </style>
-  <link rel="stylesheet" href="css/flip7-theme.css?v=3.9.9" />
+  <link rel="stylesheet" href="css/flip7-theme.css?v=3.9.10" />
 </head>
 <body class="h-full flex overflow-hidden bg-slate-900 text-slate-800">
 
@@ -1691,26 +1691,41 @@
       </div>
     </header>
 
-    <!-- Center Liquid Glass Sign-In Card with Large BPortal Logo Behind -->
-    <div class="relative flex-1 flex items-center justify-center p-4 py-8 overflow-hidden">
-      <!-- Ambient Depth Glows + Flanking BPortal Brand Logos Visible Around Liquid Glass Card -->
-      <div class="pointer-events-none select-none absolute inset-0 overflow-hidden flex items-center justify-center">
-        <div class="absolute w-[460px] h-[460px] rounded-full bg-teal-400/25 blur-3xl -translate-x-48 -translate-y-20"></div>
-        <div class="absolute w-[420px] h-[420px] rounded-full bg-sky-400/20 blur-3xl translate-x-48 translate-y-20"></div>
-
-        <!-- Desktop: 2 Large Flanking Logos so the BPortal mark is clearly visible on left & right of the card -->
-        <div class="w-full max-w-6xl px-6 flex items-center justify-between gap-8 opacity-[0.22]">
-          <img src="assets/brand/BPortal_Stacked_Light.svg" alt="" class="footer-logo-light w-48 sm:w-64 md:w-80 object-contain -rotate-6" />
-          <img src="assets/brand/BPortal_Stacked_Dark.svg" alt="" class="footer-logo-dark hidden w-48 sm:w-64 md:w-80 object-contain -rotate-6" />
-
-          <div class="hidden md:block">
-            <img src="assets/brand/BPortal_Horizontal_Business_Operation_Light.svg" alt="" class="footer-logo-light w-72 lg:w-96 object-contain opacity-90" />
-            <img src="assets/brand/BPortal_Horizontal_Business_Operation_Dark.svg" alt="" class="footer-logo-dark hidden w-72 lg:w-96 object-contain opacity-90" />
-          </div>
-        </div>
+    <!-- Center Liquid Glass Stage: Balanced Brand Showcase + Sign-In Card -->
+    <div class="relative flex-1 flex items-center justify-center p-4 sm:p-8 overflow-hidden">
+      <!-- Subtle Architectural Grid & Luminous Aurora Orbs for Glass Refraction -->
+      <div class="pointer-events-none select-none absolute inset-0 overflow-hidden">
+        <div class="login-liquid-grid absolute inset-0"></div>
+        <div class="absolute -top-24 left-[8%] w-[520px] h-[520px] rounded-full bg-teal-400/25 blur-[100px]"></div>
+        <div class="absolute -bottom-24 right-[8%] w-[500px] h-[500px] rounded-full bg-sky-400/20 blur-[100px]"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] rounded-full bg-emerald-300/15 blur-[90px]"></div>
       </div>
 
-      <div class="login-liquid-card relative z-10 rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5">
+      <div class="relative z-10 w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        <!-- Left (Desktop): Clean, Unobstructed BPortal Brand Showcase -->
+        <div class="hidden lg:flex lg:col-span-6 flex-col items-start justify-center space-y-6 pr-4">
+          <div class="login-liquid-brand-tile inline-flex items-center justify-center p-6 rounded-3xl">
+            <img src="assets/brand/BPortal_Stacked_Light.svg" alt="BPortal" class="footer-logo-light w-44 h-auto object-contain" />
+            <img src="assets/brand/BPortal_Stacked_Dark.svg" alt="BPortal" class="footer-logo-dark hidden w-44 h-auto object-contain" />
+          </div>
+          <div class="space-y-2.5 max-w-md">
+            <h1 class="text-3xl font-black tracking-tight text-slate-900 login-liquid-title leading-tight">
+              Không gian điều phối<br />vận hành B2B tập trung
+            </h1>
+            <p class="text-sm text-slate-600 login-liquid-subtitle leading-relaxed">
+              Quản lý chuỗi đối tác, quy trình Onboarding, lịch sự cố và báo cáo phân tích trên một nền tảng thống nhất.
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 pt-1">
+            <span class="login-liquid-pill px-3 py-1.5 rounded-full bg-white/50 border border-white/60 text-slate-700 text-[11px] font-bold backdrop-blur-md">Whitelist Security</span>
+            <span class="login-liquid-pill px-3 py-1.5 rounded-full bg-white/50 border border-white/60 text-slate-700 text-[11px] font-bold backdrop-blur-md">Partner &amp; Onboarding</span>
+            <span class="login-liquid-pill px-3 py-1.5 rounded-full bg-white/50 border border-white/60 text-slate-700 text-[11px] font-bold backdrop-blur-md">Real-time Sync</span>
+          </div>
+        </div>
+
+        <!-- Right / Mobile Center: Liquid Glass Sign-In Card -->
+        <div class="lg:col-span-6 flex justify-center lg:justify-end">
+          <div class="login-liquid-card relative z-10 rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-5">
         <div class="text-center space-y-2">
           <div class="flex justify-center">
             <img src="assets/brand/BPortal_Favicon_Light_Transparent.svg" alt="BPortal" class="footer-logo-light h-10 w-10 object-contain" />
@@ -1755,6 +1770,8 @@
             của BPortal.
           </p>
         </form>
+          </div>
+        </div>
       </div>
     </div>
 
