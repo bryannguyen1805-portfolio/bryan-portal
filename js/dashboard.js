@@ -209,6 +209,14 @@ function editBnewsUrl() {
 }
 
 const BNEWS_LOGO_LIGHT_URL = "https://bryanportfolio.io.vn/fintech-intelligence/bnews-logo-light.svg";
+const BNEWS_LOGO_DARK_URL = "https://bryanportfolio.io.vn/fintech-intelligence/bnews-logo-dark.svg";
+
+function renderBnewsLogoHtml() {
+  return `
+    <img src="${BNEWS_LOGO_LIGHT_URL}" alt="Bnews" class="footer-logo-light h-5 w-auto object-contain" />
+    <img src="${BNEWS_LOGO_DARK_URL}" alt="Bnews" class="footer-logo-dark hidden h-5 w-auto object-contain" />
+  `;
+}
 
 function renderBnewsMorningBriefing() {
   const box = document.getElementById("bnews-morning-briefing");
@@ -220,7 +228,7 @@ function renderBnewsMorningBriefing() {
     box.innerHTML = `
       <div class="bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-md border border-white/70 space-y-2.5 text-slate-800">
         <div class="flex items-center justify-between gap-2">
-          <img src="${BNEWS_LOGO_LIGHT_URL}" alt="Bnews" class="h-5 w-auto object-contain" />
+          ${renderBnewsLogoHtml()}
           <div class="flex items-center gap-1.5">
             <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-[10px] font-extrabold inline-flex items-center gap-1">
               <i data-lucide="check" class="w-3 h-3"></i>
@@ -246,7 +254,7 @@ function renderBnewsMorningBriefing() {
     box.innerHTML = `
       <div class="bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-md border border-white/70 space-y-3 text-slate-800">
         <div class="flex items-center justify-between gap-2">
-          <img src="${BNEWS_LOGO_LIGHT_URL}" alt="Bnews" class="h-5 w-auto object-contain" />
+          ${renderBnewsLogoHtml()}
           <div class="flex items-center gap-1.5">
             <span class="px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200/70 text-[10px] font-extrabold">40 tin hot</span>
             <button type="button" onclick="editBnewsUrl()" class="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition" title="Cài đặt link Bnews">
