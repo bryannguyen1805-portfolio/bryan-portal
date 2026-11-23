@@ -208,6 +208,8 @@ function editBnewsUrl() {
   if (typeof showToast === "function") showToast("✓ Đã cập nhật liên kết Bnews!");
 }
 
+const BNEWS_LOGO_LIGHT_URL = "https://bryanportfolio.io.vn/fintech-intelligence/bnews-logo-light.svg";
+
 function renderBnewsMorningBriefing() {
   const box = document.getElementById("bnews-morning-briefing");
   if (!box) return;
@@ -216,48 +218,45 @@ function renderBnewsMorningBriefing() {
 
   if (isRead) {
     box.innerHTML = `
-      <div class="bg-slate-950/35 backdrop-blur-md border border-white/20 rounded-2xl p-4 space-y-2.5">
+      <div class="bg-white/12 backdrop-blur-md border border-white/20 rounded-2xl px-4 py-3.5 space-y-2">
         <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-2">
-            <span class="w-6 h-6 rounded-lg bg-emerald-400/20 text-emerald-300 flex items-center justify-center shrink-0">
-              <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+            <span class="w-5 h-5 rounded-full bg-emerald-400/25 text-emerald-200 flex items-center justify-center shrink-0">
+              <i data-lucide="check" class="w-3 h-3"></i>
             </span>
-            <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-200">Đã Điểm Tin Bnews</span>
+            <span class="text-xs font-bold text-white">Đã điểm 40 tin Bnews hôm nay</span>
           </div>
           <button type="button" onclick="editBnewsUrl()" class="p-1 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition" title="Cài đặt link Bnews">
             <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>
           </button>
         </div>
-        <p class="text-xs text-teal-50/90 font-medium leading-snug">
-          Bạn đã cập nhật <strong class="text-white">40 tin tức hot nhất hôm nay</strong>. Sẵn sàng cho công việc!
-        </p>
-        <a href="${bnewsUrl}" target="_blank" rel="noopener noreferrer" class="w-full py-2 px-3 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
-          <span>Mở lại trang Bnews</span>
-          <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
-        </a>
+        <div class="flex items-center justify-between gap-2 text-[11px] text-teal-100/90">
+          <span>Chúc bạn một ngày làm việc hiệu quả!</span>
+          <a href="${bnewsUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white font-bold inline-flex items-center gap-1 transition shrink-0">
+            <span>Mở lại</span>
+            <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+          </a>
+        </div>
       </div>
     `;
   } else {
     box.innerHTML = `
-      <div class="bg-slate-950/45 backdrop-blur-md border border-amber-300/45 rounded-2xl p-4 space-y-2.5 shadow-lg">
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-md border border-white/70 space-y-3 text-slate-800">
         <div class="flex items-center justify-between gap-2">
-          <div class="flex items-center gap-2">
-            <span class="w-6 h-6 rounded-lg bg-amber-300/20 text-amber-300 flex items-center justify-center shrink-0">
-              <i data-lucide="newspaper" class="w-3.5 h-3.5"></i>
-            </span>
-            <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-200">Điểm Tin Đầu Ngày</span>
-            <span class="px-2 py-0.5 rounded-full bg-amber-300/20 text-amber-200 text-[10px] font-bold">40 tin hot</span>
+          <img src="${BNEWS_LOGO_LIGHT_URL}" alt="Bnews" class="h-5 w-auto object-contain" />
+          <div class="flex items-center gap-1.5">
+            <span class="px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200/70 text-[10px] font-extrabold">40 tin hot</span>
+            <button type="button" onclick="editBnewsUrl()" class="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition" title="Cài đặt link Bnews">
+              <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>
+            </button>
           </div>
-          <button type="button" onclick="editBnewsUrl()" class="p-1 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition" title="Cài đặt link Bnews">
-            <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>
-          </button>
         </div>
-        <p class="text-xs md:text-sm font-bold text-white leading-snug">
-          Trước khi bắt đầu công việc, bạn đã đọc 40 tin tức hot nhất hôm nay chưa?
+        <p class="text-xs font-semibold text-slate-600 leading-relaxed">
+          Trước khi bắt đầu luồng công việc, bạn đã điểm qua <strong class="text-slate-900">40 tin tức hot nhất hôm nay</strong> chưa?
         </p>
-        <a href="${bnewsUrl}" target="_blank" rel="noopener noreferrer" onclick="markBnewsReadToday()" class="w-full py-2.5 px-4 rounded-xl bg-amber-300 hover:bg-amber-200 text-teal-950 text-xs font-black inline-flex items-center justify-center gap-1.5 shadow-sm transition">
+        <a href="${bnewsUrl}" target="_blank" rel="noopener noreferrer" onclick="markBnewsReadToday()" class="w-full py-2 px-4 rounded-xl bg-navy-900 hover:bg-teal-800 text-white text-xs font-bold inline-flex items-center justify-center gap-1.5 transition">
           <span>Đọc ngay trên Bnews</span>
-          <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+          <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
         </a>
       </div>
     `;
