@@ -86,7 +86,7 @@
     .custom-slim-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
     .custom-slim-scroll::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
   </style>
-  <link rel="stylesheet" href="css/flip7-theme.css?v=3.9.18" />
+  <link rel="stylesheet" href="css/flip7-theme.css?v=3.9.25" />
 </head>
 <body class="h-full flex overflow-hidden bg-slate-900 text-slate-800">
 
@@ -255,8 +255,44 @@
         </div>
       </div>
 
-      <!-- Góc phải Topbar: Thông Báo + Cloud Sync + Tạo Đầu Việc -->
+      <!-- Góc phải Topbar: Hệ thống Công Ty + Thông Báo + Cloud Sync + Tạo Đầu Việc -->
       <div class="flex items-center space-x-2 shrink-0 relative">
+        <button type="button" onclick="toggleAppLauncherPopover(event)" id="topbar-apps-btn" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer relative z-10" title="Hệ thống công ty (Merchant, Wiki, PM, HRM, Portal)">
+          <i data-lucide="layout-grid" class="w-4 h-4 pointer-events-none"></i>
+        </button>
+
+        <!-- Popover Cổng Hệ Thống Công Ty (App Launcher) -->
+        <div id="topbar-apps-popover" class="hidden absolute right-0 top-full mt-2 w-80 sm:w-[340px] bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
+            <div>
+              <div class="text-xs font-black text-slate-900">Hệ Thống Công Ty</div>
+              <div class="text-[10px] text-slate-500">Mở nhanh trang nội bộ &amp; vận hành</div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button type="button" onclick="toggleCustomAppAddForm()" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold transition">+ Thêm link</button>
+              <button type="button" onclick="closeAppLauncherPopover()" class="p-1 text-slate-400 hover:text-slate-700 text-xs">✕</button>
+            </div>
+          </div>
+
+          <div class="p-3 pb-2">
+            <input id="app-launcher-search" type="text" oninput="renderAppLauncherList()" placeholder="Tìm nhanh (Wiki, HRM, PM, Merchant...)" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:border-teal-600" />
+          </div>
+
+          <!-- Form thêm link cá nhân (Ẩn mặc định) -->
+          <form id="app-launcher-add-form" onsubmit="handleSaveCustomCompanyApp(event)" class="hidden mx-3 mb-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+            <input id="custom-app-name" type="text" required placeholder="Tên web (VD: Bảng theo dõi đối soát)" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none" />
+            <input id="custom-app-url" type="text" required placeholder="Link URL (https://...)" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none" />
+            <div class="flex items-center gap-2">
+              <input id="custom-app-desc" type="text" placeholder="Công dụng ngắn (VD: Đối soát tuần)" class="flex-1 px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none" />
+              <button type="submit" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-[11px] font-bold transition shrink-0">Lưu</button>
+            </div>
+          </form>
+
+          <div id="app-launcher-list" class="max-h-80 overflow-y-auto px-3 pb-3 space-y-3 custom-slim-scroll">
+            <!-- Rendered by js/app-launcher.js -->
+          </div>
+        </div>
+
         <button type="button" onclick="toggleTopbarNotifPopover()" id="topbar-bell-btn" class="relative p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Thông báo Lịch họp, Đầu việc sắp hạn & Gia hạn HĐ">
           <i data-lucide="bell" class="w-4 h-4"></i>
           <span id="topbar-bell-count" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center">0</span>
@@ -1903,7 +1939,8 @@
   <script src="js/sla-engine.js?v=3.3.0"></script>
   <script src="js/email-templates.js?v=3.9.20"></script>
   <script src="js/attio-engine.js?v=3.3.0"></script>
-  <script src="js/omnibar.js?v=3.5.0"></script>
+  <script src="js/app-launcher.js?v=3.9.24"></script>
+  <script src="js/omnibar.js?v=3.9.23"></script>
   <script src="js/notifications-automation.js?v=3.6.0"></script>
   <script src="js/undo-engine.js?v=3.8.0"></script>
   <script src="js/onboarding.js?v=3.3.0"></script>

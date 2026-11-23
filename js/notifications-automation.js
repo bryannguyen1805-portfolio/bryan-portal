@@ -518,6 +518,7 @@ function requestBrowserNotificationPermission() {
 }
 
 function toggleTopbarNotifPopover() {
+  if (typeof closeAppLauncherPopover === "function") closeAppLauncherPopover();
   const pop = document.getElementById("topbar-notif-popover");
   if (!pop) return;
   const isHidden = pop.classList.contains("hidden");

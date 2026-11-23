@@ -117,7 +117,22 @@ function handleCommandCenterInput(raw) {
     t.stage !== "STAGE_DONE" && norm(t.title).includes(normQ)
   ).slice(0, 3);
 
+  const matchedApps = (typeof getAllCompanyPortalApps === "function" ? getAllCompanyPortalApps() : []).filter(a =>
+    norm(a.name).includes(normQ) || norm(a.desc).includes(normQ) || norm(a.keywords).includes(normQ)
+  ).slice(0, 4);
+
   const items = [];
+  matchedApps.forEach(a => {
+    items.push(`
+      <a href="${a.url}" target="_blank" rel="noopener" onclick="closeCommandCenter()" class="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between gap-2 text-left transition">
+        <div class="min-w-0">
+          <div class="font-bold text-slate-900 truncate">${a.name}</div>
+          <div class="text-[11px] text-slate-500 truncate">${a.desc || a.group}</div>
+        </div>
+        <span class="text-[11px] font-bold text-teal-700 shrink-0">Mở web ↗</span>
+      </a>
+    `);
+  });
   matchedMerchants.forEach(m => {
     items.push(`
       <button type="button" onclick="selectMerchant('${m.id}'); navigateTo('PROJECTS'); closeCommandCenter();" class="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between gap-2 text-left transition">
