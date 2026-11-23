@@ -682,7 +682,7 @@ function renderMerchantWorkspaceBody() {
                 <div class="text-[10px] font-mono text-slate-500 truncate mt-0.5">${f.file_name || f.path}</div>
               </div>
               <div class="flex items-center space-x-1 shrink-0">
-                <a href="${f.path}" target="_blank" rel="noopener" class="px-2.5 py-1 bg-white hover:bg-teal-50 text-teal-700 border border-slate-200 rounded-lg text-[10px] font-bold transition whitespace-nowrap">
+                <a href="${f.path}" target="_blank" rel="noopener" onclick="return handleOpenFolderLink(event, '${f.id}')" class="px-2.5 py-1 bg-white hover:bg-teal-50 text-teal-700 border border-slate-200 rounded-lg text-[10px] font-bold transition whitespace-nowrap">
                   ${f.action_label || 'Mở tài liệu'}
                 </a>
                 <button onclick="openEditFolderModal('${f.id}')" class="p-1 text-slate-400 hover:text-teal-600" title="Sửa">
@@ -1393,6 +1393,22 @@ function handleSaveStakeholder(e) {
 }
 
 // FOLDER MODAL
+function handleOpenFolderLink(event, fId) {
+  const f = state.folders.find(item => item.id === fId);
+  if (!f || !f.path) return true;
+  const raw = String(f.path).trim();
+  const isWebUrl = /^https?:\/\//i.test(raw);
+  if (isWebUrl) return true; // Mở tab mới bình thường cho Google Drive / SharePoint / web URL
+
+  // Đường dẫn ổ đĩa máy tính / ổ mạng (VD: M:\..., C:\..., /Users/..., \\server\...) bị trình duyệt chặn mở trực tiếp
+  if (event) event.preventDefault();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(raw).catch(() => {});
+  }
+  showToast(`Đã sao chép đường dẫn: ${raw} — Trình duyệt chặn mở trực tiếp ổ đĩa, hãy dán vào Explorer/Finder để mở.`);
+  return false;
+}
+
 function openNewFolderModal(mId) {
   document.getElementById("modal-folder-title-text").textContent = "Đính Kèm Liên Kết Tài Liệu";
   document.getElementById("folder-id-hidden").value = "";
