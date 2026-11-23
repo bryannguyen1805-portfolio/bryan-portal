@@ -291,6 +291,45 @@ function appendOmnibarText(snippet) {
   handleOmnibarLivePreview(inp.value);
 }
 
+function hasExplicitOmnibarDate(raw) {
+  const lower = (raw || "").toLowerCase();
+  return lower.includes("hôm nay") ||
+         lower.includes("ngày mai") ||
+         /\bmai\b/.test(lower) ||
+         lower.includes("tuần này") ||
+         lower.includes("cuối tuần") ||
+         /\b\d{1,2}\/\d{1,2}(?:\/\d{2,4})?\b/.test(raw);
+}
+
+function parseOmnibarBatchCommands(raw) {
+  const groups = (raw || "").split(";").map(g => g.trim()).filter(Boolean);
+  const steps = [];
+  groups.forEach(group => {
+    const groupCtx = { merchant: null, project: null, dueInfo: null };
+    const parts = group.split(",").map(p => p.trim()).filter(Boolean);
+    parts.forEach(part => {
+      const foundPartner = findPartnerProjectFromOmnibarText(part);
+      if (foundPartner.merchant) {
+        groupCtx.merchant = foundPartner.merchant;
+        groupCtx.project = foundPartner.project;
+      }
+      const explicitDate = hasExplicitOmnibarDate(part);
+      if (explicitDate) {
+        groupCtx.dueInfo = parseOmnibarDueDate(part);
+      } else if (!groupCtx.dueInfo) {
+        groupCtx.dueInfo = parseOmnibarDueDate(part);
+      }
+      steps.push({
+        cmd: part,
+        merchant: foundPartner.merchant || groupCtx.merchant,
+        project: foundPartner.project || groupCtx.project,
+        dueInfo: explicitDate ? parseOmnibarDueDate(part) : (groupCtx.dueInfo || parseOmnibarDueDate(part))
+      });
+    });
+  });
+  return steps;
+}
+
 // Live Token Preview khi người dùng đang gõ trên Omnibar (Mục 2.3 SRS)
 function handleOmnibarLivePreview(raw) {
   const box = document.getElementById("omnibar-preview");
@@ -321,6 +360,37 @@ function handleOmnibarLivePreview(raw) {
   const lower = val.toLowerCase();
   const chips = [];
   let suggHtml = "";
+
+  // -1. CHẾ ĐỘ ĐA TÁC VỤ (; tách nhóm đối tác, , tách việc cùng đối tác & kế thừa ngữ cảnh)
+  if (val.includes(";") || val.includes(",")) {
+    const batchSteps = parseOmnibarBatchCommands(val);
+    if (batchSteps.length > 1) {
+      chips.push(`<span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 font-bold">⚡ Chuỗi ${batchSteps.length} tác vụ liên hoàn</span>`);
+      suggHtml = `<div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-1">Xem trước chuỗi lệnh (Enter để chạy tất cả):</div>` +
+        batchSteps.map((st, idx) => {
+          const stLower = st.cmd.toLowerCase();
+          let iconLabel = "📋 Tạo task";
+          if (/^(xong|hoàn thành|done)\s+(task|việc|nhiệm vụ|todo)\b/i.test(stLower)) iconLabel = "✓ Xong task";
+          else if ((stLower.startsWith("họp") || stLower.includes("lịch họp")) && !stLower.includes("tạo task")) iconLabel = "📅 Đặt lịch họp";
+          else if (/^(go\s*-?\s*live|golive|bàn giao)\b/i.test(stLower)) iconLabel = "🚀 Go Live";
+          const mBadge = st.merchant ? `<span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-bold">🏢 ${st.merchant.brand_name || st.merchant.name}</span>` : "";
+          const dBadge = st.dueInfo ? `<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold">📆 ${st.dueInfo.label}</span>` : "";
+          return `
+            <div class="px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200/80 flex flex-wrap items-center justify-between gap-1.5 text-xs">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="font-extrabold text-teal-700 shrink-0">${idx + 1}. ${iconLabel}</span>
+                <span class="text-slate-800 font-medium truncate">${st.cmd}</span>
+              </div>
+              <div class="flex items-center gap-1 text-[10px] shrink-0">${mBadge}${dBadge}</div>
+            </div>
+          `;
+        }).join("");
+      tokensEl.innerHTML = chips.join("");
+      if (suggEl) suggEl.innerHTML = suggHtml;
+      box.classList.remove("hidden");
+      return;
+    }
+  }
 
   // 0. Lệnh GO LIVE nhanh: "go live [Tên thương hiệu / Tên đối tác]"
   if (/^(go\s*-?\s*live|golive|bàn giao)\b/i.test(lower)) {
@@ -543,10 +613,26 @@ async function handleCommandSubmit(e) {
   e.preventDefault();
   hideOmnibarPreview();
   const input = document.getElementById("nlp-command-input");
-  const cmd = input.value.trim();
-  if (!cmd) return;
+  const rawCmd = input.value.trim();
+  if (!rawCmd) return;
 
   input.value = "";
+  const batchSteps = parseOmnibarBatchCommands(rawCmd);
+  if (batchSteps.length <= 1) {
+    const single = batchSteps[0] || { cmd: rawCmd, merchant: null, project: null, dueInfo: null };
+    await executeSingleOmnibarStep(single.cmd, single, false);
+    return;
+  }
+
+  const summaries = [];
+  for (const step of batchSteps) {
+    const res = await executeSingleOmnibarStep(step.cmd, step, true);
+    if (res) summaries.push(res);
+  }
+  showToast(`✓ Đã chạy ${batchSteps.length} tác vụ: ${summaries.join(" • ")}`);
+}
+
+async function executeSingleOmnibarStep(cmd, stepCtx, isBatch) {
   const lower = cmd.toLowerCase();
 
   // 0. LỆNH GO LIVE TỰ ĐỘNG: "go live [Tên thương hiệu / Tên đối tác]"
@@ -773,10 +859,10 @@ async function handleCommandSubmit(e) {
     }
 
     renderDashboardMeetings();
-    navigateTo("CALENDAR");
+    if (!isBatch) navigateTo("CALENDAR");
     const vnDate = `${dParts[2]}/${dParts[1]}/${dParts[0]}`;
-    showToast(`✓ Đã thêm vào Lịch: "${meetTitle}" lúc ${meetTime} ngày ${vnDate}!`);
-    return;
+    if (!isBatch) showToast(`✓ Đã thêm vào Lịch: "${meetTitle}" lúc ${meetTime} ngày ${vnDate}!`);
+    return `Lịch "${meetTitle}" (${vnDate})`;
   }
 
   // 2.5 Hoàn thành nhanh Task: "xong task [tên]" / "xong việc [tên]"
@@ -785,32 +871,33 @@ async function handleCommandSubmit(e) {
     const matched = findMatchingOpenTask(qTitle);
     if (matched && typeof toggleTaskDone === "function") {
       toggleTaskDone(matched.id);
-      showToast(`✓ Đã hoàn thành nhiệm vụ: "${matched.title}"`);
+      if (!isBatch) showToast(`✓ Đã hoàn thành nhiệm vụ: "${matched.title}"`);
+      return `Xong "${matched.title}"`;
     } else {
-      showToast(`Không tìm thấy đầu việc đang mở khớp với "${qTitle}".`);
+      if (!isBatch) showToast(`Không tìm thấy đầu việc đang mở khớp với "${qTitle}".`);
+      return null;
     }
-    return;
   }
 
   // 3. Tạo Task mới
   if (/^(tạo\s*task|thêm\s*việc|tạo\s*việc|todo|nhiệm\s*vụ)\b/i.test(lower) || lower.includes("tạo task") || lower.includes("thêm việc") || lower.includes("task") || lower.includes("họp")) {
-    const matched = findPartnerProjectFromOmnibarText(cmd);
+    const matched = (stepCtx && stepCtx.merchant) ? { merchant: stepCtx.merchant, project: stepCtx.project } : findPartnerProjectFromOmnibarText(cmd);
     let matchedProj = matched.project || state.projects.find(p => p.merchant_id === activeMerchantId) || state.projects[0];
 
     let taskType = matched.merchant ? "COMMERCIAL" : "PERSONAL";
     if (lower.includes("kỹ thuật") || lower.includes("test") || lower.includes("ip") || lower.includes("webhook")) taskType = "TECH_DELIVERY";
 
-    const dueInfo = parseOmnibarDueDate(cmd);
+    const dueInfo = (stepCtx && stepCtx.dueInfo) ? stepCtx.dueInfo : parseOmnibarDueDate(cmd);
     const ownerName = (document.getElementById("sidebar-user-name")?.textContent || "Bryan").trim();
     const cleanTitle = cmd
       .replace(/^(tạo\s*task|thêm\s*việc|tạo\s*việc|todo|nhiệm\s*vụ)\s*/i, "")
       .replace(/\b\d{1,2}\/\d{1,2}(?:\/\d{2,4})?\b/g, "")
-      .replace(/\b(hôm nay|ngày mai|tuần này|khẩn cấp|gấp)\b/gi, "")
+      .replace(/\b(hôm nay|ngày mai|tuần này|khẩn cấp|gấp|ngay lúc đó|cùng lúc đó|lúc đó)\b/gi, "")
       .replace(/\s+/g, " ")
       .trim() || cmd;
 
     const newTask = {
-      id: "TASK-" + Date.now(),
+      id: "TASK-" + Date.now() + "-" + Math.floor(Math.random() * 1000),
       type: taskType,
       project_id: matchedProj ? matchedProj.id : "",
       title: cleanTitle,
@@ -835,22 +922,25 @@ async function handleCommandSubmit(e) {
     renderDashboardQuickTasks();
     renderTasksMainView();
     renderMerchantWorkspaceBody();
-    if (typeof pushUndoAction === "function") {
-      pushUndoAction({
-        module: "TODO",
-        action_type: "CREATE",
-        entity_id: newTask.id,
-        display_label: newTask.title,
-        before: { tasks: beforeTasks },
-        after: { tasks: state.tasks },
-        toastMessage: `Đã thêm việc mới (${dueInfo.label}): "${newTask.title}".`
-      });
-    } else {
-      showToast(`Đã thêm việc mới (${dueInfo.label}): "${newTask.title}".`);
+    if (!isBatch) {
+      if (typeof pushUndoAction === "function") {
+        pushUndoAction({
+          module: "TODO",
+          action_type: "CREATE",
+          entity_id: newTask.id,
+          display_label: newTask.title,
+          before: { tasks: beforeTasks },
+          after: { tasks: state.tasks },
+          toastMessage: `Đã thêm việc mới (${dueInfo.label}): "${newTask.title}".`
+        });
+      } else {
+        showToast(`Đã thêm việc mới (${dueInfo.label}): "${newTask.title}".`);
+      }
     }
-    return;
+    return `Task "${newTask.title}" (${dueInfo.label})`;
   }
 
-  showToast(`ℹ Đã ghi nhận lệnh: "${cmd}"`);
+  if (!isBatch) showToast(`ℹ Đã ghi nhận lệnh: "${cmd}"`);
+  return cmd;
 }
 
