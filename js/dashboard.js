@@ -500,6 +500,24 @@ function setQuickTodoDuePreset(preset) {
   });
 }
 
+let quickTodoPriority = "CAO";
+
+function toggleQuickTodoPriority() {
+  quickTodoPriority = quickTodoPriority === "KHẨN CẤP" ? "TRUNG BÌNH" : quickTodoPriority === "CAO" ? "KHẨN CẤP" : "CAO";
+  const btn = document.getElementById("quick-priority-btn");
+  if (!btn) return;
+  if (quickTodoPriority === "KHẨN CẤP") {
+    btn.textContent = "🔥 Gấp";
+    btn.className = "px-2 py-1 rounded-lg text-[10px] font-extrabold bg-rose-100 text-rose-700 border border-rose-200 transition";
+  } else if (quickTodoPriority === "CAO") {
+    btn.textContent = "Ưu tiên";
+    btn.className = "px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 transition";
+  } else {
+    btn.textContent = "Thường";
+    btn.className = "px-2 py-1 rounded-lg text-[10px] font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 transition";
+  }
+}
+
 function handleQuickAddTodo(e) {
   e.preventDefault();
   const input = document.getElementById("dash-quick-add-input");
@@ -518,7 +536,7 @@ function handleQuickAddTodo(e) {
     id: "TASK-" + Date.now(),
     title,
     type: "PERSONAL",
-    priority: quickTodoDuePreset === "TODAY" ? "CAO" : "TRUNG BÌNH",
+    priority: quickTodoPriority,
     stage: "STAGE_DOING",
     due_date: getIsoDateOffset(dueOffset),
     owner: ownerName,
@@ -537,6 +555,91 @@ function handleQuickAddTodo(e) {
   }
   showToast(`✓ Đã thêm "${title}" vào danh sách việc cần làm!`);
 }
+
+const QUICK_TASK_TEMPLATES = {
+  ONBOARDING: {
+    label: "Onboarding đối tác",
+    items: [
+      { title: "Gửi checklist hồ sơ & thông tin kết nối cho đối tác", offsetDays: 0, priority: "CAO" },
+      { title: "Kiểm tra tiến độ hoàn thiện hồ sơ & test kết nối", offsetDays: 2, priority: "CAO" },
+      { title: "Chốt lịch Go-live & bàn giao vận hành", offsetDays: 5, priority: "KHẨN CẤP" }
+    ]
+  },
+  FOLLOW_UP: {
+    label: "Follow-up sau họp",
+    items: [
+      { title: "Gửi tóm tắt nội dung & action items sau cuộc họp", offsetDays: 0, priority: "CAO" },
+      { title: "Nhắc đối tác phản hồi các đầu việc đã thống nhất", offsetDays: 2, priority: "TRUNG BÌNH" }
+    ]
+  },
+  WEEKLY_SYNC: {
+    label: "Rà soát tuần",
+    items: [
+      { title: "Rà soát các đầu việc tồn đọng & lịch sự cố tuần", offsetDays: 0, priority: "CAO" },
+      { title: "Tổng hợp báo cáo tiến độ vận hành gửi team", offsetDays: 3, priority: "TRUNG BÌNH" }
+    ]
+  }
+};
+
+function applyQuickTaskTemplate(templateKey) {
+  const tpl = QUICK_TASK_TEMPLATES[templateKey];
+  if (!tpl) return;
+  const ownerName = (document.getElementById("sidebar-user-name")?.textContent || "Bryan").trim();
+  const baseTs = Date.now();
+  const beforeTasks = JSON.parse(JSON.stringify(state.tasks));
+
+  const created = tpl.items.map((item, idx) => ({
+    id: `TASK-${baseTs + idx}`,
+    title: item.title,
+    type: "PERSONAL",
+    priority: item.priority,
+    stage: "STAGE_DOING",
+    due_date: getIsoDateOffset(item.offsetDays),
+    owner: ownerName,
+    project_id: "",
+    is_overdue: false,
+    created_at: new Date().toISOString()
+  }));
+
+  state.tasks = [...created, ...state.tasks];
+  if (typeof syncAllAfterTaskChange === "function") {
+    syncAllAfterTaskChange(`Đã tạo ${created.length} việc từ mẫu "${tpl.label}"`);
+  } else {
+    saveStateStorage();
+    renderDashboardQuickTasks();
+  }
+  if (typeof pushUndoAction === "function") {
+    pushUndoAction({
+      module: "TODO",
+      action_type: "CREATE",
+      entity_id: `tpl-${baseTs}`,
+      display_label: `Mẫu ${tpl.label} (${created.length} việc)`,
+      before: { tasks: beforeTasks },
+      after: { tasks: state.tasks },
+      toastMessage: `✓ Đã tạo ${created.length} việc từ mẫu "${tpl.label}"`
+    });
+  } else {
+    showToast(`✓ Đã tạo ${created.length} việc từ mẫu "${tpl.label}"`);
+  }
+}
+
+document.addEventListener("keydown", function (e) {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : "";
+  if (tag === "input" || tag === "textarea" || tag === "select" || e.target?.isContentEditable) return;
+  if (e.key === "n" || e.key === "N") {
+    const authOverlay = document.getElementById("auth-login-overlay");
+    if (authOverlay && !authOverlay.classList.contains("hidden")) return;
+    e.preventDefault();
+    if (typeof navigateTo === "function") navigateTo("DASHBOARD");
+    if (typeof switchDashboardMode === "function") switchDashboardMode("FOCUS");
+    const quickInput = document.getElementById("dash-quick-add-input");
+    if (quickInput) {
+      quickInput.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => quickInput.focus(), 120);
+    }
+  }
+});
 
 function formatRelativeDueBadge(task) {
   if (!task || !task.due_date) {
@@ -618,6 +721,54 @@ function renderDashboardPersonalProgress() {
   }
 }
 
+const BROWSER_NOTIF_OPTIN_KEY = "bryan_portal_browser_notif_optin";
+const BROWSER_NOTIF_SENT_KEY = "bryan_portal_browser_notif_sent_date";
+
+function isBrowserNotifEnabled() {
+  return typeof Notification !== "undefined" && Notification.permission === "granted" && localStorage.getItem(BROWSER_NOTIF_OPTIN_KEY) === "1";
+}
+
+function maybeSendDailyDeadlineBrowserNotif(urgentCount, topTitle) {
+  if (!isBrowserNotifEnabled() || urgentCount <= 0) return;
+  const todayStr = getIsoDateOffset(0);
+  if (sessionStorage.getItem(BROWSER_NOTIF_SENT_KEY) === todayStr) return;
+  sessionStorage.setItem(BROWSER_NOTIF_SENT_KEY, todayStr);
+  try {
+    new Notification(`BPortal • ${urgentCount} việc cần chốt hôm nay`, {
+      body: topTitle ? `Ưu tiên: ${topTitle}` : "Kiểm tra danh sách việc sắp tới hạn trong BPortal."
+    });
+  } catch (err) {}
+}
+
+function enableBrowserDeadlineNotifications() {
+  if (typeof Notification === "undefined") {
+    showToast("Trình duyệt hiện tại không hỗ trợ thông báo.");
+    return;
+  }
+  if (Notification.permission === "denied") {
+    showToast("Bạn đang chặn thông báo trình duyệt cho trang này. Hãy bật lại trong cài đặt trình duyệt.");
+    return;
+  }
+  Notification.requestPermission().then(perm => {
+    if (perm === "granted") {
+      localStorage.setItem(BROWSER_NOTIF_OPTIN_KEY, "1");
+      sessionStorage.removeItem(BROWSER_NOTIF_SENT_KEY);
+      renderDashboardDeadlineAlerts();
+      showToast("🔔 Đã bật nhắc việc tới hạn trên trình duyệt!");
+    } else {
+      showToast("Chưa cấp quyền thông báo trình duyệt.");
+    }
+  });
+}
+
+function getBrowserNotifButtonHtml() {
+  if (typeof Notification === "undefined") return "";
+  if (isBrowserNotifEnabled()) {
+    return `<span class="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/70 text-[10px] font-bold whitespace-nowrap">🔔 Đang nhắc</span>`;
+  }
+  return `<button type="button" onclick="enableBrowserDeadlineNotifications()" class="px-2 py-1 rounded-lg bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-[10px] font-bold transition whitespace-nowrap" title="Nhận thông báo trình duyệt khi có việc tới hạn">🔔 Bật nhắc</button>`;
+}
+
 function renderDashboardDeadlineAlerts() {
   const stripEl = document.getElementById("dash-deadline-alert-strip");
   if (!stripEl) return;
@@ -641,6 +792,9 @@ function renderDashboardDeadlineAlerts() {
     document.title = "BPortal — Điều phối vận hành";
   }
 
+  const topTask = overdueList[0] || dueTodayList[0] || dueTomorrowList[0];
+  maybeSendDailyDeadlineBrowserNotif(urgentCount, topTask ? topTask.title : "");
+
   if (urgentCount === 0 && soonCount === 0) {
     stripEl.innerHTML = `
       <div class="flex items-center justify-between gap-3">
@@ -653,7 +807,10 @@ function renderDashboardDeadlineAlerts() {
             <div class="text-xs text-slate-500">Mọi đầu việc trong 48 giờ tới đều đang trong tầm kiểm soát.</div>
           </div>
         </div>
-        <button onclick="navigateTo('TASKS')" class="shrink-0 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">Xem To-do</button>
+        <div class="flex items-center gap-1.5 shrink-0">
+          ${getBrowserNotifButtonHtml()}
+          <button onclick="navigateTo('TASKS')" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">Xem To-do</button>
+        </div>
       </div>
     `;
     if (typeof lucide !== "undefined") lucide.createIcons();
@@ -665,7 +822,6 @@ function renderDashboardDeadlineAlerts() {
   if (dueTodayList.length > 0) parts.push(`<span class="text-amber-700 font-extrabold">${dueTodayList.length} hạn hôm nay</span>`);
   if (dueTomorrowList.length > 0) parts.push(`<span class="text-orange-600 font-bold">${dueTomorrowList.length} hạn ngày mai</span>`);
 
-  const topTask = overdueList[0] || dueTodayList[0] || dueTomorrowList[0];
   const isCritical = overdueList.length > 0;
 
   stripEl.innerHTML = `
@@ -684,11 +840,13 @@ function renderDashboardDeadlineAlerts() {
           </div>
         </div>
       </div>
-      ${topTask ? `
-      <div class="flex items-center gap-1.5 shrink-0">
+      <div class="flex items-center gap-1.5 shrink-0 flex-wrap">
+        ${getBrowserNotifButtonHtml()}
+        ${topTask ? `
         <button onclick="toggleTaskDone('${topTask.id}')" class="px-2.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-bold transition whitespace-nowrap">✓ Xong ngay</button>
         <button onclick="snoozeTaskOneDay('${topTask.id}')" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition whitespace-nowrap">+1 ngày</button>
-      </div>` : ""}
+        ` : ""}
+      </div>
     </div>
   `;
   if (typeof lucide !== "undefined") lucide.createIcons();
