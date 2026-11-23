@@ -214,9 +214,12 @@ function findPartnerProjectFromOmnibarText(raw) {
   const q = norm(raw);
   if (!q) return { merchant: null, project: null };
 
+  const stopWords = new Set(["cong", "tnhh", "co", "phan", "thuong", "mai", "dich", "vu", "viet", "nam", "tao", "task", "them", "viec", "cho", "hom", "nay", "ngay", "mai", "tuan", "khan", "cap", "clear", "phi"]);
+  const qWords = q.split(/[^a-z0-9]+/).filter(w => w.length >= 3 && !stopWords.has(w));
+
   const merchants = state?.merchants || [];
   let matchedM = null;
-  // Ưu tiên khớp brand_name, alias, hoặc tên đầy đủ
+  // 1. Ưu tiên khớp trọn chuỗi brand_name, alias, hoặc tên đầy đủ
   for (const m of merchants) {
     const brand = norm(m.brand_name);
     const alias = norm((m.alias || "").replace("@", ""));
@@ -226,6 +229,18 @@ function findPartnerProjectFromOmnibarText(raw) {
         (full && q.includes(full))) {
       matchedM = m;
       break;
+    }
+  }
+  // 2. Nếu gõ tắt 1 từ thương hiệu (VD: gõ "TDP" cho "TDP IELTS")
+  if (!matchedM && qWords.length > 0) {
+    for (const m of merchants) {
+      const mTokens = norm(`${m.brand_name || ""} ${m.name || ""} ${(m.alias || "").replace("@", "")}`)
+        .split(/[^a-z0-9]+/)
+        .filter(w => w.length >= 3 && !stopWords.has(w));
+      if (qWords.some(qw => mTokens.includes(qw))) {
+        matchedM = m;
+        break;
+      }
     }
   }
   if (!matchedM) return { merchant: null, project: null };
@@ -638,12 +653,11 @@ async function handleCommandSubmit(e) {
     }
   }
 
-  // 2. Kích hoạt Blocker
-  if (lower.includes("khẩn cấp") || lower.includes("blocker") || lower.includes("lỗi ip")) {
-    let matchedProj = state.projects[0];
-    if (lower.includes("highlands")) matchedProj = state.projects.find(p => p.merchant_id === "m-highlands");
-    if (lower.includes("jdv")) matchedProj = state.projects.find(p => p.merchant_id === "m-jdv");
-    if (lower.includes("việt thanh") || lower.includes("vietthanh")) matchedProj = state.projects.find(p => p.merchant_id === "m-vietthanh");
+  // 2. Kích hoạt Blocker (Chỉ chạy khi KHÔNG phải lệnh Tạo task / Xong task)
+  const isTaskCmd = /^(tạo\s*task|thêm\s*việc|tạo\s*việc|todo|nhiệm\s*vụ|xong|hoàn thành|done)\b/i.test(lower);
+  if (!isTaskCmd && (lower.includes("khẩn cấp") || lower.includes("blocker") || lower.includes("lỗi ip"))) {
+    const matched = findPartnerProjectFromOmnibarText(cmd);
+    let matchedProj = matched.project || state.projects[0];
 
     if (matchedProj) {
       matchedProj.is_blocked = true;
