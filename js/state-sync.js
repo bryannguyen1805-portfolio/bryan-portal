@@ -201,7 +201,6 @@ async function flushFullCloudSyncNow() {
   try {
     const res = await fetch(API_ENDPOINT, {
       method: "POST",
-      keepalive: true,
       body: JSON.stringify({
         action: "SYNC_FULL_STATE",
         owner_email: userEmail,
@@ -512,7 +511,6 @@ async function postDataToGoogleSheets(payload) {
   try {
     const res = await fetch(API_ENDPOINT, {
       method: "POST",
-      keepalive: true,
       body: JSON.stringify({ owner_email: userEmail, owner_pin: userPin, ...payload })
     });
     const data = await res.json().catch(() => null);
