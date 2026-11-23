@@ -191,6 +191,26 @@ if (!savedStateRaw && !isBryanLegacyUser()) {
 }
 
 let cloudSyncTimer = null;
+let lastSyncedSnapshot = {};
+
+function getCurrentCloudSlicesMap() {
+  return {
+    merchants: state.merchants || [],
+    stakeholders: state.stakeholders || [],
+    projects: state.projects || [],
+    tasks: state.tasks || [],
+    meetings: state.meetings || [],
+    folders: state.folders || [],
+    onboarding: typeof onboardingList !== "undefined" ? onboardingList : []
+  };
+}
+
+function captureSyncedSnapshot(slicesMap) {
+  const map = slicesMap || getCurrentCloudSlicesMap();
+  Object.keys(map).forEach(k => {
+    try { lastSyncedSnapshot[k] = JSON.stringify(map[k]); } catch (e) {}
+  });
+}
 
 async function flushFullCloudSyncNow() {
   if (!API_ENDPOINT) return;
@@ -198,25 +218,39 @@ async function flushFullCloudSyncNow() {
   const userPin = typeof getCurrentUserPin === "function" ? getCurrentUserPin() : "";
   if (!userEmail || !userPin) return;
   clearTimeout(cloudSyncTimer);
+
+  const slicesMap = getCurrentCloudSlicesMap();
+  const payload = {
+    action: "SYNC_FULL_STATE",
+    owner_email: userEmail,
+    owner_pin: userPin
+  };
+  const changedKeys = [];
+  const nextSnapshots = {};
+
+  Object.keys(slicesMap).forEach(k => {
+    const serialized = JSON.stringify(slicesMap[k]);
+    if (lastSyncedSnapshot[k] !== serialized) {
+      payload[k] = slicesMap[k];
+      changedKeys.push(k);
+      nextSnapshots[k] = serialized;
+    }
+  });
+
+  if (changedKeys.length === 0) return;
+
   try {
     const res = await fetch(API_ENDPOINT, {
       method: "POST",
-      body: JSON.stringify({
-        action: "SYNC_FULL_STATE",
-        owner_email: userEmail,
-        owner_pin: userPin,
-        merchants: state.merchants,
-        stakeholders: state.stakeholders,
-        projects: state.projects,
-        tasks: state.tasks,
-        meetings: state.meetings,
-        folders: state.folders,
-        onboarding: typeof onboardingList !== "undefined" ? onboardingList : []
-      })
+      body: JSON.stringify(payload)
     });
     const data = await res.json().catch(() => null);
     if (data && data.status === 403 && typeof showToast === "function") {
       showToast("Chưa lưu được lên Google Sheets (403 - hãy kiểm tra Code.gs đã Deploy bản mới chưa).", true);
+      return;
+    }
+    if (!data || data.success !== false) {
+      Object.assign(lastSyncedSnapshot, nextSnapshots);
     }
   } catch (e) {
     console.warn("Lỗi flushFullCloudSyncNow:", e);
@@ -485,6 +519,7 @@ async function syncDataFromGoogleSheets() {
       if (typeof saveOnboardingStorage === "function") saveOnboardingStorage();
     }
     localStorage.setItem(getUserStateStorageKey(), JSON.stringify(state));
+    captureSyncedSnapshot();
 
     updateAllKpis();
     renderDashboardQuickTasks();
