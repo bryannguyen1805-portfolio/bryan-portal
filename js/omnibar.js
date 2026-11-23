@@ -198,12 +198,39 @@ function parseOmnibarDueDate(raw) {
   }
   const dMatch = raw.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/);
   if (dMatch) {
-    const dd = dMatch[1].padStart(2, "0");
-    const mm = dMatch[2].padStart(2, "0");
-    const yyyy = dMatch[3] ? (dMatch[3].length === 2 ? `20${dMatch[3]}` : dMatch[3]) : String(base.getFullYear());
-    return { iso: `${yyyy}-${mm}-${dd}`, label: `${dd}/${mm}/${yyyy}` };
+    const yyyyNum = dMatch[3] ? parseInt(dMatch[3].length === 2 ? `20${dMatch[3]}` : dMatch[3], 10) : base.getFullYear();
+    const mmNum = Math.min(12, Math.max(1, parseInt(dMatch[2], 10)));
+    const maxDays = new Date(yyyyNum, mmNum, 0).getDate();
+    const ddNum = Math.min(maxDays, Math.max(1, parseInt(dMatch[1], 10)));
+    const dd = String(ddNum).padStart(2, "0");
+    const mm = String(mmNum).padStart(2, "0");
+    return { iso: `${yyyyNum}-${mm}-${dd}`, label: `${dd}/${mm}/${yyyyNum}` };
   }
   return { iso: toIso(base), label: "Hôm nay" };
+}
+
+function findPartnerProjectFromOmnibarText(raw) {
+  const norm = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").trim();
+  const q = norm(raw);
+  if (!q) return { merchant: null, project: null };
+
+  const merchants = state?.merchants || [];
+  let matchedM = null;
+  // Ưu tiên khớp brand_name, alias, hoặc tên đầy đủ
+  for (const m of merchants) {
+    const brand = norm(m.brand_name);
+    const alias = norm((m.alias || "").replace("@", ""));
+    const full = norm(m.name);
+    if ((brand && brand.length >= 2 && q.includes(brand)) ||
+        (alias && alias.length >= 2 && q.includes(alias)) ||
+        (full && q.includes(full))) {
+      matchedM = m;
+      break;
+    }
+  }
+  if (!matchedM) return { merchant: null, project: null };
+  const proj = (state?.projects || []).find(p => p.merchant_id === matchedM.id) || null;
+  return { merchant: matchedM, project: proj };
 }
 
 function findMatchingOpenTask(query) {
@@ -351,10 +378,12 @@ function handleOmnibarLivePreview(raw) {
         }).join("");
     }
   }
-  // 4. Tạo Task / Thêm việc -> Hiện chip chọn nhanh hạn chót
+  // 4. Tạo Task / Thêm việc -> Hiện chip chọn nhanh hạn chót & nhận diện đối tác tự động
   else if (/^(tạo\s*task|thêm\s*việc|tạo\s*việc|todo|nhiệm\s*vụ)\b/i.test(lower) || lower.includes("tạo task") || lower.includes("thêm việc")) {
     const dueInfo = parseOmnibarDueDate(val);
+    const { merchant } = findPartnerProjectFromOmnibarText(val);
     chips.push(`<span class="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 border border-teal-200 font-bold">📋 Tạo đầu việc mới</span>`);
+    if (merchant) chips.push(`<span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 font-bold">🏢 ${merchant.brand_name || merchant.name}</span>`);
     chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold">📆 Hạn: ${dueInfo.label}</span>`);
     if (lower.includes("khẩn")) chips.push(`<span class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 font-bold">Khẩn cấp</span>`);
     else if (lower.includes("cao") || lower.includes("gấp")) chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold">Ưu tiên Cao</span>`);
@@ -722,19 +751,17 @@ async function handleCommandSubmit(e) {
 
   // 3. Tạo Task mới
   if (/^(tạo\s*task|thêm\s*việc|tạo\s*việc|todo|nhiệm\s*vụ)\b/i.test(lower) || lower.includes("tạo task") || lower.includes("thêm việc") || lower.includes("task") || lower.includes("họp")) {
-    let matchedProj = state.projects.find(p => p.merchant_id === activeMerchantId) || state.projects[0];
-    if (lower.includes("highlands")) matchedProj = state.projects.find(p => p.merchant_id === "m-highlands");
-    if (lower.includes("jdv")) matchedProj = state.projects.find(p => p.merchant_id === "m-jdv");
-    if (lower.includes("việt thanh") || lower.includes("vietthanh")) matchedProj = state.projects.find(p => p.merchant_id === "m-vietthanh");
+    const matched = findPartnerProjectFromOmnibarText(cmd);
+    let matchedProj = matched.project || state.projects.find(p => p.merchant_id === activeMerchantId) || state.projects[0];
 
-    let taskType = "PERSONAL";
-    if (lower.includes("thương mại") || lower.includes("hợp đồng")) taskType = "COMMERCIAL";
+    let taskType = matched.merchant ? "COMMERCIAL" : "PERSONAL";
     if (lower.includes("kỹ thuật") || lower.includes("test") || lower.includes("ip") || lower.includes("webhook")) taskType = "TECH_DELIVERY";
 
     const dueInfo = parseOmnibarDueDate(cmd);
     const ownerName = (document.getElementById("sidebar-user-name")?.textContent || "Bryan").trim();
     const cleanTitle = cmd
       .replace(/^(tạo\s*task|thêm\s*việc|tạo\s*việc|todo|nhiệm\s*vụ)\s*/i, "")
+      .replace(/\b\d{1,2}\/\d{1,2}(?:\/\d{2,4})?\b/g, "")
       .replace(/\b(hôm nay|ngày mai|tuần này|khẩn cấp|gấp)\b/gi, "")
       .replace(/\s+/g, " ")
       .trim() || cmd;
