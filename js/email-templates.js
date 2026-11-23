@@ -130,7 +130,7 @@ function ensureOnboardingEmailModal() {
       </div>
 
       <div class="p-5 space-y-3 overflow-y-auto text-xs">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
+        <div id="email-var-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
           <div>
             <label class="block text-[10px] font-bold text-slate-500 mb-1">Mã đối tác (In hoa)</label>
             <input id="email-var-code" oninput="refreshOnboardingEmailPreview()" type="text" class="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg font-mono font-bold uppercase outline-none focus:border-teal-500" />
@@ -142,6 +142,10 @@ function ensureOnboardingEmailModal() {
           <div>
             <label id="email-var-extra-label" class="block text-[10px] font-bold text-slate-500 mb-1">Số lượng máy POS / ShopID</label>
             <input id="email-var-extra" oninput="refreshOnboardingEmailPreview()" type="text" class="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg outline-none focus:border-teal-500" />
+          </div>
+          <div id="email-var-acq-wrap">
+            <label class="block text-[10px] font-bold text-slate-500 mb-1">ACQ Bank</label>
+            <input id="email-var-acq" oninput="refreshOnboardingEmailPreview()" type="text" placeholder="VD: Pvcombank / VietinBank" class="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg outline-none focus:border-teal-500" />
           </div>
         </div>
 
@@ -191,6 +195,16 @@ function openOnboardingEmailModal(obId, stepNo) {
   document.getElementById("email-var-legal").value = meta.legalName;
   document.getElementById("email-var-extra-label").textContent = stepNo === 12 ? "Danh sách mã ShopID" : "Số lượng máy POS";
   document.getElementById("email-var-extra").value = stepNo === 12 ? meta.shopIdList : meta.posCount;
+  const acqInput = document.getElementById("email-var-acq");
+  const acqWrap = document.getElementById("email-var-acq-wrap");
+  const varGrid = document.getElementById("email-var-grid");
+  if (acqInput) acqInput.value = meta.acqBank;
+  if (acqWrap) acqWrap.classList.toggle("hidden", stepNo !== 9);
+  if (varGrid) {
+    varGrid.className = stepNo === 9
+      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200"
+      : "grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200";
+  }
 
   refreshOnboardingEmailPreview();
   document.getElementById("modal-onboarding-email").classList.remove("hidden");
@@ -200,12 +214,16 @@ function refreshOnboardingEmailPreview() {
   const ob = onboardingList.find(o => o.id === activeEmailCtx.obId);
   if (!ob) return;
   ob.email_meta = ob.email_meta || {};
-  ob.email_meta.partnerCode = (document.getElementById("email-var-code").value || "").toUpperCase().trim() || generatePartnerCodeUpper(ob.merchant_name);
-  ob.email_meta.legalName = document.getElementById("email-var-legal").value.trim() || `Công ty Cổ phần ${ob.merchant_name}`;
+  ob.email_meta.partnerCode = (document.getElementById("email-var-code").value || "").toUpperCase().trim() || generatePartnerCodeUpper(ob.brand_name || ob.merchant_name);
+  ob.email_meta.legalName = document.getElementById("email-var-legal").value.trim() || ob.merchant_name;
   if (activeEmailCtx.stepNo === 12) {
     ob.email_meta.shopIdList = document.getElementById("email-var-extra").value.trim() || `${ob.email_meta.partnerCode}_ONLINE_01`;
   } else {
     ob.email_meta.posCount = document.getElementById("email-var-extra").value.trim() || "10";
+  }
+  const acqEl = document.getElementById("email-var-acq");
+  if (acqEl && activeEmailCtx.stepNo === 9) {
+    ob.email_meta.acqBank = acqEl.value.trim() || "Pvcombank / VietinBank";
   }
   saveOnboardingStorage();
 
