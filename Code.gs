@@ -925,3 +925,87 @@ function sendDailyDeadlineFcmPush() {
     });
   });
 }
+
+// Chạy mỗi 5 phút (Minutes timer -> Every 5 minutes) để nhắc đúng trước giờ họp 15 phút
+function checkAndSendUpcomingFcmPush() {
+  const saRaw = PropertiesService.getScriptProperties().getProperty("FCM_SERVICE_ACCOUNT_JSON");
+  if (!saRaw) return;
+  const sa = JSON.parse(saRaw);
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const tokenRows = getSheetRowsAsObjects(ss, "PushTokens");
+  const meetingRows = getSheetRowsAsObjects(ss, "Meetings");
+  if (!tokenRows.length || !meetingRows.length) return;
+
+  const props = PropertiesService.getScriptProperties();
+  const sentMap = JSON.parse(props.getProperty("FCM_SENT_MEETINGS_LOG") || "{}");
+  const now = new Date();
+  const todayIso = Utilities.formatDate(now, "Asia/Ho_Chi_Minh", "yyyy-MM-dd");
+  const nowMinutes = parseInt(Utilities.formatDate(now, "Asia/Ho_Chi_Minh", "HH"), 10) * 60 +
+                     parseInt(Utilities.formatDate(now, "Asia/Ho_Chi_Minh", "mm"), 10);
+
+  const tokensByOwner = {};
+  tokenRows.forEach(r => {
+    const em = String(r.owner_email || "").trim().toLowerCase();
+    const tk = String(r.token || "").trim();
+    if (!em || !tk) return;
+    tokensByOwner[em] = tokensByOwner[em] || [];
+    tokensByOwner[em].push(tk);
+  });
+
+  let accessToken = null;
+  const fcmUrl = "https://fcm.googleapis.com/v1/projects/" + sa.project_id + "/messages:send";
+  let changedLog = false;
+
+  meetingRows.forEach(mt => {
+    const mtDate = String(mt.date || "").slice(0, 10);
+    if (mtDate !== todayIso) return;
+    const mTimeMatch = String(mt.time || "").match(/(\d{1,2}):(\d{2})/);
+    if (!mTimeMatch) return;
+    const startMinutes = parseInt(mTimeMatch[1], 10) * 60 + parseInt(mTimeMatch[2], 10);
+    const diffMins = startMinutes - nowMinutes;
+    const leadMins = Number(mt.remind_before_mins || 15);
+
+    // Nếu còn trong khoảng [0, leadMins] phút trước giờ họp và chưa gửi
+    if (diffMins >= 0 && diffMins <= leadMins) {
+      const owner = String(mt.owner_email || "").trim().toLowerCase();
+      const dedupeKey = mt.id + "_" + mtDate + "_" + mTimeMatch[0];
+      if (sentMap[dedupeKey]) return;
+
+      const userTokens = tokensByOwner[owner] || [];
+      if (userTokens.length === 0) return;
+      if (!accessToken) accessToken = getFcmAccessToken_(sa);
+
+      userTokens.forEach(tk => {
+        UrlFetchApp.fetch(fcmUrl, {
+          method: "post",
+          contentType: "application/json",
+          headers: { Authorization: "Bearer " + accessToken },
+          payload: JSON.stringify({
+            message: {
+              token: tk,
+              notification: {
+                title: "Sắp đến giờ họp (" + mTimeMatch[0] + ")",
+                body: String(mt.title || "Cuộc họp đối tác") + (mt.partner ? " • " + mt.partner : "")
+              },
+              webpush: {
+                fcm_options: { link: "https://bryanportfolio.io.vn/" }
+              }
+            }
+          }),
+          muteHttpExceptions: true
+        });
+      });
+      sentMap[dedupeKey] = now.toISOString();
+      changedLog = true;
+    }
+  });
+
+  if (changedLog) {
+    // Giữ tối đa 100 log gần nhất để tránh đầy Script Properties
+    const keys = Object.keys(sentMap);
+    if (keys.length > 100) {
+      keys.slice(0, keys.length - 100).forEach(k => delete sentMap[k]);
+    }
+    props.setProperty("FCM_SENT_MEETINGS_LOG", JSON.stringify(sentMap));
+  }
+}
