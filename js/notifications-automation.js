@@ -546,10 +546,10 @@ function renderTopbarNotifPopover() {
     const isUrgent = a.category === 'URGENT';
     const badge = a.kind === 'BLOCKER' ? 'VƯỚNG MẮC' : (a.kind === 'TASK_OVERDUE' ? 'QUÁ HẠN' : (a.kind === 'MEETING' ? 'LỊCH HỌP' : (a.kind === 'CONTRACT_RENEWAL' ? 'GIA HẠN HĐ' : 'SẮP HẠN')));
     return `
-      <div class="p-2.5 rounded-xl border ${isUrgent ? 'border-rose-200 bg-rose-50/40' : 'border-amber-200 bg-amber-50/40'} space-y-1">
+      <div class="p-2.5 rounded-xl border ${isUrgent ? 'border-rose-200 bg-rose-50/40' : 'border-slate-200/80 bg-slate-50'} space-y-1">
         <div class="flex items-center justify-between gap-2">
-          <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${isUrgent ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800'}">${badge}</span>
-          ${a.taskId ? `<button onclick="toggleTaskQuickDone('${a.taskId}')" class="text-[10px] font-bold text-emerald-700 hover:underline">✓ Hoàn tất</button>` : ''}
+          <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${isUrgent ? 'bg-rose-100 text-rose-700' : 'bg-teal-50 text-teal-800 border border-teal-200/70'}">${badge}</span>
+          ${a.taskId ? `<button onclick="toggleTaskQuickDone('${a.taskId}')" class="text-[10px] font-bold text-teal-700 hover:underline">✓ Hoàn tất</button>` : ''}
         </div>
         <div class="font-bold text-slate-800 truncate">${a.title}</div>
         <div class="text-[11px] text-slate-500 truncate">${a.detail}</div>
