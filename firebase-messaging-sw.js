@@ -1,9 +1,24 @@
 /* =============================================================
-   BPORTAL UNIFIED PWA & WEB PUSH SERVICE WORKER
-   Handles offline-ready installability + background Web Push / FCM
+   BPORTAL UNIFIED PWA & FIREBASE CLOUD MESSAGING SERVICE WORKER
+   Handles installability + background FCM Web Push notifications
    ============================================================= */
 
-self.addEventListener("install", (event) => {
+importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js");
+
+firebase.initializeApp({
+  apiKey: "AIzaSyCPzOVDec7NjwypmuiKnhW7BQUEO9BSXJ4",
+  authDomain: "bryan-portal.firebaseapp.com",
+  projectId: "bryan-portal",
+  storageBucket: "bryan-portal.firebasestorage.app",
+  messagingSenderId: "181983650223",
+  appId: "1:181983650223:web:a1e0a3a1296b77f36a0f5a",
+  measurementId: "G-7V3XPRP8SW"
+});
+
+const messaging = firebase.messaging();
+
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
@@ -14,29 +29,21 @@ self.addEventListener("activate", (event) => {
 // Minimal fetch pass-through so browser recognizes BPortal as installable PWA
 self.addEventListener("fetch", () => {});
 
-// Handle incoming Web Push / FCM payload even when browser tabs are closed
-self.addEventListener("push", (event) => {
-  let payload = {};
-  try {
-    payload = event.data ? event.data.json() : {};
-  } catch (e) {
-    payload = { notification: { title: "BPortal Nhắc Việc", body: event.data ? event.data.text() : "" } };
-  }
-
+// Handle FCM background messages when browser / tabs are closed
+messaging.onBackgroundMessage((payload) => {
   const notif = payload.notification || payload.data || {};
   const title = notif.title || "BPortal • Nhắc việc tới hạn";
   const options = {
     body: notif.body || "Bạn có đầu việc hoặc lịch họp cần xử lý trong hôm nay.",
     icon: "android-chrome-192x192.png",
     badge: "android-chrome-192x192.png",
-    tag: notif.tag || "bportal-deadline-push",
+    tag: notif.tag || "bportal-fcm-push",
     renotify: true,
     data: {
       url: notif.url || "./"
     }
   };
-
-  event.waitUntil(self.registration.showNotification(title, options));
+  return self.registration.showNotification(title, options);
 });
 
 // Focus or open BPortal when user taps notification on MacBook / iPhone

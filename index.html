@@ -312,6 +312,7 @@
           <div class="p-3 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-[11px]">
             <div class="flex items-center gap-1.5 flex-wrap">
               <button type="button" onclick="openNotifPrefsModal(); closeTopbarNotifPopover();" class="px-2.5 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl font-bold transition">Cá nhân hóa</button>
+              <button type="button" onclick="enableFcmDevicePush()" class="px-2.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold transition" title="Đăng ký nhận thông báo đẩy từ Firebase ngay cả khi tắt trình duyệt">Bật Push</button>
               <button type="button" onclick="sendTestOsPushNotification()" class="px-2.5 py-1.5 bg-white hover:bg-teal-50 text-teal-800 border border-slate-300 rounded-xl font-bold transition" title="Gửi thử thông báo đẩy ra màn hình thiết bị">Thử Push</button>
               <button type="button" id="btn-install-pwa" onclick="promptInstallBportalPwa()" class="px-2.5 py-1.5 bg-white hover:bg-teal-50 text-slate-700 border border-slate-300 rounded-xl font-bold transition" title="Cài BPortal thành App trên MacBook / iPhone">Cài App</button>
               <button type="button" onclick="sendAlertsDigestEmail()" class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl font-bold transition">Email</button>
@@ -1944,7 +1945,7 @@
   <script src="js/sla-engine.js?v=3.3.0"></script>
   <script src="js/email-templates.js?v=3.9.20"></script>
   <script src="js/attio-engine.js?v=3.3.0"></script>
-  <script src="js/push-pwa.js?v=3.9.33"></script>
+  <script src="js/push-pwa.js?v=3.9.34"></script>
   <script src="js/app-launcher.js?v=3.9.24"></script>
   <script src="js/omnibar.js?v=3.9.32"></script>
   <script src="js/notifications-automation.js?v=3.6.0"></script>

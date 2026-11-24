@@ -633,6 +633,27 @@ function doPost(e) {
       return resJSON({ success: true, message: "Đã gửi email nhắc hẹn tới " + recipient });
     }
 
+    if (action === "REGISTER_PUSH_TOKEN") {
+      const token = String(body.token || "").trim();
+      if (!token) return resJSON({ success: false, message: "Thiếu FCM token" });
+      let sheet = ss.getSheetByName("PushTokens");
+      if (!sheet) {
+        sheet = ss.insertSheet("PushTokens");
+        sheet.appendRow(["owner_email", "token", "platform", "updated_at"]);
+      }
+      const rows = getSheetRowsAsObjects(ss, "PushTokens");
+      for (let i = 0; i < rows.length; i++) {
+        if (String(rows[i].token || "").trim() === token) {
+          sheet.getRange(i + 2, 1).setValue(ownerEmail);
+          sheet.getRange(i + 2, 3).setValue(body.platform || "Web");
+          sheet.getRange(i + 2, 4).setValue(nowIso);
+          return resJSON({ success: true, message: "Đã cập nhật FCM token" });
+        }
+      }
+      sheet.appendRow([ownerEmail, token, body.platform || "Web", nowIso]);
+      return resJSON({ success: true, message: "Đã đăng ký FCM token mới" });
+    }
+
     if (action === "CREATE_TASK") {
       let sheet = ss.getSheetByName("Tasks");
       if (!sheet) {
@@ -819,4 +840,88 @@ function initSampleSheets() {
     owner,
     []
   );
+}
+
+// =============================================================
+// FCM HTTP v1 BACKGROUND PUSH SENDER (Chạy theo lịch Time-driven)
+// Hướng dẫn: Dán nội dung JSON của Service Account vào
+// Apps Script -> Project Settings -> Script Properties:
+//   Key: FCM_SERVICE_ACCOUNT_JSON
+// =============================================================
+function getFcmAccessToken_(serviceAccount) {
+  const header = Utilities.base64EncodeWebSafe(JSON.stringify({ alg: "RS256", typ: "JWT" })).replace(/=+$/, "");
+  const nowSec = Math.floor(Date.now() / 1000);
+  const claim = Utilities.base64EncodeWebSafe(JSON.stringify({
+    iss: serviceAccount.client_email,
+    scope: "https://www.googleapis.com/auth/firebase.messaging",
+    aud: "https://oauth2.googleapis.com/token",
+    exp: nowSec + 3600,
+    iat: nowSec
+  })).replace(/=+$/, "");
+  const sigInput = header + "." + claim;
+  const sigBytes = Utilities.computeRsaSha256Signature(sigInput, serviceAccount.private_key);
+  const sig = Utilities.base64EncodeWebSafe(sigBytes).replace(/=+$/, "");
+  const jwt = sigInput + "." + sig;
+
+  const resp = UrlFetchApp.fetch("https://oauth2.googleapis.com/token", {
+    method: "post",
+    payload: {
+      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+      assertion: jwt
+    }
+  });
+  return JSON.parse(resp.getContentText()).access_token;
+}
+
+function sendDailyDeadlineFcmPush() {
+  const saRaw = PropertiesService.getScriptProperties().getProperty("FCM_SERVICE_ACCOUNT_JSON");
+  if (!saRaw) throw new Error("Chưa cấu hình FCM_SERVICE_ACCOUNT_JSON trong Script Properties.");
+  const sa = JSON.parse(saRaw);
+  const accessToken = getFcmAccessToken_(sa);
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const tokenRows = getSheetRowsAsObjects(ss, "PushTokens");
+  const taskRows = getSheetRowsAsObjects(ss, "Tasks");
+  if (!tokenRows.length || !taskRows.length) return;
+
+  const todayIso = Utilities.formatDate(new Date(), "Asia/Ho_Chi_Minh", "yyyy-MM-dd");
+  const byOwner = {};
+  taskRows.forEach(t => {
+    if (String(t.stage || "") === "STAGE_DONE") return;
+    const due = String(t.due_date || "").slice(0, 10);
+    if (!due || due > todayIso) return;
+    const owner = String(t.owner_email || "").trim().toLowerCase();
+    if (!owner) return;
+    byOwner[owner] = byOwner[owner] || [];
+    byOwner[owner].push(t);
+  });
+
+  const fcmUrl = "https://fcm.googleapis.com/v1/projects/" + sa.project_id + "/messages:send";
+  tokenRows.forEach(row => {
+    const email = String(row.owner_email || "").trim().toLowerCase();
+    const token = String(row.token || "").trim();
+    const urgent = byOwner[email] || [];
+    if (!token || urgent.length === 0) return;
+
+    const payload = {
+      message: {
+        token: token,
+        notification: {
+          title: "BPortal • " + urgent.length + " việc cần chốt hôm nay",
+          body: "Ưu tiên: " + String(urgent[0].title || "Kiểm tra danh sách đầu việc")
+        },
+        webpush: {
+          fcm_options: { link: "https://bryanportfolio.io.vn/" }
+        }
+      }
+    };
+
+    UrlFetchApp.fetch(fcmUrl, {
+      method: "post",
+      contentType: "application/json",
+      headers: { Authorization: "Bearer " + accessToken },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+  });
 }
