@@ -873,6 +873,27 @@ function getFcmAccessToken_(serviceAccount) {
   return JSON.parse(resp.getContentText()).access_token;
 }
 
+function sendFcmNotificationToTokens_(fcmUrl, accessToken, tokens, title, body, tag) {
+  (tokens || []).forEach(tk => {
+    UrlFetchApp.fetch(fcmUrl, {
+      method: "post",
+      contentType: "application/json",
+      headers: { Authorization: "Bearer " + accessToken },
+      payload: JSON.stringify({
+        message: {
+          token: tk,
+          notification: { title: title, body: body },
+          webpush: {
+            fcm_options: { link: "https://bryanportfolio.io.vn/" }
+          },
+          data: { tag: tag || "bportal-push", url: "https://bryanportfolio.io.vn/" }
+        }
+      }),
+      muteHttpExceptions: true
+    });
+  });
+}
+
 function sendDailyDeadlineFcmPush() {
   const saRaw = PropertiesService.getScriptProperties().getProperty("FCM_SERVICE_ACCOUNT_JSON");
   if (!saRaw) throw new Error("Chưa cấu hình FCM_SERVICE_ACCOUNT_JSON trong Script Properties.");
@@ -881,65 +902,91 @@ function sendDailyDeadlineFcmPush() {
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const tokenRows = getSheetRowsAsObjects(ss, "PushTokens");
+  if (!tokenRows.length) return;
+
   const taskRows = getSheetRowsAsObjects(ss, "Tasks");
-  if (!tokenRows.length || !taskRows.length) return;
+  const projectRows = getSheetRowsAsObjects(ss, "Projects");
+  const merchantRows = getSheetRowsAsObjects(ss, "Merchants");
+  const meetingRows = getSheetRowsAsObjects(ss, "Meetings");
 
   const todayIso = Utilities.formatDate(new Date(), "Asia/Ho_Chi_Minh", "yyyy-MM-dd");
-  const byOwner = {};
+  const todayMs = new Date(todayIso + "T00:00:00").getTime();
+
+  const digestByOwner = {};
+  const addLine = (owner, line) => {
+    const em = String(owner || "").trim().toLowerCase();
+    if (!em) return;
+    digestByOwner[em] = digestByOwner[em] || [];
+    digestByOwner[em].push(line);
+  };
+
   taskRows.forEach(t => {
     if (String(t.stage || "") === "STAGE_DONE") return;
     const due = String(t.due_date || "").slice(0, 10);
-    if (!due || due > todayIso) return;
-    const owner = String(t.owner_email || "").trim().toLowerCase();
-    if (!owner) return;
-    byOwner[owner] = byOwner[owner] || [];
-    byOwner[owner].push(t);
+    if (!due) return;
+    const diffDays = Math.round((new Date(due + "T00:00:00").getTime() - todayMs) / 86400000);
+    if (diffDays <= 2) {
+      const prefix = diffDays < 0 ? "[Trễ hạn]" : (diffDays === 0 ? "[Hôm nay]" : "[Sắp hạn]");
+      addLine(t.owner_email, prefix + " " + String(t.title || ""));
+    }
+  });
+
+  projectRows.forEach(p => {
+    if (String(p.is_blocked).toUpperCase() === "TRUE") {
+      addLine(p.owner_email, "[Vướng mắc] " + String(p.title || "Dự án") + (p.blocker_reason ? " — " + p.blocker_reason : ""));
+    }
+  });
+
+  merchantRows.forEach(m => {
+    const exp = String(m.contract_expiry_date || "").slice(0, 10);
+    if (!exp) return;
+    const diffDays = Math.round((new Date(exp + "T00:00:00").getTime() - todayMs) / 86400000);
+    if (diffDays <= 30) {
+      addLine(m.owner_email, "[Hợp đồng] " + String(m.name || "") + " còn " + diffDays + " ngày hết hạn");
+    }
+  });
+
+  meetingRows.forEach(mt => {
+    if (String(mt.date || "").slice(0, 10) === todayIso) {
+      addLine(mt.owner_email, "[Họp " + String(mt.time || "") + "] " + String(mt.title || ""));
+    }
   });
 
   const fcmUrl = "https://fcm.googleapis.com/v1/projects/" + sa.project_id + "/messages:send";
   tokenRows.forEach(row => {
     const email = String(row.owner_email || "").trim().toLowerCase();
     const token = String(row.token || "").trim();
-    const urgent = byOwner[email] || [];
-    if (!token || urgent.length === 0) return;
-
-    const payload = {
-      message: {
-        token: token,
-        notification: {
-          title: "BPortal • " + urgent.length + " việc cần chốt hôm nay",
-          body: "Ưu tiên: " + String(urgent[0].title || "Kiểm tra danh sách đầu việc")
-        },
-        webpush: {
-          fcm_options: { link: "https://bryanportfolio.io.vn/" }
-        }
-      }
-    };
-
-    UrlFetchApp.fetch(fcmUrl, {
-      method: "post",
-      contentType: "application/json",
-      headers: { Authorization: "Bearer " + accessToken },
-      payload: JSON.stringify(payload),
-      muteHttpExceptions: true
-    });
+    const lines = digestByOwner[email] || [];
+    if (!token || lines.length === 0) return;
+    sendFcmNotificationToTokens_(
+      fcmUrl, accessToken, [token],
+      "BPortal • " + lines.length + " mục cần chú ý hôm nay",
+      lines.slice(0, 3).join(" | "),
+      "bportal-daily-digest"
+    );
   });
 }
 
-// Chạy mỗi 5 phút (Minutes timer -> Every 5 minutes) để nhắc đúng trước giờ họp 15 phút
+// Chạy mỗi 5 phút (Minutes timer -> Every 5 minutes):
+// Quét toàn bộ: Lịch họp (trước 15p), Nhiệm vụ/Tasks (tới hạn/quá hạn), Hợp đồng (30/7/1 ngày), Dự án vướng mắc
 function checkAndSendUpcomingFcmPush() {
   const saRaw = PropertiesService.getScriptProperties().getProperty("FCM_SERVICE_ACCOUNT_JSON");
   if (!saRaw) return;
   const sa = JSON.parse(saRaw);
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const tokenRows = getSheetRowsAsObjects(ss, "PushTokens");
+  if (!tokenRows.length) return;
+
+  const taskRows = getSheetRowsAsObjects(ss, "Tasks");
+  const projectRows = getSheetRowsAsObjects(ss, "Projects");
+  const merchantRows = getSheetRowsAsObjects(ss, "Merchants");
   const meetingRows = getSheetRowsAsObjects(ss, "Meetings");
-  if (!tokenRows.length || !meetingRows.length) return;
 
   const props = PropertiesService.getScriptProperties();
-  const sentMap = JSON.parse(props.getProperty("FCM_SENT_MEETINGS_LOG") || "{}");
+  const sentMap = JSON.parse(props.getProperty("FCM_SENT_ALERTS_LOG") || "{}");
   const now = new Date();
   const todayIso = Utilities.formatDate(now, "Asia/Ho_Chi_Minh", "yyyy-MM-dd");
+  const todayMs = new Date(todayIso + "T00:00:00").getTime();
   const nowMinutes = parseInt(Utilities.formatDate(now, "Asia/Ho_Chi_Minh", "HH"), 10) * 60 +
                      parseInt(Utilities.formatDate(now, "Asia/Ho_Chi_Minh", "mm"), 10);
 
@@ -956,56 +1003,89 @@ function checkAndSendUpcomingFcmPush() {
   const fcmUrl = "https://fcm.googleapis.com/v1/projects/" + sa.project_id + "/messages:send";
   let changedLog = false;
 
+  const pushOnce = (ownerEmail, dedupeKey, title, body, tag) => {
+    if (sentMap[dedupeKey]) return;
+    const owner = String(ownerEmail || "").trim().toLowerCase();
+    const userTokens = tokensByOwner[owner] || [];
+    if (!userTokens.length) return;
+    if (!accessToken) accessToken = getFcmAccessToken_(sa);
+    sendFcmNotificationToTokens_(fcmUrl, accessToken, userTokens, title, body, tag);
+    sentMap[dedupeKey] = now.toISOString();
+    changedLog = true;
+  };
+
+  // 1. LỊCH HỌP: Đẩy đúng trước 15 phút (hoặc remind_before_mins)
   meetingRows.forEach(mt => {
-    const mtDate = String(mt.date || "").slice(0, 10);
-    if (mtDate !== todayIso) return;
+    if (String(mt.date || "").slice(0, 10) !== todayIso) return;
     const mTimeMatch = String(mt.time || "").match(/(\d{1,2}):(\d{2})/);
     if (!mTimeMatch) return;
     const startMinutes = parseInt(mTimeMatch[1], 10) * 60 + parseInt(mTimeMatch[2], 10);
     const diffMins = startMinutes - nowMinutes;
     const leadMins = Number(mt.remind_before_mins || 15);
-
-    // Nếu còn trong khoảng [0, leadMins] phút trước giờ họp và chưa gửi
     if (diffMins >= 0 && diffMins <= leadMins) {
-      const owner = String(mt.owner_email || "").trim().toLowerCase();
-      const dedupeKey = mt.id + "_" + mtDate + "_" + mTimeMatch[0];
-      if (sentMap[dedupeKey]) return;
+      pushOnce(
+        mt.owner_email,
+        "mt_" + mt.id + "_" + todayIso + "_" + mTimeMatch[0],
+        "Sắp đến giờ họp (" + mTimeMatch[0] + ")",
+        String(mt.title || "Cuộc họp đối tác") + (mt.partner ? " • " + mt.partner : ""),
+        "bportal-meeting-" + mt.id
+      );
+    }
+  });
 
-      const userTokens = tokensByOwner[owner] || [];
-      if (userTokens.length === 0) return;
-      if (!accessToken) accessToken = getFcmAccessToken_(sa);
+  // 2. NHIỆM VỤ / TASKS: Quá hạn, hạn hôm nay, hạn ngày mai (mỗi task 1 lần/ngày)
+  taskRows.forEach(t => {
+    if (String(t.stage || "") === "STAGE_DONE") return;
+    const due = String(t.due_date || "").slice(0, 10);
+    if (!due) return;
+    const diffDays = Math.round((new Date(due + "T00:00:00").getTime() - todayMs) / 86400000);
+    if (diffDays <= 1) {
+      const label = diffDays < 0 ? ("Quá hạn " + Math.abs(diffDays) + " ngày") : (diffDays === 0 ? "Hạn hôm nay" : "Hạn ngày mai");
+      pushOnce(
+        t.owner_email,
+        "tsk_" + t.id + "_" + todayIso,
+        "Nhắc nhiệm vụ • " + label,
+        String(t.title || "Đầu việc cần xử lý"),
+        "bportal-task-" + t.id
+      );
+    }
+  });
 
-      userTokens.forEach(tk => {
-        UrlFetchApp.fetch(fcmUrl, {
-          method: "post",
-          contentType: "application/json",
-          headers: { Authorization: "Bearer " + accessToken },
-          payload: JSON.stringify({
-            message: {
-              token: tk,
-              notification: {
-                title: "Sắp đến giờ họp (" + mTimeMatch[0] + ")",
-                body: String(mt.title || "Cuộc họp đối tác") + (mt.partner ? " • " + mt.partner : "")
-              },
-              webpush: {
-                fcm_options: { link: "https://bryanportfolio.io.vn/" }
-              }
-            }
-          }),
-          muteHttpExceptions: true
-        });
-      });
-      sentMap[dedupeKey] = now.toISOString();
-      changedLog = true;
+  // 3. THỜI HẠN HỢP ĐỒNG: Còn 30, 7, 1, 0 ngày (mỗi mốc 1 lần)
+  merchantRows.forEach(m => {
+    const exp = String(m.contract_expiry_date || "").slice(0, 10);
+    if (!exp) return;
+    const diffDays = Math.round((new Date(exp + "T00:00:00").getTime() - todayMs) / 86400000);
+    if (diffDays <= 30 && (diffDays === 30 || diffDays === 7 || diffDays === 1 || diffDays <= 0)) {
+      const msg = diffDays <= 0 ? "Hợp đồng đã đến/quá hạn gia hạn!" : ("Hợp đồng còn " + diffDays + " ngày hết hạn");
+      pushOnce(
+        m.owner_email,
+        "exp_" + m.id + "_" + todayIso,
+        "Gia hạn hợp đồng • " + String(m.name || "Đối tác"),
+        msg + " (" + exp + ")",
+        "bportal-contract-" + m.id
+      );
+    }
+  });
+
+  // 4. DỰ ÁN ĐANG VƯỚNG MẮC (1 lần/ngày)
+  projectRows.forEach(p => {
+    if (String(p.is_blocked).toUpperCase() === "TRUE") {
+      pushOnce(
+        p.owner_email,
+        "blk_" + p.id + "_" + todayIso,
+        "Dự án đang vướng mắc",
+        String(p.title || "Dự án") + (p.blocker_reason ? " — " + p.blocker_reason : ""),
+        "bportal-blocker-" + p.id
+      );
     }
   });
 
   if (changedLog) {
-    // Giữ tối đa 100 log gần nhất để tránh đầy Script Properties
     const keys = Object.keys(sentMap);
-    if (keys.length > 100) {
-      keys.slice(0, keys.length - 100).forEach(k => delete sentMap[k]);
+    if (keys.length > 150) {
+      keys.slice(0, keys.length - 150).forEach(k => delete sentMap[k]);
     }
-    props.setProperty("FCM_SENT_MEETINGS_LOG", JSON.stringify(sentMap));
+    props.setProperty("FCM_SENT_ALERTS_LOG", JSON.stringify(sentMap));
   }
 }
