@@ -12,8 +12,11 @@
   <link rel="icon" type="image/svg+xml" href="assets/brand/BPortal_Favicon_Light.svg" />
   <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/BPortal_Favicon_Light_32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0F766E" />
   <meta name="apple-mobile-web-app-title" content="BPortal" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -307,10 +310,11 @@
           </div>
           <div id="topbar-notif-list" class="max-h-72 overflow-y-auto p-3 space-y-2 text-xs"></div>
           <div class="p-3 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-[11px]">
-            <div class="flex items-center gap-1.5">
-              <button type="button" onclick="openNotifPrefsModal(); closeTopbarNotifPopover();" class="px-2.5 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl font-bold transition">⚙️ Cá nhân hóa</button>
-              <button type="button" onclick="requestBrowserNotificationPermission()" class="px-2.5 py-1.5 bg-white hover:bg-teal-50 text-teal-800 border border-slate-300 rounded-xl font-bold transition">Pop-up</button>
-              <button type="button" onclick="sendAlertsDigestEmail()" class="px-2.5 py-1.5 bg-white hover:bg-indigo-50 text-indigo-800 border border-slate-300 rounded-xl font-bold transition">Email</button>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button type="button" onclick="openNotifPrefsModal(); closeTopbarNotifPopover();" class="px-2.5 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl font-bold transition">Cá nhân hóa</button>
+              <button type="button" onclick="sendTestOsPushNotification()" class="px-2.5 py-1.5 bg-white hover:bg-teal-50 text-teal-800 border border-slate-300 rounded-xl font-bold transition" title="Gửi thử thông báo đẩy ra màn hình thiết bị">Thử Push</button>
+              <button type="button" id="btn-install-pwa" onclick="promptInstallBportalPwa()" class="px-2.5 py-1.5 bg-white hover:bg-teal-50 text-slate-700 border border-slate-300 rounded-xl font-bold transition" title="Cài BPortal thành App trên MacBook / iPhone">Cài App</button>
+              <button type="button" onclick="sendAlertsDigestEmail()" class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-xl font-bold transition">Email</button>
             </div>
             <button type="button" onclick="navigateTo('NOTIFICATIONS'); closeTopbarNotifPopover();" class="font-bold text-teal-700 hover:underline">Xem tất cả →</button>
           </div>
@@ -1940,6 +1944,7 @@
   <script src="js/sla-engine.js?v=3.3.0"></script>
   <script src="js/email-templates.js?v=3.9.20"></script>
   <script src="js/attio-engine.js?v=3.3.0"></script>
+  <script src="js/push-pwa.js?v=3.9.33"></script>
   <script src="js/app-launcher.js?v=3.9.24"></script>
   <script src="js/omnibar.js?v=3.9.32"></script>
   <script src="js/notifications-automation.js?v=3.6.0"></script>
