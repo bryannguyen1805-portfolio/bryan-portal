@@ -884,9 +884,9 @@ function sendFcmNotificationToTokens_(fcmUrl, accessToken, tokens, title, body, 
           token: tk,
           notification: { title: title, body: body },
           webpush: {
-            fcm_options: { link: "https://bryanportfolio.io.vn/" }
+            fcm_options: { link: "https://bryanportal.io.vn/" }
           },
-          data: { tag: tag || "bportal-push", url: "https://bryanportfolio.io.vn/" }
+          data: { tag: tag || "bportal-push", url: "https://bryanportal.io.vn/" }
         }
       }),
       muteHttpExceptions: true
