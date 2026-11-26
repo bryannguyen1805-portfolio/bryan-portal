@@ -336,6 +336,27 @@ button.rounded-lg {
   select,
   textarea {
     font-size: 16px !important;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  /* Safe Area cho iPhone Dynamic Island / Notch ở PWA Standalone */
+  .mobile-safe-topbar {
+    padding-top: max(10px, env(safe-area-inset-top)) !important;
+    padding-bottom: 10px !important;
+    height: auto !important;
+    min-height: 56px;
+  }
+  #app-sidebar {
+    padding-top: env(safe-area-inset-top);
+  }
+  #mobile-bottom-nav {
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+  }
+  /* Modal cuộn mượt & không bị tràn ngang trên màn hình nhỏ */
+  div[id^="modal-"] > div {
+    max-height: 88dvh;
+    overflow-y: auto;
   }
   #mobile-bottom-nav .mnav-item {
     border-radius: 12px !important;
@@ -343,6 +364,22 @@ button.rounded-lg {
   main .bg-white.rounded-2xl {
     border-radius: 14px !important;
   }
+}
+
+@media (max-width: 639px) {
+  /* Tự động xếp 1 cột cho các grid trong Form/Modal để tránh đè chữ & cắt ô input */
+  form .grid.grid-cols-2,
+  form .grid.grid-cols-3 {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 @media (min-width: 768px) {

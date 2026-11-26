@@ -229,7 +229,7 @@
   <div class="flex-1 flex flex-col h-full bg-slate-100 overflow-hidden relative">
 
     <!-- Topbar với Smart Omnibar (⌘K) & Cloud Sync Status -->
-    <header class="h-14 md:h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 md:px-6 flex items-center justify-between gap-2 md:gap-4 shrink-0 z-30 relative">
+    <header class="mobile-safe-topbar h-14 md:h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 md:px-6 flex items-center justify-between gap-2 md:gap-4 shrink-0 z-30 relative">
       <!-- Nút mở Sidebar trên Mobile -->
       <button type="button" onclick="openMobileSidebar()" class="md:hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 shrink-0 transition" title="Mở danh mục">
         <i data-lucide="menu" class="w-4 h-4"></i>
@@ -643,17 +643,17 @@
       <div id="view-PROJECTS" class="hidden space-y-4 max-w-[1440px] mx-auto">
         <!-- THANH CHỌN CHUỖI DUY NHẤT (Hỗ trợ 50+ đối tác không rớt dòng) -->
         <div class="bg-white px-4 py-3 rounded-2xl border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          <div class="flex items-center gap-2 flex-1 min-w-0 overflow-x-auto" id="merchant-pills-bar"></div>
-          <div class="flex items-center space-x-2 shrink-0">
-            <button onclick="copyWeeklyProgressReport()" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition flex items-center space-x-1" title="Sao chép báo cáo tiến độ tuần gửi Quản lý">
+          <div class="flex items-center gap-2 flex-1 min-w-0 overflow-x-auto no-scrollbar" id="merchant-pills-bar"></div>
+          <div class="flex items-center gap-2 shrink-0 overflow-x-auto no-scrollbar">
+            <button onclick="copyWeeklyProgressReport()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 whitespace-nowrap shrink-0" title="Sao chép báo cáo tiến độ tuần gửi Quản lý">
               <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
               <span>Báo cáo tuần</span>
             </button>
-            <button onclick="navigateTo('ONBOARDING'); openNewOnboardingModal();" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1 shadow-xs" title="Khởi tạo quy trình triển khai mới 15-19 bước">
+            <button onclick="navigateTo('ONBOARDING'); openNewOnboardingModal();" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-xs whitespace-nowrap shrink-0" title="Khởi tạo quy trình triển khai mới 15-19 bước">
               <i data-lucide="list-checks" class="w-3.5 h-3.5"></i>
               <span>+ Triển khai mới</span>
             </button>
-            <button onclick="openNewMerchantModal()" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 rounded-xl text-xs font-semibold transition flex items-center space-x-1" title="Thêm nhanh chuỗi đã vận hành">
+            <button onclick="openNewMerchantModal()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 whitespace-nowrap shrink-0" title="Thêm nhanh chuỗi đã vận hành">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i>
               <span>Chuỗi đang chạy</span>
             </button>
@@ -835,7 +835,7 @@
               <button onclick="filterTasksByType('PERSONAL')" id="filter-type-PERSONAL" class="px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 shrink-0 whitespace-nowrap">👤 Cá Nhân</button>
             </div>
 
-            <div class="grid grid-cols-2 md:flex items-center gap-2 text-xs w-full md:w-auto">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:flex items-center gap-2 text-xs w-full md:w-auto">
               <select id="filter-task-merchant" onchange="renderTasksMainView()" class="w-full md:max-w-[190px] bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-medium outline-none">
                 <option value="ALL">Tất cả chuỗi đối tác</option>
               </select>
@@ -1513,14 +1513,14 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="min-w-0">
             <label class="block font-bold text-slate-700 mb-1">Hạn Chót (Due Date)</label>
-            <input type="date" id="task-due-date-input" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none">
+            <input type="date" id="task-due-date-input" class="w-full min-w-0 p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none">
           </div>
-          <div>
+          <div class="min-w-0">
             <label class="block font-bold text-slate-700 mb-1">Trạng Thái</label>
-            <select id="task-stage-select" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none">
+            <select id="task-stage-select" class="w-full min-w-0 p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none">
               <option value="STAGE_TODO">Cần Làm</option>
               <option value="STAGE_DOING">Đang Làm</option>
               <option value="STAGE_DONE">Hoàn Tất</option>
@@ -1739,7 +1739,7 @@
             <input type="text" id="merchant-alias" required placeholder="@katinat" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none">
           </div>
         </div>
-        <div class="grid grid-cols-3 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label class="block font-bold text-slate-700 mb-1">Mã Số Thuế (MST)</label>
             <input type="text" id="merchant-tax-code" placeholder="VD: 0312345678" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none font-mono">
