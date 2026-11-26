@@ -1058,10 +1058,11 @@ function checkAndSendUpcomingFcmPush() {
     const diffDays = Math.round((new Date(exp + "T00:00:00").getTime() - todayMs) / 86400000);
     if (diffDays <= 30 && (diffDays === 30 || diffDays === 7 || diffDays === 1 || diffDays <= 0)) {
       const msg = diffDays <= 0 ? "Hợp đồng đã đến/quá hạn gia hạn!" : ("Hợp đồng còn " + diffDays + " ngày hết hạn");
+      const mName = String(m.brand_name || m.name || "Đối tác");
       pushOnce(
         m.owner_email,
         "exp_" + m.id + "_" + todayIso,
-        "Gia hạn hợp đồng • " + String(m.name || "Đối tác"),
+        "Gia hạn HĐ • " + (mName.length > 20 ? mName.slice(0, 19) + "…" : mName),
         msg + " (" + exp + ")",
         "bportal-contract-" + m.id
       );

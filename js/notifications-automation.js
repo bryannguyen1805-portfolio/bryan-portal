@@ -401,14 +401,24 @@ function getActiveAlerts() {
   if (automationSettings.autoMeetingReminder && Array.isArray(state.meetings)) {
     state.meetings.filter(mt => mt.date === todayStr || mt.date === tomorrowStr).forEach(mt => {
       const isToday = mt.date === todayStr;
+      const dParts = String(mt.date || '').split('-');
+      const shortDate = dParts.length === 3 ? `${dParts[2]}/${dParts[1]}` : mt.date;
+      const startTime = (mt.time || '').split('-')[0].trim();
+      const partnerName = mt.partner || mt.merchant || 'Nội bộ';
+      const attendees = mt.attendees || mt.participants || '';
+      const detailParts = [
+        `${isToday ? 'Họp hôm nay' : 'Họp ngày mai'} (${shortDate})`,
+        partnerName
+      ];
+      if (attendees) detailParts.push(attendees);
       alerts.push({
         id: `meet-${mt.id}`,
         category: 'UPCOMING',
         kind: 'MEETING',
-        title: `${mt.time || ''} • ${mt.title}`,
-        detail: `${isToday ? 'Họp hôm nay' : 'Họp ngày mai'} (${mt.date}) • ${mt.merchant || 'Nội bộ'} • ${mt.participants || ''}`,
-        pic: mt.participants || 'Bryan',
-        zaloText: `[Nhắc lịch họp] Mời anh/chị tham gia cuộc họp "${mt.title}" vào lúc ${mt.time || ''} ngày ${mt.date}.`
+        title: `${startTime ? 'Họp ' + startTime + ' • ' : ''}${mt.title}`,
+        detail: detailParts.join(' • '),
+        pic: attendees || 'Bryan',
+        zaloText: `[Nhắc lịch họp] Mời anh/chị tham gia cuộc họp "${mt.title}" vào lúc ${mt.time || ''} ngày ${shortDate}.`
       });
     });
   }
@@ -604,11 +614,17 @@ function runDesktopNotificationCheck(forceShowSummary = false) {
   const newAlerts = alerts.filter(a => !poppedIds.includes(a.id));
   if (newAlerts.length > 0) {
     const first = newAlerts[0];
-    new Notification(`Bryan Portal: ${first.title}`, {
-      body: newAlerts.length > 1
-        ? `${first.detail} (+${newAlerts.length - 1} nhắc hẹn khác)`
-        : first.detail
-    });
+    const rawTitle = String(first.title || "Nhắc hẹn công việc").trim();
+    const shortTitle = rawTitle.length > 34 ? rawTitle.slice(0, 33).trim() + "…" : rawTitle;
+    const extraTxt = newAlerts.length > 1 ? ` (+${newAlerts.length - 1} nhắc hẹn khác)` : "";
+    const bodyText = (rawTitle.length > 34 ? rawTitle + "\n" : "") + first.detail + extraTxt;
+    const notifOpts = { body: bodyText, icon: "android-chrome-192x192.png", tag: "bportal-alert" };
+
+    if (typeof bportalSwRegistration !== "undefined" && bportalSwRegistration && bportalSwRegistration.showNotification) {
+      bportalSwRegistration.showNotification(shortTitle, notifOpts);
+    } else {
+      new Notification(shortTitle, notifOpts);
+    }
     poppedIds.push(...newAlerts.map(a => a.id));
     localStorage.setItem(todayKey, JSON.stringify(Array.from(new Set(poppedIds))));
   }
