@@ -107,7 +107,7 @@ function ensureForgotPinModal() {
   if (document.getElementById("modal-forgot-pin")) return;
   const div = document.createElement("div");
   div.id = "modal-forgot-pin";
-  div.className = "hidden fixed inset-0 z-[10005] bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4";
+  div.className = "hidden fixed inset-0 z-[10020] bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4";
   div.innerHTML = `
     <div class="bg-white w-full max-w-sm rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
       <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between">
