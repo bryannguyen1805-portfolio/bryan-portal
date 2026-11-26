@@ -331,6 +331,12 @@ button.rounded-lg {
 
 /* Mobile UI Polish */
 @media (max-width: 767px) {
+  /* Ngăn iOS Safari tự động zoom màn hình khi chạm vào ô nhập liệu (< 16px) */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
   #mobile-bottom-nav .mnav-item {
     border-radius: 12px !important;
   }
