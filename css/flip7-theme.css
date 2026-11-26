@@ -350,24 +350,49 @@ i[data-lucide] {
 
 /* Mobile UI Polish */
 @media (max-width: 767px) {
-  /* Cỡ chữ đồng đều 14px (maximum-scale=1.0 đã chặn auto-zoom trên iOS), căn trái chuẩn cho date/select */
+  /* Cỡ chữ đồng đều, hài hoà với label & badge trên Mobile; không phóng to 16px gây lệch tỷ lệ */
   input:not([type="checkbox"]):not([type="radio"]),
   select,
   textarea {
-    font-size: 14px !important;
-    line-height: 1.4 !important;
-    min-height: 40px;
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+    min-height: 36px;
     max-width: 100% !important;
     min-width: 0 !important;
     box-sizing: border-box !important;
   }
-  @supports (-webkit-touch-callout: none) {
-    /* Trên iOS Safari giữ 16px để chặn auto-zoom mà không cần maximum-scale=1.0 */
-    input:not([type="checkbox"]):not([type="radio"]),
-    select,
-    textarea {
-      font-size: 16px !important;
-    }
+  /* Filter dropdowns & compact selects giữ cỡ 12.5px gọn gàng */
+  #filter-task-merchant,
+  #filter-task-priority,
+  #mcc-sector-filter,
+  #task-reminder-select,
+  #meet-reminder-select,
+  select.text-xs {
+    font-size: 12.5px !important;
+    line-height: 1.3 !important;
+    min-height: 32px !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+  }
+  /* Inline status select trong card đầu việc (VD: "4. Đang duyệt") cân đối với dòng Hạn chót */
+  #container-task-cards select,
+  main select.text-\[11px\],
+  #custom-path-group {
+    font-size: 11.5px !important;
+    line-height: 1.25 !important;
+    min-height: 28px !important;
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+    padding-left: 8px !important;
+    padding-right: 24px !important;
+    background-position: right 6px center !important;
+  }
+  /* Modal form inputs/selects đồng bộ 13px và chiều cao 36px gọn mắt */
+  div[id^="modal-"] input:not([type="checkbox"]):not([type="radio"]),
+  div[id^="modal-"] select,
+  div[id^="modal-"] textarea {
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
   }
   input[type="date"],
   input[type="time"] {
@@ -387,8 +412,10 @@ i[data-lucide] {
   #app-sidebar {
     padding-top: env(safe-area-inset-top);
   }
+  /* Giữ thanh Bottom Nav gọn gàng, chỉ chừa khoảng thoáng vừa đủ cho Home Indicator thay vì 34px khoảng trắng */
   #mobile-bottom-nav {
-    padding-bottom: max(6px, env(safe-area-inset-bottom));
+    padding-top: 5px !important;
+    padding-bottom: max(6px, min(14px, env(safe-area-inset-bottom))) !important;
   }
   /* Modal cuộn mượt & không bị tràn ngang trên màn hình nhỏ */
   div[id^="modal-"] > div {
