@@ -379,6 +379,18 @@ function updateAllKpis() {
 }
 
 function renderCharts() {
+  if (document.documentElement.hasAttribute("data-needs-login")) return;
+  if (typeof Chart === "undefined") {
+    if (!document.querySelector('script[data-lazy-chart="1"]')) {
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/chart.js";
+      s.async = true;
+      s.setAttribute("data-lazy-chart", "1");
+      s.onload = () => renderCharts();
+      document.head.appendChild(s);
+    }
+    return;
+  }
   // Velocity
   const vCtx = document.getElementById('velocityChart')?.getContext('2d');
   if (vCtx) {
