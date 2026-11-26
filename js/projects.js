@@ -329,7 +329,7 @@ function renderMerchantPillsBar() {
   const singleSwitcherHtml = !showMerchantDirectory && activeMerchant ? `
     <div class="flex items-center gap-1.5 bg-teal-50/70 border border-teal-200 rounded-full pl-2 pr-1.5 py-1 min-w-0 flex-1 sm:flex-initial max-w-full">
       ${renderMerchantAvatarHtml(activeMerchant, "w-5 h-5 rounded-full shrink-0", "text-[10px]")}
-      <select onchange="if(this.value) selectMerchant(this.value)" class="bg-transparent border-none text-xs font-extrabold text-slate-900 outline-none cursor-pointer pr-1 min-w-0 flex-1 max-w-full sm:max-w-[300px] truncate" title="Chọn chuỗi đối tác đang xem">
+      <select onchange="if(this.value) selectMerchant(this.value)" class="merchant-switcher-select bg-transparent border-none text-xs font-extrabold text-slate-900 outline-none cursor-pointer pr-1 min-w-0 flex-1 max-w-full sm:max-w-[300px] truncate" title="Chọn chuỗi đối tác đang xem">
         ${state.merchants.map(m => {
           const hasBlk = state.projects.some(p => p.merchant_id === m.id && p.is_blocked);
           return `<option value="${m.id}" ${m.id === activeMerchantId ? 'selected' : ''}>${hasBlk ? '⚠ ' : ''}${m.name}</option>`;

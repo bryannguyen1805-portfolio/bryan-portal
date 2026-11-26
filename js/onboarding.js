@@ -600,7 +600,7 @@ function renderOnboardingView() {
       vettingEl.classList.add("hidden");
       vettingEl.innerHTML = "";
     }
-    lucide.createIcons();
+    if (typeof lucide !== "undefined") lucide.createIcons();
     return;
   }
 
@@ -764,7 +764,7 @@ function renderOnboardingView() {
         </div>
       `;
     }
-    lucide.createIcons();
+    if (typeof lucide !== "undefined") lucide.createIcons();
     return;
   }
 
@@ -941,6 +941,6 @@ function renderOnboardingView() {
     boardEl.innerHTML = `<div class="col-span-full space-y-3">${tier1Html}${stepperHtml}${stagesHtml}</div>`;
   }
 
-  lucide.createIcons();
+  if (typeof lucide !== "undefined") lucide.createIcons();
 }
 

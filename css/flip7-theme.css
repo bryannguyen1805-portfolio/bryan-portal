@@ -523,10 +523,15 @@ html.theme-dark :is(main, header, #auth-login-overlay, [id^="modal-"], #command-
   background-image: none !important;
   border-color: rgba(45, 212, 191, 0.20) !important;
 }
-html.theme-dark :is(main, header, [id^="modal-"], #command-center-modal) :is(.bg-indigo-50, .bg-indigo-100, .bg-purple-50, .bg-purple-50\/50, .bg-purple-100, .bg-amber-50, .bg-amber-50\/30, .bg-amber-50\/40, .bg-amber-50\/80, .bg-amber-100, .from-amber-50\/90) {
-  background-color: #1C2028 !important;
+html.theme-dark :is(main, header, [id^="modal-"], #command-center-modal) :is(.bg-indigo-50, .bg-indigo-100, .bg-purple-50, .bg-purple-50\/50, .bg-purple-100) {
+  background-color: rgba(139, 92, 246, 0.14) !important;
   background-image: none !important;
-  border-color: #282D37 !important;
+  border-color: rgba(167, 139, 250, 0.25) !important;
+}
+html.theme-dark :is(main, header, [id^="modal-"], #command-center-modal) :is(.bg-amber-50, .bg-amber-50\/30, .bg-amber-50\/40, .bg-amber-50\/70, .bg-amber-50\/80, .bg-amber-100, .from-amber-50\/90) {
+  background-color: rgba(245, 158, 11, 0.14) !important;
+  background-image: none !important;
+  border-color: rgba(251, 191, 36, 0.25) !important;
 }
 html.theme-dark :is(main, header, [id^="modal-"], #command-center-modal) :is(.bg-rose-50, .bg-rose-50\/30, .bg-rose-50\/40, .bg-rose-50\/50, .bg-rose-50\/60, .bg-rose-100) {
   background-color: rgba(239, 68, 68, 0.12) !important;
@@ -630,11 +635,20 @@ html.theme-dark input[type="number"],
 html.theme-dark input[type="email"],
 html.theme-dark input[type="url"],
 html.theme-dark input[type="password"],
-html.theme-dark select,
+html.theme-dark select:not(.merchant-switcher-select),
 html.theme-dark textarea {
   background-color: #111318 !important;
   color: #E5E7EB !important;
   border-color: #282D37 !important;
+}
+select.merchant-switcher-select,
+html.theme-dark select.merchant-switcher-select {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  min-height: 0 !important;
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
 }
 html.theme-dark #dash-progress-ring-circle {
   color: #14B8A6 !important;
