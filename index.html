@@ -271,8 +271,11 @@
         </div>
       </div>
 
-      <!-- Góc phải Topbar: Hệ thống Công Ty + Thông Báo + Cloud Sync + Tạo Đầu Việc -->
+      <!-- Góc phải Topbar: Reset Demo (chỉ hiện khi Demo) + Hệ thống Công Ty + Thông Báo + Cloud Sync + Tạo Đầu Việc -->
       <div class="flex items-center space-x-2 shrink-0 relative">
+        <button id="btn-reset-demo" type="button" onclick="resetDemoWorkspaceData()" class="hidden px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-[11px] font-extrabold transition shrink-0" title="Khôi phục lại toàn bộ dữ liệu Demo ban đầu">
+          ↺ Reset Demo
+        </button>
         <button type="button" onclick="toggleAppLauncherPopover(event)" id="topbar-apps-btn" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer relative z-10" title="Hệ thống công ty (Merchant, Wiki, PM, HRM, Portal)">
           <i data-lucide="layout-grid" class="w-4 h-4 pointer-events-none"></i>
         </button>
@@ -2210,6 +2213,9 @@
           <button type="submit" id="auth-submit-btn" class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-black text-xs tracking-wide uppercase shadow-md transition">
             ĐĂNG NHẬP
           </button>
+          <button type="button" onclick="loginAsDemoUserQuick()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-[11px] transition flex items-center justify-center gap-1.5 border border-slate-200">
+            <span>✨ Dùng thử Tài khoản Demo (demo@bryanportal.io.vn)</span>
+          </button>
 
           <p class="text-[11px] text-center text-slate-600 leading-relaxed pt-1">
             Khi bạn đăng nhập (Sign in), bạn đã đồng ý với tất cả
@@ -2297,8 +2303,9 @@
   </nav>
 
   <!-- ================= 4. CORE JAVASCRIPT ENGINE (VERSIONED CACHE-BUSTING) ================= -->
-  <script src="js/auth.js?v=3.9.9"></script>
-  <script src="js/state-sync.js?v=3.9.5"></script>
+  <script src="js/auth.js?v=3.9.10"></script>
+  <script src="js/demo-data.js?v=1.0.0"></script>
+  <script src="js/state-sync.js?v=3.9.6"></script>
   <script src="js/dashboard.js?v=3.9.38"></script>
   <script src="js/projects.js?v=3.9.21"></script>
   <script src="js/tasks.js?v=3.3.0"></script>
@@ -2313,7 +2320,7 @@
   <script src="js/notifications-automation.js?v=3.9.36"></script>
   <script src="js/undo-engine.js?v=3.8.0"></script>
   <script src="js/vetting.js?v=1.0.0"></script>
-  <script src="js/onboarding.js?v=3.3.0"></script>
+  <script src="js/onboarding.js?v=3.3.1"></script>
   <script src="js/calendar.js?v=3.9.22"></script>
   <script src="js/file-tools.js?v=1.0.0"></script>
 </body>

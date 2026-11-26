@@ -12,7 +12,8 @@ const LOCAL_USERS_KEY = "bryan_portal_omni_users_v1";
 // Danh sách tài khoản mặc định (Admin chủ động cấp thêm cho 10 nhân sự phòng Omni)
 const DEFAULT_OMNI_USERS = [
   { email: "tri.nguyen2@vietunion.com.vn", name: "Bryan Nguyen", role: "ADMIN", pin: "180526", active: true },
-  { email: "quantritc1805@gmail.com", name: "Bryan Nguyen", role: "ADMIN", pin: "180526", active: true }
+  { email: "quantritc1805@gmail.com", name: "Bryan Nguyen", role: "ADMIN", pin: "180526", active: true },
+  { email: "demo@bryanportal.io.vn", name: "Omni Demo (Phòng BD)", role: "USER", pin: "123456", active: true }
 ];
 
 function getLocalOmniUsers() {
@@ -70,7 +71,16 @@ function applyAuthenticatedUserToUI() {
   if (emailEl) emailEl.textContent = email;
   if (avatarEl) avatarEl.textContent = getUserInitials(name);
   if (adminBtn) adminBtn.classList.toggle("hidden", role !== "ADMIN");
+  if (typeof applyDemoModeUiBadges === "function") applyDemoModeUiBadges();
   if (typeof syncWelcomeAccountGreeting === "function") syncWelcomeAccountGreeting();
+}
+
+function loginAsDemoUserQuick() {
+  const inp = document.getElementById("auth-email-input");
+  const pinInp = document.getElementById("auth-pin-input");
+  if (inp) inp.value = "demo@bryanportal.io.vn";
+  if (pinInp) pinInp.value = "123456";
+  handleAuthLoginSubmit({ preventDefault: () => {} });
 }
 
 function openAuthLoginModal() {
@@ -313,9 +323,14 @@ async function handleAuthLoginSubmit(e) {
 
   let authenticatedUser = null;
 
+  // Tài khoản Demo Sandbox: cho phép đăng nhập trực tiếp không phụ thuộc Google Sheets
+  if (email === "demo@bryanportal.io.vn" && pin === "123456") {
+    authenticatedUser = { email: "demo@bryanportal.io.vn", name: "Omni Demo (Phòng BD)", role: "USER" };
+  }
+
   // Nếu đã kết nối Google Sheets API -> Xác thực trực tiếp với tab Users trên Server
   const apiUrl = (typeof API_ENDPOINT !== "undefined" && API_ENDPOINT) ? API_ENDPOINT : (localStorage.getItem("bryan_portal_api") || "");
-  if (apiUrl) {
+  if (!authenticatedUser && apiUrl) {
     try {
       const sep = apiUrl.includes("?") ? "&" : "?";
       const res = await fetch(`${apiUrl}${sep}action=login&user_email=${encodeURIComponent(email)}&user_pin=${encodeURIComponent(pin)}`);

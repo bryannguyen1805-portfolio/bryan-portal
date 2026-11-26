@@ -148,7 +148,9 @@ function isBryanLegacyUser() {
 // Nạp state cô lập theo email người dùng
 const userStateKey = getUserStateStorageKey();
 const savedStateRaw = localStorage.getItem(userStateKey) || (isBryanLegacyUser() ? localStorage.getItem("bryan_portal_state_v2") : null);
-if (!savedStateRaw && !isBryanLegacyUser()) {
+if (!savedStateRaw && typeof isDemoUser === "function" && isDemoUser() && typeof buildDemoStateSnapshot === "function") {
+  state = buildDemoStateSnapshot();
+} else if (!savedStateRaw && !isBryanLegacyUser()) {
   // Nhân sự mới phòng Omni khởi đầu với workspace trống sạch sẽ
   state.merchants = [];
   state.folders = [];
@@ -213,7 +215,7 @@ function captureSyncedSnapshot(slicesMap) {
 }
 
 async function flushFullCloudSyncNow() {
-  if (!API_ENDPOINT) return;
+  if (!API_ENDPOINT || (typeof isDemoUser === "function" && isDemoUser())) return;
   const userEmail = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "";
   const userPin = typeof getCurrentUserPin === "function" ? getCurrentUserPin() : "";
   if (!userEmail || !userPin) return;
@@ -488,6 +490,7 @@ function updateSyncStatusUI() {
 }
 
 async function syncDataFromGoogleSheets() {
+  if (typeof isDemoUser === "function" && isDemoUser()) return;
   if (!API_ENDPOINT) {
     showToast("Chưa cấu hình URL Google Apps Script. Vui lòng bấm Cài Đặt!");
     openApiConfigModal();

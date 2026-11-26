@@ -110,7 +110,8 @@ function generateSopTasks(channelKey, doneUntilStep = 0) {
 const _obEmail = typeof getCurrentUserEmail === "function" ? getCurrentUserEmail() : "tri.nguyen2@vietunion.com.vn";
 const _obUserRaw = localStorage.getItem(`bryan_onboarding_list_${_obEmail}`);
 const _isBryanOb = _obEmail === "tri.nguyen2@vietunion.com.vn" || _obEmail === "quantritc1805@gmail.com";
-let onboardingList = JSON.parse(_obUserRaw || (_isBryanOb ? localStorage.getItem("bryan_onboarding_list") : null) || "null") || (_isBryanOb ? [
+const _isDemoOb = typeof isDemoUser === "function" && isDemoUser(_obEmail);
+let onboardingList = JSON.parse(_obUserRaw || (_isBryanOb ? localStorage.getItem("bryan_onboarding_list") : null) || "null") || (_isDemoOb && typeof buildDemoOnboardingList === "function" ? buildDemoOnboardingList() : (_isBryanOb ? [
   {
     id: "ob-gs25",
     merchant_name: "GS25 Vietnam",
@@ -125,7 +126,7 @@ let onboardingList = JSON.parse(_obUserRaw || (_isBryanOb ? localStorage.getItem
     total_steps: 18,
     tasks: generateSopTasks("POS_PAYLINK", 2)
   }
-] : []);
+] : []));
 
 let showGraduatedOnboarding = false;
 let showOnboardingPipelineTier1 = false;
