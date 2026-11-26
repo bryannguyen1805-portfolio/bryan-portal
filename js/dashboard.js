@@ -285,7 +285,7 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 function navigateTo(screenId) {
-  const views = ['DASHBOARD', 'PROJECTS', 'ONBOARDING', 'PIPELINE', 'TASKS', 'CALENDAR', 'NOTIFICATIONS', 'AUTOMATION'];
+  const views = ['DASHBOARD', 'PROJECTS', 'ONBOARDING', 'PIPELINE', 'TASKS', 'CALENDAR', 'NOTIFICATIONS', 'AUTOMATION', 'MCC'];
   views.forEach(v => {
     const el = document.getElementById(`view-${v}`);
     const btn = document.getElementById(`nav-${v}`);
@@ -340,6 +340,8 @@ function navigateTo(screenId) {
   } else if (screenId === 'AUTOMATION') {
     syncAutomationCheckboxes();
     renderCustomAutomationRules();
+  } else if (screenId === 'MCC') {
+    if (typeof renderMccLookupView === "function") renderMccLookupView();
   }
 }
 
