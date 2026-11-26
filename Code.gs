@@ -30,8 +30,98 @@ function filterByOwner(rows, userEmail) {
   return rows.filter(r => String(r.owner_email || "").trim().toLowerCase() === target);
 }
 
-const USERS_HEADERS = ["email", "name", "role", "pin", "active", "deleted_at", "purge_after", "updated_at"];
+const USERS_HEADERS = ["email", "name", "role", "pin", "active", "deleted_at", "purge_after", "updated_at", "sheet_id"];
 const USER_DATA_SHEETS = ["Merchants", "Stakeholders", "Projects", "Tasks", "Meetings", "Folders", "Onboarding"];
+
+const USER_SHEET_SCHEMAS = {
+  Merchants: ["id", "name", "brand_name", "tax_code", "alias", "industry", "expected_gmv", "avatar_letter", "color", "logo_url", "contract_expiry_date", "contract_status", "owner_email", "updated_at"],
+  Stakeholders: ["id", "merchant_id", "name", "role", "phone", "email", "group", "owner_email", "updated_at"],
+  Projects: ["id", "merchant_id", "title", "stage", "due_date", "progress", "milestone_name", "is_blocked", "blocker_reason", "blocker_owner", "gate_step", "is_archived", "notes_json", "owner_email", "updated_at"],
+  Tasks: ["id", "type", "project_id", "title", "pic", "stage", "priority", "due_date", "reminder_minutes", "notify_channels", "is_overdue", "completed_at", "owner_email", "updated_at"],
+  Meetings: ["id", "date", "time", "title", "partner", "attendees", "reminder_minutes", "notify_channels", "gcal_event_id", "owner_email", "updated_at"],
+  Folders: ["id", "merchant_id", "title", "file_name", "path", "note", "action_label", "badge", "owner_email", "updated_at"],
+  Onboarding: ["id", "merchant_name", "brand_name", "tax_code", "industry", "contact_name", "vetting_status", "vetting_done_ids_json", "channel", "total_steps", "graduated", "linked_merchant_id", "project_start_date", "tasks_json", "owner_email", "updated_at"]
+};
+
+function getCachedUsers(ss) {
+  const cache = CacheService.getScriptCache();
+  try {
+    const raw = cache.get("BPORTAL_USERS_V1");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch (e) {}
+  const users = getSheetRowsAsObjects(ss, "Users");
+  try {
+    cache.put("BPORTAL_USERS_V1", JSON.stringify(users), 300);
+  } catch (e) {}
+  return users;
+}
+
+function invalidateUsersCache(email) {
+  const cache = CacheService.getScriptCache();
+  cache.remove("BPORTAL_USERS_V1");
+  if (email) cache.remove("USER_SHEET_" + String(email).trim().toLowerCase());
+}
+
+function getOrCreateUserWorkspaceSpreadsheet(masterSs, userEmail, userName) {
+  const target = String(userEmail || "").trim().toLowerCase();
+  if (!target) return { userSs: masterSs, sheetId: SPREADSHEET_ID };
+
+  const cache = CacheService.getScriptCache();
+  const cachedId = cache.get("USER_SHEET_" + target);
+  if (cachedId) {
+    try {
+      const opened = SpreadsheetApp.openById(cachedId);
+      return { userSs: opened, sheetId: cachedId };
+    } catch (e) {
+      cache.remove("USER_SHEET_" + target);
+    }
+  }
+
+  const users = getSheetRowsAsObjects(masterSs, "Users");
+  const uIdx = users.findIndex(u => String(u.email || "").trim().toLowerCase() === target);
+  const existingId = uIdx !== -1 ? String(users[uIdx].sheet_id || "").trim() : "";
+
+  if (existingId) {
+    try {
+      const opened = SpreadsheetApp.openById(existingId);
+      cache.put("USER_SHEET_" + target, existingId, 1800);
+      return { userSs: opened, sheetId: existingId };
+    } catch (e) {}
+  }
+
+  // Tạo Google Sheet riêng cho user và migrate dữ liệu cũ (nếu có) từ Master DB
+  const labelName = userName || (uIdx !== -1 ? users[uIdx].name : "") || target;
+  const newSs = SpreadsheetApp.create("BPortal Workspace - " + labelName + " (" + target + ")");
+  const newId = newSs.getId();
+
+  USER_DATA_SHEETS.forEach(sheetName => {
+    const headers = USER_SHEET_SCHEMAS[sheetName] || [];
+    let sh = newSs.getSheetByName(sheetName) || newSs.insertSheet(sheetName);
+    sh.clear();
+    if (headers.length > 0) sh.appendRow(headers);
+
+    const legacyRows = filterByOwner(getSheetRowsAsObjects(masterSs, sheetName), target);
+    if (legacyRows.length > 0 && headers.length > 0) {
+      const matrix = legacyRows.map(r => headers.map(h => r[h] !== undefined && r[h] !== null ? r[h] : ""));
+      sh.getRange(2, 1, matrix.length, headers.length).setValues(matrix);
+    }
+  });
+
+  const defaultSheet = newSs.getSheetByName("Trang tính1") || newSs.getSheetByName("Sheet1");
+  if (defaultSheet && newSs.getSheets().length > 1) {
+    try { newSs.deleteSheet(defaultSheet); } catch (e) {}
+  }
+
+  if (uIdx !== -1) {
+    users[uIdx].sheet_id = newId;
+    writeUsersSheetRows(masterSs, users);
+  }
+  cache.put("USER_SHEET_" + target, newId, 1800);
+  return { userSs: newSs, sheetId: newId };
+}
 
 /**
  * Xác thực nghiêm ngặt theo danh sách tài khoản trong Sheet `Users` (BỎ kiểm tra đuôi domain)
@@ -41,7 +131,7 @@ function verifyUserCredentials(ss, email, pin) {
   const targetPin = String(pin || "").trim();
   if (!targetEmail || !targetPin) return null;
 
-  const users = getSheetRowsAsObjects(ss, "Users");
+  const users = getCachedUsers(ss);
   const found = users.find(u =>
     String(u.email || "").trim().toLowerCase() === targetEmail &&
     String(u.active).toUpperCase() !== "FALSE" &&
@@ -52,7 +142,8 @@ function verifyUserCredentials(ss, email, pin) {
   return {
     email: targetEmail,
     name: found.name || "Nhân sự Omni",
-    role: String(found.role || "USER").toUpperCase()
+    role: String(found.role || "USER").toUpperCase(),
+    sheet_id: String(found.sheet_id || "").trim()
   };
 }
 
@@ -65,6 +156,7 @@ function writeUsersSheetRows(ss, users) {
       users.map(r => USERS_HEADERS.map(h => r[h] !== undefined ? r[h] : ""))
     );
   }
+  invalidateUsersCache();
 }
 
 /**
@@ -561,25 +653,29 @@ function doGet(e) {
       return resJSON({ success: true, users: allUsers });
     }
 
+    const userWorkspace = getOrCreateUserWorkspaceSpreadsheet(ss, userEmail, verifiedUser.name);
+    const userSs = userWorkspace.userSs;
+
     if (action === "ics") {
-      const myMeetings = filterByOwner(getSheetRowsAsObjects(ss, "Meetings"), userEmail);
-      const myProjects = filterByOwner(getSheetRowsAsObjects(ss, "Projects"), userEmail);
-      const myTasks = filterByOwner(getSheetRowsAsObjects(ss, "Tasks"), userEmail);
+      const myMeetings = filterByOwner(getSheetRowsAsObjects(userSs, "Meetings"), userEmail);
+      const myProjects = filterByOwner(getSheetRowsAsObjects(userSs, "Projects"), userEmail);
+      const myTasks = filterByOwner(getSheetRowsAsObjects(userSs, "Tasks"), userEmail);
       const icsBody = buildUserIcsFeed(userEmail, myMeetings, myProjects, myTasks);
       return ContentService.createTextOutput(icsBody).setMimeType(ContentService.MimeType.ICAL);
     }
 
     if (action === "syncGoogleCalendar") {
-      const mergedMeetings = syncTwoWayGoogleCalendar(ss, userEmail);
+      const mergedMeetings = syncTwoWayGoogleCalendar(userSs, userEmail);
       return resJSON({ success: true, meetings: mergedMeetings, message: "Đã đồng bộ lịch 2 chiều với Google Calendar!" });
     }
 
     const payload = {
       success: true,
       user: verifiedUser,
-      merchants: filterByOwner(getSheetRowsAsObjects(ss, "Merchants"), userEmail),
-      stakeholders: filterByOwner(getSheetRowsAsObjects(ss, "Stakeholders"), userEmail),
-      projects: filterByOwner(getSheetRowsAsObjects(ss, "Projects"), userEmail).map(p => {
+      sheet_id: userWorkspace.sheetId,
+      merchants: filterByOwner(getSheetRowsAsObjects(userSs, "Merchants"), userEmail),
+      stakeholders: filterByOwner(getSheetRowsAsObjects(userSs, "Stakeholders"), userEmail),
+      projects: filterByOwner(getSheetRowsAsObjects(userSs, "Projects"), userEmail).map(p => {
         p.is_blocked = String(p.is_blocked).toUpperCase() === "TRUE" || p.is_blocked === true;
         p.is_archived = String(p.is_archived).toUpperCase() === "TRUE" || p.is_archived === true;
         p.progress = Number(p.progress || 0);
@@ -588,17 +684,20 @@ function doGet(e) {
         }
         return p;
       }),
-      tasks: filterByOwner(getSheetRowsAsObjects(ss, "Tasks"), userEmail).map(t => {
+      tasks: filterByOwner(getSheetRowsAsObjects(userSs, "Tasks"), userEmail).map(t => {
         t.is_overdue = String(t.is_overdue).toUpperCase() === "TRUE" || t.is_overdue === true;
         return t;
       }),
-      meetings: filterByOwner(getSheetRowsAsObjects(ss, "Meetings"), userEmail),
-      folders: filterByOwner(getSheetRowsAsObjects(ss, "Folders"), userEmail),
-      onboarding: filterByOwner(getSheetRowsAsObjects(ss, "Onboarding"), userEmail).map(ob => {
+      meetings: filterByOwner(getSheetRowsAsObjects(userSs, "Meetings"), userEmail),
+      folders: filterByOwner(getSheetRowsAsObjects(userSs, "Folders"), userEmail),
+      onboarding: filterByOwner(getSheetRowsAsObjects(userSs, "Onboarding"), userEmail).map(ob => {
         ob.graduated = String(ob.graduated).toUpperCase() === "TRUE" || ob.graduated === true;
         ob.total_steps = Number(ob.total_steps || 18);
         if (ob.tasks_json) {
           try { ob.tasks = JSON.parse(ob.tasks_json); } catch (err) { ob.tasks = []; }
+        }
+        if (ob.vetting_done_ids_json) {
+          try { ob.vetting_done_ids = JSON.parse(ob.vetting_done_ids_json); } catch (err) { ob.vetting_done_ids = []; }
         }
         return ob;
       }),
@@ -695,11 +794,18 @@ function doPost(e) {
         active: target.active === false || String(target.active).toUpperCase() === "FALSE" ? "FALSE" : "TRUE",
         deleted_at: target.deleted_at !== undefined ? target.deleted_at : (existing.deleted_at || ""),
         purge_after: target.purge_after !== undefined ? target.purge_after : (existing.purge_after || ""),
-        updated_at: nowIso
+        updated_at: nowIso,
+        sheet_id: target.sheet_id !== undefined ? target.sheet_id : (existing.sheet_id || "")
       };
       if (idx !== -1) users[idx] = nextObj;
       else users.push(nextObj);
       writeUsersSheetRows(ss, users);
+
+      if (nextObj.active === "TRUE" && !nextObj.sheet_id) {
+        try {
+          getOrCreateUserWorkspaceSpreadsheet(ss, tEmail, nextObj.name);
+        } catch (err) {}
+      }
 
       let emailSent = false;
       if (body.send_welcome_email === true && nextObj.active === "TRUE") {
@@ -779,51 +885,54 @@ function doPost(e) {
       if (!tEmail || tEmail === ownerEmail) {
         return resJSON({ success: false, message: "Không thể tự xóa tài khoản đang đăng nhập." });
       }
+      const allUsersNow = getSheetRowsAsObjects(ss, "Users");
+      const targetObj = allUsersNow.find(u => String(u.email || "").trim().toLowerCase() === tEmail);
       const removedDataCount = purgeUserDataFromAllSheets(ss, tEmail);
-      const users = getSheetRowsAsObjects(ss, "Users").filter(u => String(u.email || "").trim().toLowerCase() !== tEmail);
+      if (targetObj && targetObj.sheet_id) {
+        try { DriveApp.getFileById(String(targetObj.sheet_id).trim()).setTrashed(true); } catch (err) {}
+      }
+      const users = allUsersNow.filter(u => String(u.email || "").trim().toLowerCase() !== tEmail);
       writeUsersSheetRows(ss, users);
+      invalidateUsersCache(tEmail);
       return resJSON({ success: true, removed_rows: removedDataCount, message: `Đã xóa vĩnh viễn ${tEmail} và ${removedDataCount} dòng dữ liệu liên quan.` });
     }
 
     if (action === "SYNC_FULL_STATE") {
+      const userSs = getOrCreateUserWorkspaceSpreadsheet(ss, ownerEmail, verifiedUser.name).userSs;
       if (Array.isArray(body.merchants)) {
-        upsertOwnerRowsToSheet(ss, "Merchants",
-          ["id", "name", "brand_name", "alias", "industry", "expected_gmv", "avatar_letter", "color", "logo_url", "contract_expiry_date", "contract_status", "owner_email", "updated_at"],
-          ownerEmail, body.merchants
-        );
+        upsertOwnerRowsToSheet(userSs, "Merchants", USER_SHEET_SCHEMAS.Merchants, ownerEmail, body.merchants);
       }
       if (Array.isArray(body.stakeholders)) {
-        upsertOwnerRowsToSheet(ss, "Stakeholders",
-          ["id", "merchant_id", "name", "role", "phone", "email", "group", "owner_email", "updated_at"],
-          ownerEmail, body.stakeholders
-        );
+        upsertOwnerRowsToSheet(userSs, "Stakeholders", USER_SHEET_SCHEMAS.Stakeholders, ownerEmail, body.stakeholders);
       }
       if (Array.isArray(body.projects)) {
-        upsertOwnerRowsToSheet(ss, "Projects",
-          ["id", "merchant_id", "title", "stage", "due_date", "progress", "milestone_name", "is_blocked", "blocker_reason", "blocker_owner", "gate_step", "is_archived", "notes_json", "owner_email", "updated_at"],
-          ownerEmail, body.projects.map(p => ({ ...p, is_blocked: p.is_blocked ? "TRUE" : "FALSE", is_archived: p.is_archived ? "TRUE" : "FALSE", notes_json: JSON.stringify(p.notes || []) }))
+        upsertOwnerRowsToSheet(userSs, "Projects", USER_SHEET_SCHEMAS.Projects, ownerEmail,
+          body.projects.map(p => ({ ...p, is_blocked: p.is_blocked ? "TRUE" : "FALSE", is_archived: p.is_archived ? "TRUE" : "FALSE", notes_json: JSON.stringify(p.notes || []) }))
         );
       }
       if (Array.isArray(body.tasks)) {
-        upsertOwnerRowsToSheet(ss, "Tasks",
-          ["id", "type", "project_id", "title", "pic", "stage", "priority", "due_date", "reminder_minutes", "notify_channels", "is_overdue", "completed_at", "owner_email", "updated_at"],
-          ownerEmail, body.tasks.map(t => ({ ...t, is_overdue: t.is_overdue ? "TRUE" : "FALSE" }))
+        upsertOwnerRowsToSheet(userSs, "Tasks", USER_SHEET_SCHEMAS.Tasks, ownerEmail,
+          body.tasks.map(t => ({ ...t, is_overdue: t.is_overdue ? "TRUE" : "FALSE" }))
         );
       }
       if (Array.isArray(body.meetings)) {
-        const syncedMeetings = pushMeetingsToGoogleCalendar(ss, ownerEmail, body.meetings);
-        upsertOwnerRowsToSheet(ss, "Meetings", ["id", "date", "time", "title", "partner", "attendees", "reminder_minutes", "notify_channels", "gcal_event_id", "owner_email", "updated_at"], ownerEmail, syncedMeetings);
+        const syncedMeetings = pushMeetingsToGoogleCalendar(userSs, ownerEmail, body.meetings);
+        upsertOwnerRowsToSheet(userSs, "Meetings", USER_SHEET_SCHEMAS.Meetings, ownerEmail, syncedMeetings);
       }
       if (Array.isArray(body.folders)) {
-        upsertOwnerRowsToSheet(ss, "Folders", ["id", "merchant_id", "title", "file_name", "path", "note", "action_label", "badge", "owner_email", "updated_at"], ownerEmail, body.folders);
+        upsertOwnerRowsToSheet(userSs, "Folders", USER_SHEET_SCHEMAS.Folders, ownerEmail, body.folders);
       }
       if (Array.isArray(body.onboarding)) {
-        upsertOwnerRowsToSheet(ss, "Onboarding",
-          ["id", "merchant_name", "brand_name", "channel", "total_steps", "graduated", "linked_merchant_id", "project_start_date", "tasks_json", "owner_email", "updated_at"],
-          ownerEmail, body.onboarding.map(o => ({ ...o, graduated: o.graduated ? "TRUE" : "FALSE", tasks_json: JSON.stringify(o.tasks || []) }))
+        upsertOwnerRowsToSheet(userSs, "Onboarding", USER_SHEET_SCHEMAS.Onboarding, ownerEmail,
+          body.onboarding.map(o => ({
+            ...o,
+            graduated: o.graduated ? "TRUE" : "FALSE",
+            tasks_json: JSON.stringify(o.tasks || []),
+            vetting_done_ids_json: JSON.stringify(o.vetting_done_ids || [])
+          }))
         );
       }
-      return resJSON({ success: true, message: "Đã đồng bộ dữ liệu cô lập cho " + ownerEmail });
+      return resJSON({ success: true, message: "Đã đồng bộ dữ liệu vào Google Sheet riêng của " + ownerEmail });
     }
 
     if (action === "SEND_REMINDER_EMAIL") {
@@ -863,25 +972,28 @@ function doPost(e) {
     }
 
     if (action === "CREATE_TASK") {
-      let sheet = ss.getSheetByName("Tasks");
+      const userSs = getOrCreateUserWorkspaceSpreadsheet(ss, ownerEmail, verifiedUser.name).userSs;
+      let sheet = userSs.getSheetByName("Tasks");
       if (!sheet) {
-        sheet = ss.insertSheet("Tasks");
-        sheet.appendRow(["id", "type", "project_id", "title", "pic", "stage", "priority", "due_date", "is_overdue", "completed_at", "owner_email", "updated_at"]);
+        sheet = userSs.insertSheet("Tasks");
+        sheet.appendRow(USER_SHEET_SCHEMAS.Tasks);
       }
       const newId = body.id || ("t-" + Date.now());
       sheet.appendRow([
         newId, body.type || "COMMERCIAL", body.project_id || "", body.title || "Nhiệm vụ mới",
         body.pic || "Bryan", body.stage || "STAGE_TODO", body.priority || "TRUNG BÌNH",
-        body.due_date || "", body.is_overdue === true ? "TRUE" : "FALSE", body.completed_at || "",
+        body.due_date || "", body.reminder_minutes || "", body.notify_channels || "",
+        body.is_overdue === true ? "TRUE" : "FALSE", body.completed_at || "",
         ownerEmail, nowIso
       ]);
-      return resJSON({ success: true, id: newId, message: "Đã ghi đầu việc vào Google Sheets" });
+      return resJSON({ success: true, id: newId, message: "Đã ghi đầu việc vào Google Sheet riêng" });
     }
 
     if (action === "UPDATE_BLOCKER") {
-      const sheet = ss.getSheetByName("Projects");
+      const userSs = getOrCreateUserWorkspaceSpreadsheet(ss, ownerEmail, verifiedUser.name).userSs;
+      const sheet = userSs.getSheetByName("Projects");
       if (!sheet) return resJSON({ success: false, message: "Không tìm thấy Sheet Projects" });
-      const rows = getSheetRowsAsObjects(ss, "Projects");
+      const rows = getSheetRowsAsObjects(userSs, "Projects");
       const projId = String(body.project_id || "").trim();
       for (let i = 0; i < rows.length; i++) {
         if (String(rows[i].id || "").trim() === projId && String(rows[i].owner_email || "").trim().toLowerCase() === ownerEmail) {
