@@ -323,7 +323,7 @@ function renderCalendarDayDetails() {
       </div>
     `;
   }).join('');
-  lucide.createIcons();
+  if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
 function renderCalendarTimeline() {
@@ -371,7 +371,7 @@ function renderCalendarTimeline() {
 window.addEventListener("DOMContentLoaded", () => {
   syncGraduatedOnboardingToState();
   if (typeof autoPruneCompletedTasksOlderThan30Days === "function") autoPruneCompletedTasksOlderThan30Days();
-  lucide.createIcons();
+  if (typeof lucide !== "undefined") lucide.createIcons();
   updateSyncStatusUI();
   updateAllKpis();
   renderDashboardMeetings();
