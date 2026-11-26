@@ -103,11 +103,173 @@ function toggleAuthPinVisibility() {
   }
 }
 
+function ensureForgotPinModal() {
+  if (document.getElementById("modal-forgot-pin")) return;
+  const div = document.createElement("div");
+  div.id = "modal-forgot-pin";
+  div.className = "hidden fixed inset-0 z-[10005] bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4";
+  div.innerHTML = `
+    <div class="bg-white w-full max-w-sm rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
+      <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-black">Khôi Phục Mã PIN / Mật Khẩu</h3>
+          <p class="text-[10px] text-slate-300">Nhận mã OTP 6 số qua Email công ty / cá nhân đã cấp quyền</p>
+        </div>
+        <button type="button" onclick="closeForgotPinModal()" class="text-slate-300 hover:text-white text-sm">✕</button>
+      </div>
+      <div class="p-5 space-y-3.5 text-xs">
+        <div id="forgot-pin-alert" class="hidden p-2.5 rounded-xl text-[11px] font-semibold"></div>
+
+        <form id="forgot-step-1-form" onsubmit="handleSendResetOtp(event)" class="space-y-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Email tài khoản *</label>
+            <input id="forgot-email-input" type="email" required placeholder="vd: tri.nguyen2@vietunion.com.vn" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:bg-white focus:border-teal-600" />
+          </div>
+          <div class="flex justify-end gap-2 pt-1">
+            <button type="button" onclick="closeForgotPinModal()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-slate-600">Hủy</button>
+            <button id="forgot-send-otp-btn" type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold transition">Gửi mã OTP</button>
+          </div>
+        </form>
+
+        <form id="forgot-step-2-form" onsubmit="handleConfirmResetPin(event)" class="hidden space-y-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Mã OTP 6 số (trong Email) *</label>
+            <input id="forgot-otp-input" type="text" inputmode="numeric" maxlength="6" required placeholder="Nhập 6 số OTP..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:bg-white focus:border-teal-600 font-mono tracking-widest text-center font-bold" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Mã PIN mới (tối thiểu 4 ký tự) *</label>
+            <input id="forgot-new-pin-input" type="password" minlength="4" required placeholder="Nhập Mã PIN mới..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:bg-white focus:border-teal-600" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Nhập lại Mã PIN mới *</label>
+            <input id="forgot-confirm-pin-input" type="password" minlength="4" required placeholder="Xác nhận Mã PIN mới..." class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:bg-white focus:border-teal-600" />
+          </div>
+          <div class="flex items-center justify-between gap-2 pt-1">
+            <button type="button" onclick="showForgotStep(1)" class="text-[11px] font-bold text-slate-500 hover:text-teal-700">← Gửi lại OTP</button>
+            <button id="forgot-confirm-btn" type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold transition">Đặt lại PIN</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div);
+}
+
+function showForgotAlert(msg, isError = false) {
+  const box = document.getElementById("forgot-pin-alert");
+  if (!box) return;
+  if (!msg) {
+    box.classList.add("hidden");
+    return;
+  }
+  box.textContent = msg;
+  box.className = isError
+    ? "p-2.5 rounded-xl text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200"
+    : "p-2.5 rounded-xl text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200";
+  box.classList.remove("hidden");
+}
+
+function showForgotStep(step) {
+  const s1 = document.getElementById("forgot-step-1-form");
+  const s2 = document.getElementById("forgot-step-2-form");
+  if (s1) s1.classList.toggle("hidden", step !== 1);
+  if (s2) s2.classList.toggle("hidden", step !== 2);
+}
+
 function openForgotPinNote() {
-  if (typeof showToast === "function") {
-    showToast("Vui lòng liên hệ Admin (tri.nguyen2@vietunion.com.vn) để được cấp lại Mã PIN.");
-  } else {
-    alert("Vui lòng liên hệ Admin (tri.nguyen2@vietunion.com.vn) để được cấp lại Mã PIN.");
+  ensureForgotPinModal();
+  const loginEmail = (document.getElementById("auth-email-input")?.value || "").trim().toLowerCase();
+  const fEmail = document.getElementById("forgot-email-input");
+  if (fEmail) fEmail.value = loginEmail;
+  ["forgot-otp-input", "forgot-new-pin-input", "forgot-confirm-pin-input"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  showForgotAlert("");
+  showForgotStep(1);
+  document.getElementById("modal-forgot-pin")?.classList.remove("hidden");
+}
+
+function closeForgotPinModal() {
+  document.getElementById("modal-forgot-pin")?.classList.add("hidden");
+}
+
+async function handleSendResetOtp(e) {
+  e.preventDefault();
+  const email = (document.getElementById("forgot-email-input")?.value || "").trim().toLowerCase();
+  const btn = document.getElementById("forgot-send-otp-btn");
+  const apiUrl = (typeof API_ENDPOINT !== "undefined" && API_ENDPOINT) ? API_ENDPOINT : (localStorage.getItem("bryan_portal_api") || "");
+  if (!apiUrl) {
+    showForgotAlert("Chưa kết nối Google Apps Script API. Vui lòng liên hệ Admin để cấp lại PIN.", true);
+    return;
+  }
+  if (btn) { btn.disabled = true; btn.textContent = "Đang gửi OTP..."; }
+  showForgotAlert("");
+  try {
+    const sep = apiUrl.includes("?") ? "&" : "?";
+    const res = await fetch(`${apiUrl}${sep}action=sendResetOtp&user_email=${encodeURIComponent(email)}`);
+    const data = await res.json();
+    if (data && data.success) {
+      showForgotAlert(data.message || `Đã gửi mã OTP tới ${email}.`, false);
+      showForgotStep(2);
+      setTimeout(() => document.getElementById("forgot-otp-input")?.focus(), 50);
+    } else {
+      showForgotAlert(data?.error || "Không thể gửi OTP. Vui lòng kiểm tra lại Email.", true);
+    }
+  } catch (err) {
+    showForgotAlert("Lỗi kết nối máy chủ khi gửi OTP. Vui lòng thử lại sau.", true);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "Gửi mã OTP"; }
+  }
+}
+
+async function handleConfirmResetPin(e) {
+  e.preventDefault();
+  const email = (document.getElementById("forgot-email-input")?.value || "").trim().toLowerCase();
+  const otp = (document.getElementById("forgot-otp-input")?.value || "").trim();
+  const newPin = (document.getElementById("forgot-new-pin-input")?.value || "").trim();
+  const confirmPin = (document.getElementById("forgot-confirm-pin-input")?.value || "").trim();
+  const btn = document.getElementById("forgot-confirm-btn");
+
+  if (newPin.length < 4) {
+    showForgotAlert("Mã PIN mới phải có tối thiểu 4 ký tự.", true);
+    return;
+  }
+  if (newPin !== confirmPin) {
+    showForgotAlert("Mã PIN xác nhận không khớp.", true);
+    return;
+  }
+  const apiUrl = (typeof API_ENDPOINT !== "undefined" && API_ENDPOINT) ? API_ENDPOINT : (localStorage.getItem("bryan_portal_api") || "");
+  if (!apiUrl) {
+    showForgotAlert("Chưa kết nối Google Apps Script API.", true);
+    return;
+  }
+  if (btn) { btn.disabled = true; btn.textContent = "Đang xử lý..."; }
+  showForgotAlert("");
+  try {
+    const sep = apiUrl.includes("?") ? "&" : "?";
+    const res = await fetch(`${apiUrl}${sep}action=confirmResetPin&user_email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otp)}&new_pin=${encodeURIComponent(newPin)}`);
+    const data = await res.json();
+    if (data && data.success) {
+      const localUsers = getLocalOmniUsers();
+      const idx = localUsers.findIndex(u => u.email.toLowerCase() === email);
+      if (idx !== -1) {
+        localUsers[idx].pin = newPin;
+        saveLocalOmniUsers(localUsers);
+      }
+      const loginEmailEl = document.getElementById("auth-email-input");
+      const loginPinEl = document.getElementById("auth-pin-input");
+      if (loginEmailEl) loginEmailEl.value = email;
+      if (loginPinEl) loginPinEl.value = newPin;
+      closeForgotPinModal();
+      if (typeof showToast === "function") showToast("✓ Đã đặt lại Mã PIN mới thành công! Bấm Đăng nhập để vào hệ thống.");
+    } else {
+      showForgotAlert(data?.error || "Mã OTP không hợp lệ hoặc đã hết hạn.", true);
+    }
+  } catch (err) {
+    showForgotAlert("Lỗi kết nối máy chủ khi đặt lại PIN.", true);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "Đặt lại PIN"; }
   }
 }
 

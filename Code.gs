@@ -355,6 +355,93 @@ function doGet(e) {
     const userEmail = String((e && e.parameter && e.parameter.user_email) || "").trim().toLowerCase();
     const userPin = String((e && e.parameter && e.parameter.user_pin) || "").trim();
 
+    // ---------------- QUÊN MẬT KHẨU / GỬI & XÁC NHẬN OTP QUA EMAIL ----------------
+    if (action === "sendResetOtp") {
+      if (!userEmail) {
+        return resJSON({ success: false, error: "Vui lòng nhập Email tài khoản cần khôi phục." });
+      }
+      const users = getSheetRowsAsObjects(ss, "Users");
+      const targetUser = users.find(u =>
+        String(u.email || "").trim().toLowerCase() === userEmail &&
+        String(u.active).toUpperCase() !== "FALSE" &&
+        !String(u.deleted_at || "").trim()
+      );
+      if (!targetUser) {
+        return resJSON({ success: false, error: "Email này chưa được cấp quyền hoặc đang bị khóa trên hệ thống." });
+      }
+      const otp = String(Math.floor(100000 + Math.random() * 900000));
+      const expiresAt = Date.now() + 10 * 60 * 1000;
+      PropertiesService.getScriptProperties().setProperty("OTP_" + userEmail, JSON.stringify({ otp: otp, expiresAt: expiresAt }));
+
+      const displayName = targetUser.name || userEmail;
+      const subject = "[Bryan Portal] Mã OTP Khôi Phục Mã PIN Đăng Nhập";
+      const htmlBody = `
+        <div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#0f172a;line-height:1.6;max-width:520px;">
+          <h3 style="color:#0f766e;margin-bottom:8px;">Yêu cầu đặt lại Mã PIN — Bryan Portal</h3>
+          <p>Xin chào <strong>${displayName}</strong>,</p>
+          <p>Bạn vừa yêu cầu khôi phục Mã PIN đăng nhập cho tài khoản <strong>${userEmail}</strong>.</p>
+          <div style="margin:16px 0;padding:14px 18px;background:#f0fdfa;border:1px solid #99f6e4;border-radius:12px;text-align:center;">
+            <div style="font-size:11px;color:#0f766e;font-weight:bold;text-transform:uppercase;letter-spacing:1px;">Mã xác thực OTP (hiệu lực 10 phút)</div>
+            <div style="font-size:28px;font-weight:900;letter-spacing:6px;color:#0f172a;margin-top:4px;">${otp}</div>
+          </div>
+          <p style="font-size:12px;color:#64748b;">Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
+        </div>
+      `;
+      MailApp.sendEmail({
+        to: userEmail,
+        subject: subject,
+        body: `Xin chào ${displayName}, mã OTP khôi phục Mã PIN Bryan Portal của bạn là: ${otp} (hiệu lực 10 phút).`,
+        htmlBody: htmlBody
+      });
+      return resJSON({ success: true, message: `Đã gửi mã OTP 6 số tới ${userEmail}. Vui lòng kiểm tra hộp thư!` });
+    }
+
+    if (action === "confirmResetPin") {
+      const otp = String((e && e.parameter && e.parameter.otp) || "").trim();
+      const newPin = String((e && e.parameter && e.parameter.new_pin) || "").trim();
+      if (!userEmail || !otp || newPin.length < 4) {
+        return resJSON({ success: false, error: "Vui lòng nhập đầy đủ Email, mã OTP và Mã PIN mới (tối thiểu 4 ký tự)." });
+      }
+      const props = PropertiesService.getScriptProperties();
+      const rawOtp = props.getProperty("OTP_" + userEmail);
+      if (!rawOtp) {
+        return resJSON({ success: false, error: "Mã OTP không tồn tại hoặc đã hết hạn. Vui lòng gửi lại mã mới." });
+      }
+      let parsedOtp = null;
+      try { parsedOtp = JSON.parse(rawOtp); } catch (err) {}
+      if (!parsedOtp || Date.now() > Number(parsedOtp.expiresAt || 0)) {
+        props.deleteProperty("OTP_" + userEmail);
+        return resJSON({ success: false, error: "Mã OTP đã hết hạn (quá 10 phút). Vui lòng gửi lại mã mới." });
+      }
+      if (String(parsedOtp.otp) !== otp) {
+        return resJSON({ success: false, error: "Mã OTP không chính xác. Vui lòng kiểm tra lại." });
+      }
+
+      const lock = LockService.getScriptLock();
+      lock.waitLock(10000);
+      try {
+        const users = getSheetRowsAsObjects(ss, "Users");
+        let updated = false;
+        const nowIso = new Date().toISOString();
+        for (let i = 0; i < users.length; i++) {
+          if (String(users[i].email || "").trim().toLowerCase() === userEmail) {
+            users[i].pin = newPin;
+            users[i].updated_at = nowIso;
+            updated = true;
+            break;
+          }
+        }
+        if (!updated) {
+          return resJSON({ success: false, error: "Không tìm thấy tài khoản trong hệ thống." });
+        }
+        writeUsersSheetRows(ss, users);
+        props.deleteProperty("OTP_" + userEmail);
+        return resJSON({ success: true, message: "Đã đặt lại Mã PIN mới thành công!" });
+      } finally {
+        lock.releaseLock();
+      }
+    }
+
     const verifiedUser = verifyUserCredentials(ss, userEmail, userPin);
     if (!verifiedUser) {
       return resJSON({
