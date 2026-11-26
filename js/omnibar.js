@@ -121,7 +121,27 @@ function handleCommandCenterInput(raw) {
     norm(a.name).includes(normQ) || norm(a.desc).includes(normQ) || norm(a.keywords).includes(normQ)
   ).slice(0, 4);
 
+  const matchedPaths = (typeof getAllLocalPaths === "function" ? getAllLocalPaths() : []).filter(p =>
+    norm(p.name).includes(normQ) || norm(p.path).includes(normQ) || norm(p.note).includes(normQ) || norm(p.keywords).includes(normQ)
+  ).slice(0, 4);
+
   const items = [];
+  matchedPaths.forEach(p => {
+    const encPath = encodeURIComponent(p.path);
+    const encPass = p.password ? encodeURIComponent(p.password) : "";
+    items.push(`
+      <div class="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-teal-50/70 border border-slate-200/80 flex items-center justify-between gap-2 text-left transition">
+        <div class="min-w-0 flex-1">
+          <div class="font-bold text-slate-900 truncate">📁 ${p.name}</div>
+          <div class="text-[11px] font-mono text-slate-500 truncate">${p.path}</div>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          ${encPass ? `<button type="button" onclick="copyLocalPathPassword('${encPass}')" class="px-2 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[10px] font-bold">Pass</button>` : ""}
+          <button type="button" onclick="copyLocalPathValue('${encPath}', '${p.name.replace(/'/g, "")}'); closeCommandCenter();" class="px-2.5 py-1 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[10px] font-bold">Copy Path</button>
+        </div>
+      </div>
+    `);
+  });
   matchedApps.forEach(a => {
     items.push(`
       <a href="${a.url}" target="_blank" rel="noopener" onclick="closeCommandCenter()" class="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between gap-2 text-left transition">
@@ -548,7 +568,7 @@ function handleOmnibarLivePreview(raw) {
   else {
     chips.push(`<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium">💡 Gợi ý: <strong>Tạo task [tên] ngày mai</strong> • <strong>xong task</strong> • <strong>xong B3</strong></span>`);
     const qNorm = norm(val);
-    const matchedPartners = (state?.merchants || []).filter(m => norm(m.brand_name).includes(qNorm) || norm(m.name).includes(qNorm) || norm(m.alias).includes(qNorm)).slice(0, 4);
+    const matchedPartners = (state?.merchants || []).filter(m => norm(m.brand_name).includes(qNorm) || norm(m.name).includes(qNorm) || norm(m.alias).includes(qNorm) || norm(m.tax_code).includes(qNorm)).slice(0, 4);
     const matchedTasks = (state?.tasks || []).filter(t => t.stage !== "STAGE_DONE" && norm(t.title).includes(qNorm)).slice(0, 3);
     const matchedApps = (typeof getAllCompanyPortalApps === "function" ? getAllCompanyPortalApps() : []).filter(a => norm(a.name).includes(qNorm) || norm(a.desc).includes(qNorm) || norm(a.keywords).includes(qNorm)).slice(0, 3);
     const mccQuery = val.replace(/^mcc\s*/i, "").trim();
@@ -562,6 +582,22 @@ function handleOmnibarLivePreview(raw) {
       ...matchedApps.map(a => `<a href="${a.url}" target="_blank" rel="noopener" onclick="hideOmnibarPreview()" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between text-left text-xs transition"><span class="font-bold text-slate-800 truncate">${a.name} <span class="font-normal text-slate-500">• ${a.desc}</span></span><span class="text-[10px] font-bold text-teal-700 shrink-0">Mở ↗</span></a>`)
     ];
     if (rows.length > 0) suggHtml = rows.join("");
+  }
+
+  // Luôn gợi ý Đường Dẫn Nội Bộ khớp từ khóa (kể cả khi trùng từ khóa bước SOP như "bm", "trả góp")
+  const qNormPath = norm(val);
+  if (qNormPath && typeof getAllLocalPaths === "function") {
+    const matchedPaths = getAllLocalPaths().filter(p =>
+      norm(p.name).includes(qNormPath) || norm(p.path).includes(qNormPath) || norm(p.note).includes(qNormPath) || norm(p.keywords).includes(qNormPath)
+    ).slice(0, 4);
+    if (matchedPaths.length > 0) {
+      const pathRowsHtml = matchedPaths.map(p => {
+        const encPath = encodeURIComponent(p.path);
+        const encPass = p.password ? encodeURIComponent(p.password) : "";
+        return `<div class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between gap-2 text-left text-xs transition"><div class="min-w-0 flex-1"><div class="font-bold text-slate-800 truncate">📁 ${p.name}</div><div class="text-[10px] font-mono text-slate-500 truncate">${p.path}</div></div><div class="flex items-center gap-1 shrink-0">${encPass ? `<button type="button" onclick="copyLocalPathPassword('${encPass}')" class="px-2 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[10px] font-bold">Pass</button>` : ""}<button type="button" onclick="copyLocalPathValue('${encPath}', '${p.name.replace(/'/g, "")}'); hideOmnibarPreview();" class="px-2 py-1 rounded bg-teal-600 hover:bg-teal-700 text-white text-[10px] font-bold">Copy Path</button></div></div>`;
+      }).join("");
+      suggHtml = pathRowsHtml + suggHtml;
+    }
   }
 
   tokensEl.innerHTML = chips.join("");
