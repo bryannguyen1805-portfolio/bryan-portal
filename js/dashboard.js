@@ -290,7 +290,7 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 function navigateTo(screenId) {
-  const views = ['DASHBOARD', 'PROJECTS', 'ONBOARDING', 'PIPELINE', 'TASKS', 'CALENDAR', 'NOTIFICATIONS', 'AUTOMATION', 'MCC'];
+  const views = ['DASHBOARD', 'PROJECTS', 'ONBOARDING', 'PIPELINE', 'TASKS', 'CALENDAR', 'NOTIFICATIONS', 'AUTOMATION', 'MCC', 'FILE_TOOLS'];
   views.forEach(v => {
     const el = document.getElementById(`view-${v}`);
     const btn = document.getElementById(`nav-${v}`);

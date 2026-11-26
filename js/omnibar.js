@@ -575,7 +575,20 @@ function handleOmnibarLivePreview(raw) {
     const matchedMcc = (typeof searchStbMccGroups === "function" && (lower.startsWith("mcc") || /^\d{4}$/.test(qNorm)))
       ? searchStbMccGroups(mccQuery, "ALL").slice(0, 4)
       : [];
+    const matchedToolRows = [];
+    if (typeof switchFileToolTab === "function") {
+      if (qNorm.includes("pdf") || qNorm.includes("nen")) {
+        matchedToolRows.push(`<button type="button" onclick="navigateTo('FILE_TOOLS'); switchFileToolTab('PDF'); hideOmnibarPreview();" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between text-left text-xs transition"><span class="font-bold text-slate-800 truncate">📄 Nén File PDF (Hợp đồng / Scan)</span><span class="text-[10px] font-bold text-teal-700 shrink-0">Mở công cụ →</span></button>`);
+      }
+      if (qNorm.includes("anh") || qNorm.includes("nen") || qNorm.includes("img")) {
+        matchedToolRows.push(`<button type="button" onclick="navigateTo('FILE_TOOLS'); switchFileToolTab('IMAGE'); hideOmnibarPreview();" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between text-left text-xs transition"><span class="font-bold text-slate-800 truncate">🖼️ Nén Ảnh Hàng Loạt (JPG / PNG / WebP)</span><span class="text-[10px] font-bold text-teal-700 shrink-0">Mở công cụ →</span></button>`);
+      }
+      if (qNorm.includes("vector") || qNorm.includes("logo") || qNorm === "ai" || qNorm.includes(".ai") || qNorm.includes("svg")) {
+        matchedToolRows.push(`<button type="button" onclick="navigateTo('FILE_TOOLS'); switchFileToolTab('VECTOR'); hideOmnibarPreview();" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between text-left text-xs transition"><span class="font-bold text-slate-800 truncate">✨ Vector Hóa Logo (PNG/JPG → .AI / .SVG)</span><span class="text-[10px] font-bold text-teal-700 shrink-0">Mở công cụ →</span></button>`);
+      }
+    }
     const rows = [
+      ...matchedToolRows,
       ...matchedMcc.map(g => `<button type="button" onclick="navigateTo('MCC'); quickSearchMccKeyword('${mccQuery.replace(/'/g, "\\'")}'); hideOmnibarPreview();" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between text-left text-xs transition"><span class="font-bold text-slate-800 truncate"><span class="font-mono text-teal-700">${g.code}</span> • ${g.mccName || 'MCC STB'} (${g.items.length} đối tác)</span><span class="text-[10px] font-bold text-teal-700 shrink-0">Mở MCC →</span></button>`),
       ...matchedPartners.map(m => `<button type="button" onclick="selectMerchant('${m.id}'); navigateTo('PROJECTS'); hideOmnibarPreview();" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between text-left text-xs transition"><span class="font-bold text-slate-800 truncate">🏢 ${m.brand_name || m.name} <span class="font-normal text-slate-500">• ${m.name}</span></span><span class="text-[10px] font-bold text-teal-700 shrink-0">Mở chuỗi →</span></button>`),
       ...matchedTasks.map(t => `<button type="button" onclick="completeTaskFromOmnibar('${t.id}')" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-teal-50 border border-slate-200/80 flex items-center justify-between text-left text-xs transition"><span class="font-bold text-slate-800 truncate">${t.title}</span><span class="text-[10px] font-bold text-teal-700 shrink-0">✓ Xong</span></button>`),
