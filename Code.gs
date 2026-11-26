@@ -345,6 +345,94 @@ function buildUserIcsFeed(userEmail, meetings, projects, tasks) {
   return lines.join("\r\n");
 }
 
+function sendBportalAccountHandoverEmail(targetUser, adminEmail) {
+  try {
+    const toEmail = String(targetUser.email || "").trim().toLowerCase();
+    if (!toEmail) return false;
+    const displayName = targetUser.name || toEmail;
+    const pin = String(targetUser.pin || "123456");
+    const role = String(targetUser.role || "USER").toUpperCase();
+    const portalUrl = "https://bryanportal.io.vn/";
+    const subject = `(BPortal) Bàn giao tài khoản truy cập hệ thống — ${displayName}`;
+
+    const htmlBody = `
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#0f172a;line-height:1.6;max-width:600px;">
+        <p>Chào <strong>${displayName}</strong>,<br/>
+        <em style="color:#475569;">Dear ${displayName},</em></p>
+
+        <p>Admin gửi Anh/Chị thông tin bàn giao tài khoản truy cập hệ thống điều phối vận hành <strong>Bryan Portal (BPortal)</strong>.<br/>
+        <em style="color:#475569;">Please find your Bryan Portal (BPortal) account information below.</em></p>
+
+        <table style="border-collapse:collapse;width:100%;margin:14px 0;font-size:13px;">
+          <thead>
+            <tr style="background-color:#0f2c59;color:#ffffff;">
+              <th colspan="2" style="padding:9px 12px;text-align:left;border:1px solid #0f2c59;">THÔNG TIN TÀI KHOẢN BPORTAL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:8px 12px;border:1px solid #cbd5e1;font-weight:bold;width:38%;background:#f8fafc;">Đường dẫn truy cập</td>
+              <td style="padding:8px 12px;border:1px solid #cbd5e1;"><a href="${portalUrl}" style="color:#0f766e;font-weight:bold;">${portalUrl}</a></td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;border:1px solid #cbd5e1;font-weight:bold;background:#f8fafc;">Email đăng nhập</td>
+              <td style="padding:8px 12px;border:1px solid #cbd5e1;font-family:monospace;font-weight:bold;">${toEmail}</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;border:1px solid #cbd5e1;font-weight:bold;background:#f8fafc;">Mã PIN khởi tạo</td>
+              <td style="padding:8px 12px;border:1px solid #cbd5e1;font-family:monospace;font-weight:bold;color:#0f766e;font-size:15px;">${pin}</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px;border:1px solid #cbd5e1;font-weight:bold;background:#f8fafc;">Phân quyền</td>
+              <td style="padding:8px 12px;border:1px solid #cbd5e1;">${role}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p style="font-weight:bold;color:#0f172a;margin-bottom:6px;">Hướng dẫn đăng nhập &amp; đổi Mã PIN bảo mật lần đầu:</p>
+        <ol style="padding-left:18px;margin-top:4px;space-y:4px;">
+          <li><strong>Bước 1:</strong> Truy cập <a href="${portalUrl}" style="color:#0f766e;font-weight:bold;">${portalUrl}</a> trên trình duyệt.</li>
+          <li><strong>Bước 2:</strong> Nhập <strong>Email đăng nhập</strong> và <strong>Mã PIN khởi tạo</strong> ở bảng trên để vào hệ thống (nếu quên PIN, có thể bấm <em>"Quên mật khẩu?"</em> để nhận mã OTP 6 số qua Email).</li>
+          <li><strong>Bước 3:</strong> Sau khi vào hệ thống, nhấn biểu tượng <strong>Chìa khóa (Đổi Mã PIN)</strong> ở thanh bên trái để đổi sang Mã PIN cá nhân của bạn.</li>
+        </ol>
+
+        <p style="margin-top:14px;">Cảm ơn Anh/Chị đã sử dụng hệ thống BPortal.<br/>
+        <em style="color:#475569;">Best Regards,</em></p>
+        <p style="margin-top:6px;">
+          <strong>BRYAN NGUYEN</strong><br/>
+          <span style="color:#0f766e;">Business Development Executive | Omni Channel Payment Solution</span><br/>
+          Email: ${adminEmail || "tri.nguyen2@vietunion.com.vn"}
+        </p>
+      </div>
+    `;
+
+    const plainBody = [
+      `Chào ${displayName},`,
+      ``,
+      `Admin gửi Anh/Chị thông tin bàn giao tài khoản truy cập hệ thống Bryan Portal (BPortal):`,
+      `- Link truy cập: ${portalUrl}`,
+      `- Email đăng nhập: ${toEmail}`,
+      `- Mã PIN khởi tạo: ${pin}`,
+      `- Phân quyền: ${role}`,
+      ``,
+      `Hướng dẫn đăng nhập:`,
+      `Bước 1: Truy cập ${portalUrl}`,
+      `Bước 2: Nhập Email đăng nhập và Mã PIN khởi tạo ở trên (hoặc dùng "Quên mật khẩu?" để nhận OTP qua Email).`,
+      `Bước 3: Nhấn biểu tượng Chìa khóa ở thanh bên trái để đổi sang Mã PIN bảo mật cá nhân.`,
+      ``,
+      `Best Regards,`,
+      `Bryan Nguyen (${adminEmail || "tri.nguyen2@vietunion.com.vn"})`
+    ].join("\n");
+
+    const mailOpts = { to: toEmail, subject: subject, body: plainBody, htmlBody: htmlBody };
+    if (adminEmail && adminEmail !== toEmail) mailOpts.cc = adminEmail;
+    MailApp.sendEmail(mailOpts);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 /**
  * GET request: Hỗ trợ `action=login` & `action=getData` (Bắt buộc đúng Email + PIN)
  */
@@ -611,7 +699,34 @@ function doPost(e) {
       if (idx !== -1) users[idx] = nextObj;
       else users.push(nextObj);
       writeUsersSheetRows(ss, users);
-      return resJSON({ success: true, message: "Đã lưu tài khoản " + tEmail });
+
+      let emailSent = false;
+      if (body.send_welcome_email === true && nextObj.active === "TRUE") {
+        emailSent = sendBportalAccountHandoverEmail(nextObj, ownerEmail);
+      }
+      return resJSON({
+        success: true,
+        email_sent: emailSent,
+        message: emailSent
+          ? `Đã lưu tài khoản & gửi Email bàn giao tới ${tEmail}`
+          : `Đã lưu tài khoản ${tEmail}`
+      });
+    }
+
+    // Admin gửi lại Email bàn giao tài khoản BPortal
+    if (action === "ADMIN_SEND_HANDOVER_EMAIL") {
+      if (verifiedUser.role !== "ADMIN") {
+        return resJSON({ success: false, status: 403, error: "Chỉ Admin mới có quyền gửi email bàn giao." });
+      }
+      const tEmail = String(body.target_email || "").trim().toLowerCase();
+      const users = getSheetRowsAsObjects(ss, "Users");
+      const targetUser = users.find(u => String(u.email || "").trim().toLowerCase() === tEmail && !String(u.deleted_at || "").trim());
+      if (!targetUser) return resJSON({ success: false, message: "Không tìm thấy tài khoản " + tEmail });
+      const sent = sendBportalAccountHandoverEmail(targetUser, ownerEmail);
+      return resJSON({
+        success: sent,
+        message: sent ? `Đã gửi Email bàn giao tài khoản tới ${tEmail}!` : "Không thể gửi Email bàn giao."
+      });
     }
 
     // Admin xóa mềm tài khoản (chờ 7 ngày trước khi xóa sạch dữ liệu)

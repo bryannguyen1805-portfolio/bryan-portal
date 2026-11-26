@@ -550,6 +550,7 @@ function renderAdminUsersList() {
       </div>
       <div class="flex items-center gap-1.5 shrink-0">
         ${u.email !== getCurrentUserEmail() ? `
+          <button onclick="adminSendHandoverEmail('${u.email}')" class="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-lg font-bold" title="Gửi lại Email bàn giao tài khoản">Gửi mail</button>
           <button onclick="adminToggleUserActive('${u.email}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold text-slate-700">${u.active === false ? 'Mở khóa' : 'Khóa'}</button>
           <button onclick="adminRemoveUser('${u.email}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg font-bold" title="Đưa vào thùng rác 7 ngày trước khi xóa sạch dữ liệu">Xóa (7 ngày)</button>
         ` : '<span class="text-[10px] text-slate-400 font-semibold">Đang đăng nhập</span>'}
@@ -602,13 +603,22 @@ function handleAdminProvisionUser(e) {
   saveLocalOmniUsers(users);
 
   if (typeof postDataToGoogleSheets === "function") {
-    postDataToGoogleSheets({ action: "ADMIN_UPSERT_USER", target_user: newUser });
+    postDataToGoogleSheets({ action: "ADMIN_UPSERT_USER", target_user: newUser, send_welcome_email: true });
   }
 
   document.getElementById("admin-add-email").value = "";
   document.getElementById("admin-add-name").value = "";
   renderAdminUsersList();
-  showToast(`Đã cấp tài khoản cho ${email} (PIN: ${pin})!`);
+  showToast(`✓ Đã cấp tài khoản & gửi Email bàn giao tới ${email} (PIN: ${pin})!`);
+}
+
+function adminSendHandoverEmail(email) {
+  if (typeof postDataToGoogleSheets === "function") {
+    postDataToGoogleSheets({ action: "ADMIN_SEND_HANDOVER_EMAIL", target_email: email });
+    showToast(`✓ Đang gửi Email bàn giao tài khoản tới ${email}...`);
+  } else {
+    showToast("Chưa kết nối Google Apps Script API.", true);
+  }
 }
 
 function adminToggleUserActive(email) {
