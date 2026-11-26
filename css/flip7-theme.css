@@ -331,14 +331,24 @@ button.rounded-lg {
 
 /* Mobile UI Polish */
 @media (max-width: 767px) {
-  /* Ngăn iOS Safari tự động zoom màn hình khi chạm vào ô nhập liệu (< 16px) */
-  input,
+  /* Cỡ chữ đồng đều 14px (maximum-scale=1.0 đã chặn auto-zoom trên iOS), căn trái chuẩn cho date/select */
+  input:not([type="checkbox"]):not([type="radio"]),
   select,
   textarea {
-    font-size: 16px !important;
-    max-width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    min-height: 40px;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  input[type="date"],
+  input[type="time"] {
+    display: block !important;
+    width: 100% !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    text-align: left !important;
   }
   /* Safe Area cho iPhone Dynamic Island / Notch ở PWA Standalone */
   .mobile-safe-topbar {
@@ -357,6 +367,7 @@ button.rounded-lg {
   div[id^="modal-"] > div {
     max-height: 88dvh;
     overflow-y: auto;
+    overflow-x: hidden;
   }
   #mobile-bottom-nav .mnav-item {
     border-radius: 12px !important;
