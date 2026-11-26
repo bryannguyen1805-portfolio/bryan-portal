@@ -106,11 +106,11 @@ function handleCommandCenterInput(raw) {
   const norm = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
 
   const matchedMerchants = (state?.merchants || []).filter(m =>
-    norm(m.name).includes(normQ) || norm(m.brand_name).includes(normQ) || norm(m.alias).includes(normQ)
+    norm(m.name).includes(normQ) || norm(m.brand_name).includes(normQ) || norm(m.alias).includes(normQ) || norm(m.tax_code).includes(normQ)
   ).slice(0, 4);
 
   const matchedObs = (typeof onboardingList !== "undefined" ? onboardingList : []).filter(o =>
-    !o.graduated && (norm(o.merchant_name).includes(normQ) || norm(o.brand_name).includes(normQ))
+    !o.graduated && (norm(o.merchant_name).includes(normQ) || norm(o.brand_name).includes(normQ) || norm(o.tax_code).includes(normQ))
   ).slice(0, 3);
 
   const matchedTasks = (state?.tasks || []).filter(t =>

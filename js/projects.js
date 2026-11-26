@@ -369,7 +369,7 @@ function renderMerchantDirectoryPanel() {
     if (merchantDirFilter === "LIVE" && (hasActive || projs.length === 0)) return false;
     if (q) {
       const tkvh = getMerchantTkvhCode(m, projs);
-      const hay = `${m.name} ${m.industry || ''} ${tkvh} ${m.acquiring_bank || ''}`.toLowerCase();
+      const hay = `${m.name} ${m.tax_code || ''} ${m.industry || ''} ${tkvh} ${m.acquiring_bank || ''}`.toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -466,7 +466,7 @@ function renderMerchantDirectoryPanel() {
                       ${renderMerchantAvatarHtml(m, "w-7 h-7 rounded-lg", "text-[11px]")}
                       <div>
                         <div>${m.name}</div>
-                        <div class="text-[10px] font-normal text-slate-400">${m.industry || 'B2B Partner'}</div>
+                        <div class="text-[10px] font-normal text-slate-400">${m.tax_code ? `<span class="font-mono font-semibold text-slate-600">MST: ${m.tax_code}</span> • ` : ''}${m.industry || 'B2B Partner'}</div>
                       </div>
                     </div>
                   </td>
@@ -740,6 +740,11 @@ function renderMerchantWorkspaceBody() {
                   <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-teal-50 text-teal-800 border border-teal-200">${merchant.alias}</span>
                   <button type="button" onclick="editMerchantBrandName('${merchant.id}')" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 transition" title="Bấm để đặt Tên Thương Hiệu (dùng tạo mã TKVH)">
                     Thương hiệu: ${merchant.brand_name || merchant.name}
+                  </button>
+                  <button type="button" onclick="editMerchantTaxCode('${merchant.id}')" class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold border transition ${
+                    merchant.tax_code ? 'bg-slate-100 hover:bg-teal-50 text-slate-800 border-slate-300' : 'bg-slate-50 hover:bg-teal-50 text-slate-500 border-dashed border-slate-300'
+                  }" title="Bấm để cập nhật / copy Mã Số Thuế (MST)">
+                    ${merchant.tax_code ? `MST: ${merchant.tax_code}` : '+ Thêm MST'}
                   </button>
                   <button type="button" onclick="editMerchantContractExpiry('${merchant.id}')" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border transition ${
                     merchant.contract_expiry_date ? 'bg-slate-50 hover:bg-amber-50 text-slate-700 border-slate-200' : 'bg-slate-50 hover:bg-teal-50 text-slate-500 border-dashed border-slate-300'
@@ -1486,10 +1491,25 @@ function closeNewMerchantModal() {
   document.getElementById("modal-new-merchant").classList.add("hidden");
 }
 
+function editMerchantTaxCode(merchantId) {
+  const m = state.merchants.find(x => x.id === merchantId);
+  if (!m) return;
+  if (m.tax_code && navigator.clipboard) {
+    navigator.clipboard.writeText(m.tax_code).catch(() => {});
+  }
+  const val = prompt("Nhập Mã Số Thuế (MST) cho đối tác (để trống nếu giữ nguyên):", m.tax_code || "");
+  if (val === null) return;
+  m.tax_code = val.trim();
+  saveStateStorage();
+  renderCurrentView();
+  showToast(m.tax_code ? `✓ Đã cập nhật MST: ${m.tax_code}` : "Đã xóa MST đối tác");
+}
+
 function handleSaveNewMerchant(e) {
   e.preventDefault();
   const name = document.getElementById("merchant-name").value.trim();
   const alias = document.getElementById("merchant-alias").value.trim();
+  const taxCode = (document.getElementById("merchant-tax-code")?.value || "").trim();
   const industry = document.getElementById("merchant-industry").value.trim() || "Doanh nghiệp Chuỗi";
   const gmv = document.getElementById("merchant-gmv").value.trim() || "~500M GMV/tháng";
   const folderPath = document.getElementById("merchant-folder-path").value.trim();
@@ -1502,6 +1522,7 @@ function handleSaveNewMerchant(e) {
   const newM = {
     id: newMId,
     name: name,
+    tax_code: taxCode,
     alias: alias.startsWith("@") ? alias : "@" + alias,
     industry: industry,
     expected_gmv: gmv,

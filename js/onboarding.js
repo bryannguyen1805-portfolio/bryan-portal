@@ -166,8 +166,19 @@ function saveOnboardingStorage() {
 
 function openNewOnboardingModal() {
   document.getElementById("ob-merchant-name").value = "";
+  const taxEl = document.getElementById("ob-tax-code");
+  if (taxEl) taxEl.value = "";
   const brandEl = document.getElementById("ob-brand-name");
   if (brandEl) brandEl.value = "";
+  const indEl = document.getElementById("ob-industry");
+  if (indEl) indEl.value = "";
+  const contactEl = document.getElementById("ob-contact-name");
+  if (contactEl) contactEl.value = "";
+  const prevEl = document.getElementById("ob-industry-preview");
+  if (prevEl) {
+    prevEl.classList.add("hidden");
+    prevEl.innerHTML = "";
+  }
   document.getElementById("ob-channel-type").value = "POS";
   document.getElementById("modal-new-onboarding").classList.remove("hidden");
 }
@@ -179,7 +190,10 @@ function closeNewOnboardingModal() {
 function handleCreateOnboarding(e) {
   e.preventDefault();
   const name = document.getElementById("ob-merchant-name").value.trim();
+  const taxCode = (document.getElementById("ob-tax-code")?.value || "").trim();
   const brandName = (document.getElementById("ob-brand-name")?.value || "").trim() || name;
+  const industry = (document.getElementById("ob-industry")?.value || "").trim();
+  const contactName = (document.getElementById("ob-contact-name")?.value || "").trim();
   const channel = document.getElementById("ob-channel-type").value;
   if (!name) return;
 
@@ -187,18 +201,24 @@ function handleCreateOnboarding(e) {
   const newOb = {
     id: "ob-" + Date.now().toString().slice(-5),
     merchant_name: name,
+    tax_code: taxCode,
     brand_name: brandName,
+    industry: industry,
+    contact_name: contactName,
     channel: channel,
+    vetting_status: "PENDING",
+    vetting_done_ids: [],
     total_steps: tasks.length,
     tasks: tasks
   };
 
   onboardingList.unshift(newOb);
   activeOnboardingId = newOb.id;
+  onboardingViewMode = "VETTING";
   saveOnboardingStorage();
   closeNewOnboardingModal();
   navigateTo("ONBOARDING");
-  showToast(`✓ Đã khởi tạo quy trình ${tasks.length} bước cho ${name}!`);
+  showToast(`✓ Đã tạo hồ sơ thẩm định & quy trình ${tasks.length} bước cho ${name}!`);
 }
 
 function openGraduateModal(obId) {
@@ -210,7 +230,7 @@ function openGraduateModal(obId) {
   document.getElementById("grad-channel-display").textContent = "Kênh đã triển khai: " + (SOP_CHANNELS[ob.channel]?.label || ob.channel);
   document.getElementById("grad-alias").value = "@" + ob.merchant_name.toLowerCase().replace(/[^a-z0-9]/g, "");
   document.getElementById("grad-gmv").value = "~500M VNĐ/tháng";
-  document.getElementById("grad-industry").value = "Chuỗi B2B Enterprise";
+  document.getElementById("grad-industry").value = ob.industry || "Chuỗi B2B Enterprise";
   document.getElementById("grad-folder").value = "https://drive.google.com/drive/folders/payoo-dms-" + ob.merchant_name.toLowerCase().replace(/\s+/g, "-");
   const nextYear = new Date();
   nextYear.setFullYear(nextYear.getFullYear() + 1);
@@ -250,6 +270,7 @@ function handleGraduateOnboarding(e) {
     id: newMId,
     name: ob.merchant_name,
     brand_name: ob.brand_name || ob.merchant_name,
+    tax_code: ob.tax_code || "",
     alias: alias.startsWith("@") ? alias : "@" + alias,
     industry: industry,
     expected_gmv: gmv,
@@ -468,10 +489,22 @@ function onObDrop(e, targetStage) {
 }
 
 let onboardingFilter = "ALL"; // ALL | PENDING | DONE
+let onboardingViewMode = "SOP"; // SOP | VETTING
+
+function setOnboardingViewMode(mode) {
+  onboardingViewMode = mode === "VETTING" ? "VETTING" : "SOP";
+  renderOnboardingView();
+}
 
 function setOnboardingFilter(f) {
   onboardingFilter = f;
   renderOnboardingView();
+}
+
+function copyOnboardingTaxCode(taxCode) {
+  if (!taxCode) return;
+  if (navigator.clipboard) navigator.clipboard.writeText(taxCode).catch(() => {});
+  showToast(`✓ Đã copy MST: ${taxCode}`);
 }
 
 function renderOnboardingView() {
@@ -533,6 +566,27 @@ function renderOnboardingView() {
   const activeOb = visibleList.find(o => o.id === activeOnboardingId);
   const headerEl = document.getElementById("onboarding-active-header");
   const boardEl = document.getElementById("onboarding-kanban-board");
+  const vettingEl = document.getElementById("onboarding-vetting-board");
+
+  const vettingBtn = document.getElementById("btn-ob-mode-vetting");
+  const vettingLabel = document.getElementById("ob-vetting-tab-label");
+  const pendingVettingCnt = activeList.filter(o => o.vetting_status !== "APPROVED").length;
+  if (vettingLabel) {
+    vettingLabel.textContent = pendingVettingCnt > 0
+      ? `Thẩm Định Đối Tác (${pendingVettingCnt})`
+      : "Thẩm Định Đối Tác";
+  }
+  if (vettingBtn) {
+    if (onboardingViewMode === "VETTING") {
+      vettingBtn.className = "px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition border border-amber-500 bg-amber-500 text-white shadow-sm shrink-0";
+      vettingBtn.onclick = () => setOnboardingViewMode("SOP");
+      vettingBtn.title = "Bấm để quay lại Bảng Triển Khai 4 Chặng";
+    } else {
+      vettingBtn.className = "px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition border border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 shrink-0";
+      vettingBtn.onclick = () => setOnboardingViewMode("VETTING");
+      vettingBtn.title = "Kiểm tra hồ sơ pháp lý & tạo Email yêu cầu giấy tờ trước B1";
+    }
+  }
 
   if (!activeOb) {
     if (headerEl) {
@@ -541,6 +595,10 @@ function renderOnboardingView() {
         : `<div class="text-center text-xs text-slate-400 py-2">Chưa có đối tác triển khai nào. Bấm "+ Thêm Đối Tác / Triển Khai Mới" để bắt đầu!</div>`;
     }
     if (boardEl) boardEl.innerHTML = "";
+    if (vettingEl) {
+      vettingEl.classList.add("hidden");
+      vettingEl.innerHTML = "";
+    }
     lucide.createIcons();
     return;
   }
@@ -569,8 +627,9 @@ function renderOnboardingView() {
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
         <!-- Left: Title & Channel & Progress -->
         <div class="flex flex-wrap items-center gap-3">
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center flex-wrap gap-2">
             <h3 class="text-sm font-black text-slate-900">${activeOb.merchant_name}</h3>
+            ${activeOb.tax_code ? `<button type="button" onclick="copyOnboardingTaxCode('${activeOb.tax_code}')" class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition" title="Bấm để copy Mã Số Thuế">MST: ${activeOb.tax_code}</button>` : ''}
             <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200">${chInfo}</span>
             <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200" title="Giai đoạn tự động tính theo Attio Rollup">${stageLabel}</span>
           </div>
@@ -643,6 +702,76 @@ function renderOnboardingView() {
     if (dept === 'BGĐ' || dept === 'Đối tác') return 'bg-teal-100 text-teal-800';
     return 'bg-slate-100 text-slate-700';
   };
+
+  if (onboardingViewMode === "VETTING") {
+    if (boardEl) boardEl.classList.add("hidden");
+    if (vettingEl) {
+      vettingEl.classList.remove("hidden");
+      const checklist = typeof buildVettingChecklist === "function" ? buildVettingChecklist(activeOb) : [];
+      const doneIds = Array.isArray(activeOb.vetting_done_ids) ? activeOb.vetting_done_ids : [];
+      const doneCnt = checklist.filter(i => doneIds.includes(i.id)).length;
+      const pctVet = checklist.length > 0 ? Math.round((doneCnt / checklist.length) * 100) : 0;
+      const matchedInd = typeof matchVettingIndustry === "function" ? matchVettingIndustry(activeOb.industry || "") : null;
+
+      vettingEl.innerHTML = `
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div class="space-y-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-200">PRE-B1 • THẨM ĐỊNH HỒ SƠ</span>
+                <span class="text-sm font-black text-slate-900">${activeOb.merchant_name}</span>
+                ${activeOb.tax_code ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-slate-100 text-slate-700">MST: ${activeOb.tax_code}</span>` : ''}
+                ${activeOb.industry ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${matchedInd ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-600'}">${activeOb.industry}</span>` : ''}
+              </div>
+              <p class="text-xs text-slate-500">Đã thu thập <strong class="text-teal-700">${doneCnt}/${checklist.length}</strong> đầu mục hồ sơ (${pctVet}%) trước khi trình ký Hợp Đồng B1.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+              <button type="button" onclick="openVettingEmailModal('${activeOb.id}')" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-xs">
+                <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+                <span>Tạo Email Gửi Đối Tác</span>
+              </button>
+              <button type="button" onclick="approveVettingToSop('${activeOb.id}')" class="px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-xs">
+                <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5"></i>
+                <span>${activeOb.vetting_status === 'APPROVED' ? 'Mở Quy Trình B1–B15+' : 'Đạt Thẩm Định → Sang B1'}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+            ${checklist.map(item => {
+              const isDone = doneIds.includes(item.id);
+              const groupBadge = item.group === "INDUSTRY"
+                ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-amber-100 text-amber-800">NGÀNH CÓ ĐIỀU KIỆN</span>`
+                : (item.group === "CHANNEL"
+                  ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-indigo-100 text-indigo-700">THEO KÊNH</span>`
+                  : `<span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-slate-100 text-slate-600">PHÁP LÝ CHUẨN</span>`);
+              return `
+                <label class="p-3 rounded-xl border ${isDone ? 'border-emerald-200 bg-emerald-50/40' : 'border-slate-200 bg-slate-50/60 hover:bg-white'} flex items-start gap-3 cursor-pointer transition">
+                  <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleVettingCheckItem('${activeOb.id}', '${item.id}')" class="mt-0.5 w-4 h-4 accent-teal-600 rounded shrink-0" />
+                  <div class="min-w-0 flex-1 space-y-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="text-[10px] font-black text-slate-400">#${item.stt}</span>
+                      ${groupBadge}
+                    </div>
+                    <div class="text-xs font-bold ${isDone ? 'line-through text-slate-400' : 'text-slate-900'}">${item.title}</div>
+                    <div class="text-[11px] text-slate-500 leading-relaxed">${item.detail}</div>
+                  </div>
+                </label>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      `;
+    }
+    lucide.createIcons();
+    return;
+  }
+
+  if (vettingEl) {
+    vettingEl.classList.add("hidden");
+    vettingEl.innerHTML = "";
+  }
+  if (boardEl) boardEl.classList.remove("hidden");
 
   if (boardEl) {
     // Thanh tiến trình chặng ngang + Cảnh báo trần 22 ngày làm việc

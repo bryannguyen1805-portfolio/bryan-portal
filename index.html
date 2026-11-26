@@ -1064,17 +1064,23 @@
 
       <!-- ================= SCREEN 8: ONBOARDING SOP ENGINE & KANBAN KÉO THẢ ================= -->
       <div id="view-ONBOARDING" class="hidden space-y-4 max-w-[1440px] mx-auto">
-        <!-- UNIFIED COMPACT HEADER (Gộp gọn tiêu đề + Switcher + Progress + Filter) -->
+        <!-- UNIFIED COMPACT HEADER (Gộp gọn tiêu đề + Thẩm Định Pre-B1 + Switcher + Progress + Filter) -->
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-          <!-- Hàng 1: Switcher Đối tác + Nút Thêm mới -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <!-- Hàng 1: Thanh Thẩm Định + Switcher Đối tác + Nút Thêm mới -->
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div class="flex items-center space-x-2 overflow-x-auto" id="onboarding-pills-bar">
               <!-- Rendered dynamically -->
             </div>
-            <button onclick="openNewOnboardingModal()" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-sm shrink-0">
-              <i data-lucide="plus-circle" class="w-4 h-4"></i>
-              <span>+ Thêm Đối Tác / Triển Khai Mới</span>
-            </button>
+            <div class="flex items-center gap-2 shrink-0">
+              <button id="btn-ob-mode-vetting" onclick="setOnboardingViewMode('VETTING')" class="px-3 py-1.5 rounded-xl text-xs font-bold flex items-center space-x-1.5 transition border border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 shrink-0">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                <span id="ob-vetting-tab-label">Thẩm Định Đối Tác</span>
+              </button>
+              <button onclick="openNewOnboardingModal()" class="px-3.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1.5 transition shadow-sm shrink-0">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                <span>+ Thêm Đối Tác / Triển Khai Mới</span>
+              </button>
+            </div>
           </div>
 
           <!-- Hàng 2: Chi tiết tiến độ & Bộ lọc nhanh -->
@@ -1082,6 +1088,9 @@
             <!-- Rendered dynamically -->
           </div>
         </div>
+
+        <!-- Bảng Thẩm Định Đối Tác (Pre-B1) -->
+        <div id="onboarding-vetting-board" class="hidden space-y-3"></div>
 
         <!-- 4-Stage Modern Linear/Notion Drag & Drop Kanban Board -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5" id="onboarding-kanban-board">
@@ -1527,7 +1536,11 @@
             <input type="text" id="merchant-alias" required placeholder="@katinat" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none">
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Mã Số Thuế (MST)</label>
+            <input type="text" id="merchant-tax-code" placeholder="VD: 0312345678" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none font-mono">
+          </div>
           <div>
             <label class="block font-bold text-slate-700 mb-1">Quy Mô / Ngành Nghề</label>
             <input type="text" id="merchant-industry" placeholder="VD: Chuỗi F&B 80+ Cửa Hàng" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none">
@@ -1609,9 +1622,9 @@
     </div>
   </div>
 
-  <!-- Modal: Khởi Tạo Quy Trình Onboarding SOP (Chỉ 2 trường theo đặc tả) -->
+  <!-- Modal: Khởi Tạo Quy Trình Đối Tác Mới -->
   <div id="modal-new-onboarding" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
         <div class="flex items-center space-x-2">
           <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center">
@@ -1622,7 +1635,7 @@
         <button onclick="closeNewOnboardingModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
-      <form onsubmit="handleCreateOnboarding(event)" class="space-y-4 text-xs">
+      <form onsubmit="handleCreateOnboarding(event)" class="space-y-3.5 text-xs">
         <div>
           <label class="block font-bold text-slate-700 mb-1">Tên Đối Tác / Pháp Nhân *</label>
           <input 
@@ -1634,39 +1647,128 @@
           />
         </div>
 
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Tên Thương Hiệu (Dùng tạo mã TKVH) *</label>
-          <input 
-            type="text" 
-            id="ob-brand-name" 
-            required 
-            placeholder="VD: HIGHLANDS, GS25, KATINAT..." 
-            class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none font-bold"
-          />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Mã Số Thuế (MST) *</label>
+            <input 
+              type="text" 
+              id="ob-tax-code" 
+              required 
+              placeholder="VD: 0312345678" 
+              class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none font-mono font-bold"
+            />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tên Thương Hiệu (Mã TKVH) *</label>
+            <input 
+              type="text" 
+              id="ob-brand-name" 
+              required 
+              placeholder="VD: HIGHLANDS, JTRUE..." 
+              class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none font-bold"
+            />
+          </div>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Kênh Triển Khai *</label>
-          <select id="ob-channel-type" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none font-bold text-slate-800">
-            <option value="POS">1. POS (Tự động sinh 15 bước chuẩn)</option>
-            <option value="POS_PAYLINK">2. POS & Paylink (Tự động sinh 18 bước chuẩn)</option>
-            <option value="POS_PGW">3. POS & PGW (Tự động sinh 18 bước chuẩn)</option>
-            <option value="PGW">4. PGW (Tự động sinh 19 bước chuẩn)</option>
-          </select>
+          <label class="block font-bold text-slate-700 mb-1">Ngành Nghề / Lĩnh Vực Kinh Doanh *</label>
+          <input 
+            type="text" 
+            id="ob-industry" 
+            required 
+            list="ob-industry-suggestions"
+            oninput="previewOnboardingIndustryDocs()"
+            placeholder="VD: Trung tâm Anh ngữ, Nhà hàng ăn uống, Khách sạn, Gym..." 
+            class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none font-medium"
+          />
+          <datalist id="ob-industry-suggestions">
+            <option value="Lĩnh vực giáo dục (Trung tâm Anh ngữ, trường học, đào tạo)"></option>
+            <option value="Dạy học online / EdTech trực tuyến"></option>
+            <option value="Dịch vụ nhà hàng / Ăn uống (F&B)"></option>
+            <option value="Cửa hàng tiện lợi / Siêu thị mini"></option>
+            <option value="Dịch vụ Lưu trú (Khách sạn, Resort, Homestay)"></option>
+            <option value="Dịch vụ Karaoke"></option>
+            <option value="Kinh doanh Trò chơi điện tử"></option>
+            <option value="Dịch vụ phòng tập Gym / Fitness / Yoga"></option>
+            <option value="Sở hữu kỳ nghỉ (Timeshare)"></option>
+            <option value="Tư vấn, giám sát, thi công công trình xây dựng"></option>
+            <option value="Bệnh viện / Phòng khám / Nha khoa"></option>
+            <option value="Kinh doanh Dược phẩm / Nhà thuốc"></option>
+            <option value="Dịch vụ Massage thư giãn"></option>
+            <option value="Thẩm mỹ viện (có phẫu thuật thẩm mỹ)"></option>
+            <option value="Thẩm mỹ viện / Spa (xâm lấn không phẫu thuật)"></option>
+            <option value="Lĩnh vực Bảo hiểm"></option>
+            <option value="Dịch vụ Du lịch lữ hành"></option>
+            <option value="Dịch vụ vận tải bằng ô tô, container"></option>
+            <option value="Dịch vụ thư có địa chỉ nhận (Bưu chính)"></option>
+            <option value="Mỹ phẩm (do DN tự sản xuất và bán)"></option>
+            <option value="Bán lẻ rượu"></option>
+            <option value="Bán buôn rượu"></option>
+            <option value="Quán bar / Pub (bán rượu uống tại chỗ)"></option>
+            <option value="Tổ chức bán vé sự kiện"></option>
+            <option value="Đối tác có vốn đầu tư nước ngoài (FDI)"></option>
+          </datalist>
+          <div id="ob-industry-preview" class="hidden mt-2"></div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Kênh Triển Khai *</label>
+            <select id="ob-channel-type" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none font-bold text-slate-800">
+              <option value="POS">1. POS (Tự động sinh 15 bước chuẩn)</option>
+              <option value="POS_PAYLINK">2. POS & Paylink (Tự động sinh 18 bước chuẩn)</option>
+              <option value="POS_PGW">3. POS & PGW (Tự động sinh 18 bước chuẩn)</option>
+              <option value="PGW">4. PGW (Tự động sinh 19 bước chuẩn)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Người Liên Hệ (Chào Mail)</label>
+            <input 
+              type="text" 
+              id="ob-contact-name" 
+              placeholder="VD: chị Thương, anh Minh..." 
+              class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-teal-500 outline-none font-medium"
+            />
+          </div>
         </div>
 
         <div class="p-3 bg-teal-50 rounded-xl border border-teal-200 text-teal-800 text-[11px] leading-relaxed">
-          <strong>Tự động hóa quy trình:</strong> Hệ thống tự động sinh đầy đủ các bước từ Làm Hợp Đồng/BM01 → Duyệt CMS → Cấu Hình/ASM → Go-Live và phân bổ sẵn vào 4 chặng.
+          <strong>Quy trình mới:</strong> Sau khi tạo, đối tác sẽ vào mục <strong>Thẩm Định Đối Tác (Pre-B1)</strong> để tự động liệt kê bộ giấy tờ cần thu thập theo ngành nghề &amp; tạo Email gửi đối tác (mẫu JTRUE), rồi mới chuyển sang B1 Làm Hợp Đồng.
         </div>
 
         <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-100">
           <button type="button" onclick="closeNewOnboardingModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">Hủy</button>
           <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-sm flex items-center space-x-1">
             <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-            <span>Khởi Tạo Quy Trình</span>
+            <span>Khởi Tạo &amp; Thẩm Định</span>
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal: Preview & Copy Email Yêu Cầu Hồ Sơ Đối Tác (Form JTRUE) -->
+  <div id="modal-vetting-email" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-5 md:p-6 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
+        <div>
+          <h3 class="text-base font-black text-slate-900">Email Gửi Bộ Hợp Đồng &amp; Thu Thập Hồ Sơ Đối Tác</h3>
+          <p class="text-[11px] text-slate-500">Tự động ghép cấu trúc Bộ Hợp Đồng &amp; Bảng giấy tờ theo Ngành nghề + Kênh triển khai</p>
+        </div>
+        <button onclick="closeVettingEmailModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="py-3 space-y-2.5 overflow-y-auto flex-1">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-500 mb-1">Tiêu đề Email (Subject)</label>
+          <input id="vetting-email-subject" type="text" readonly class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 outline-none" />
+        </div>
+        <div id="vetting-email-preview" class="p-4 bg-white border border-slate-200 rounded-xl text-xs overflow-x-auto"></div>
+      </div>
+      <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-slate-100 shrink-0">
+        <button type="button" onclick="closeVettingEmailModal()" class="px-3.5 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold">Đóng</button>
+        <button type="button" onclick="openVettingMailClient()" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold">Mở Mail App</button>
+        <button type="button" onclick="copyVettingEmailHtml()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-sm">Copy Email (Giữ Bảng HTML)</button>
+      </div>
     </div>
   </div>
 
@@ -2010,6 +2112,7 @@
   <script src="js/omnibar.js?v=3.9.37"></script>
   <script src="js/notifications-automation.js?v=3.9.36"></script>
   <script src="js/undo-engine.js?v=3.8.0"></script>
+  <script src="js/vetting.js?v=1.0.0"></script>
   <script src="js/onboarding.js?v=3.3.0"></script>
   <script src="js/calendar.js?v=3.9.22"></script>
 </body>
