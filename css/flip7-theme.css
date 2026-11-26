@@ -329,6 +329,25 @@ button.rounded-lg {
   }
 }
 
+/* Show login overlay from frame 0 when unauthenticated & hide unhydrated main to prevent CLS */
+html[data-needs-login="1"] #auth-login-overlay {
+  display: flex !important;
+}
+html[data-needs-login="1"] body > *:not(#auth-login-overlay) {
+  display: none !important;
+}
+html:not([data-hydrated="1"]) main {
+  visibility: hidden;
+}
+
+/* Reserve space for Lucide icons before JS hydration to prevent CLS */
+i[data-lucide] {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+
 /* Mobile UI Polish */
 @media (max-width: 767px) {
   /* Cỡ chữ đồng đều 14px (maximum-scale=1.0 đã chặn auto-zoom trên iOS), căn trái chuẩn cho date/select */
@@ -341,6 +360,14 @@ button.rounded-lg {
     max-width: 100% !important;
     min-width: 0 !important;
     box-sizing: border-box !important;
+  }
+  @supports (-webkit-touch-callout: none) {
+    /* Trên iOS Safari giữ 16px để chặn auto-zoom mà không cần maximum-scale=1.0 */
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
   }
   input[type="date"],
   input[type="time"] {

@@ -2,7 +2,9 @@
 <html lang="vi" class="h-full bg-slate-900 font-sans antialiased text-slate-800">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Bryan Portal (BPortal) — Nền tảng điều phối triển khai &amp; vận hành chuỗi đối tác B2B, quản lý Onboarding SOP, nhiệm vụ, lịch họp và tra cứu MCC." />
+  <link rel="canonical" href="https://bryanportal.io.vn/" />
   <!-- Chống lưu Cache trình duyệt cho file HTML chính -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
@@ -18,48 +20,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons CDN -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            navy: {
-              800: '#151e2e',
-              850: '#101726',
-              900: '#0b111e',
-              950: '#070b14',
-            },
-            teal: {
-              400: '#2dd4bf',
-              500: '#14b8a6',
-              600: '#0d9488',
-              700: '#0f766e',
-              800: '#115e59',
-              900: '#134e4a',
-            },
-            brand: {
-              50: '#f0fdfa',
-              100: '#ccfbf1',
-              500: '#14b8a6',
-              600: '#0d9488',
-              700: '#0f766e',
-            }
-          },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
+  <!-- Pre-compiled Minified Tailwind CSS (Zero runtime JIT overhead) -->
+  <link rel="stylesheet" href="css/tailwind.min.css?v=1.0.0" />
+  <!-- Lucide Icons & Chart.js (Deferred to avoid render-blocking) -->
+  <script defer src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     /* Custom Scrollbars */
@@ -89,7 +54,10 @@
     .custom-slim-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
     .custom-slim-scroll::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
   </style>
-  <link rel="stylesheet" href="css/flip7-theme.css?v=3.9.35" />
+  <link rel="stylesheet" href="css/flip7-theme.css?v=3.9.36" />
+  <script>
+    try { if (!localStorage.getItem("bryan_portal_current_user_email")) document.documentElement.setAttribute("data-needs-login", "1"); } catch (e) {}
+  </script>
 </head>
 <body class="h-full flex overflow-hidden bg-slate-900 text-slate-800">
 
@@ -237,7 +205,7 @@
 
       <!-- Smart Omnibar Trigger (Mobile: nút 🔍 gọn -> mở Command Center; Desktop: thanh gõ trực tiếp) -->
       <div class="flex-1 min-w-0 max-w-2xl relative">
-        <button type="button" onclick="openCommandCenter()" class="md:hidden w-full flex items-center gap-2 px-3 py-2 bg-slate-100/90 hover:bg-slate-100 text-slate-500 text-xs rounded-xl border border-slate-200 transition font-medium text-left">
+        <button type="button" onclick="openCommandCenter()" class="md:hidden w-full flex items-center gap-2 px-3 py-2 bg-slate-100/90 hover:bg-slate-100 text-slate-700 text-xs rounded-xl border border-slate-200 transition font-medium text-left">
           <i data-lucide="search" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
           <span class="truncate">Tìm &amp; Lệnh nhanh...</span>
         </button>
@@ -256,7 +224,7 @@
             class="w-full pl-10 pr-16 py-2 bg-slate-100/90 hover:bg-slate-100 focus:bg-white text-slate-800 text-xs rounded-xl border border-slate-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition font-medium"
           />
           <div class="hidden md:flex absolute right-2.5 items-center space-x-1 pointer-events-none">
-            <kbd id="omnibar-shortcut-kbd" class="px-1.5 py-0.5 text-[10px] font-bold text-slate-400 bg-white border border-slate-200 rounded-md shadow-2xs">Ctrl+K</kbd>
+            <kbd id="omnibar-shortcut-kbd" class="px-1.5 py-0.5 text-[10px] font-bold text-slate-600 bg-white border border-slate-200 rounded-md shadow-2xs">Ctrl+K</kbd>
           </div>
         </form>
 
@@ -427,7 +395,7 @@
               <span>Toàn Cảnh Vận Hành</span>
             </button>
           </div>
-          <div class="text-[11px] text-slate-400 font-medium hidden sm:block">
+          <div class="text-[11px] text-slate-600 font-medium hidden sm:block">
             Gợi ý: Tập trung 1–3 việc quan trọng nhất trước khi mở rộng bảng vận hành
           </div>
         </div>
@@ -471,7 +439,7 @@
                 <input id="daily-focus-input" type="text" placeholder="Hôm nay bạn muốn hoàn thành trọn vẹn điều gì nhất? (Gõ rồi nhấn Enter...)" onchange="saveDailyFocusText()" onkeydown="if(event.key==='Enter'){this.blur();}" class="w-full bg-transparent text-sm font-bold text-slate-800 placeholder:text-slate-400 placeholder:font-normal focus:outline-none mt-0.5">
               </div>
             </div>
-            <span class="text-[11px] font-semibold text-slate-400 shrink-0 hidden md:inline">Tự động lưu cho hôm nay</span>
+            <span class="text-[11px] font-semibold text-slate-600 shrink-0 hidden md:inline">Tự động lưu cho hôm nay</span>
           </div>
 
           <!-- 2 Cột Chính: Lịch Họp & Việc Ưu Tiên -->
@@ -525,7 +493,7 @@
 
               <!-- Checklist Mẫu 1-Click cho việc lặp lại -->
               <div class="mb-3 flex items-center gap-1.5 flex-wrap text-[10px]">
-                <span class="text-slate-400 font-bold uppercase tracking-wider mr-0.5">Mẫu nhanh:</span>
+                <span class="text-slate-600 font-bold uppercase tracking-wider mr-0.5">Mẫu nhanh:</span>
                 <button type="button" onclick="applyQuickTaskTemplate('ONBOARDING')" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 font-semibold transition">+ Onboarding (3 việc)</button>
                 <button type="button" onclick="applyQuickTaskTemplate('FOLLOW_UP')" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 font-semibold transition">+ Follow-up họp (2 việc)</button>
                 <button type="button" onclick="applyQuickTaskTemplate('WEEKLY_SYNC')" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/80 font-semibold transition">+ Rà soát tuần (2 việc)</button>
@@ -2196,7 +2164,7 @@
             <label class="block font-bold text-slate-700 mb-1.5">Mật khẩu / Mã PIN *</label>
             <div class="relative">
               <input id="auth-pin-input" type="password" autocomplete="current-password" required placeholder="Nhập mã PIN hoặc mật khẩu" class="login-liquid-input w-full p-3 pr-10 rounded-xl outline-none font-mono text-sm md:text-xs" />
-              <button type="button" onclick="toggleAuthPinVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-800 transition" title="Hiện / Ẩn mật khẩu">
+              <button type="button" onclick="toggleAuthPinVisibility()" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-lg text-slate-600 hover:text-slate-900 transition" aria-label="Hiện hoặc ẩn mật khẩu" title="Hiện / Ẩn mật khẩu">
                 <i data-lucide="eye" class="w-4 h-4" id="auth-pin-eye-icon"></i>
               </button>
             </div>
@@ -2303,25 +2271,25 @@
   </nav>
 
   <!-- ================= 4. CORE JAVASCRIPT ENGINE (VERSIONED CACHE-BUSTING) ================= -->
-  <script src="js/auth.js?v=3.9.10"></script>
-  <script src="js/demo-data.js?v=1.0.0"></script>
-  <script src="js/state-sync.js?v=3.9.6"></script>
-  <script src="js/dashboard.js?v=3.9.38"></script>
-  <script src="js/projects.js?v=3.9.21"></script>
-  <script src="js/tasks.js?v=3.3.0"></script>
-  <script src="js/sla-engine.js?v=3.3.0"></script>
-  <script src="js/email-templates.js?v=3.9.20"></script>
-  <script src="js/attio-engine.js?v=3.3.0"></script>
-  <script src="js/mcc-data.js?v=3.9.37"></script>
-  <script src="js/mcc-lookup.js?v=3.9.37"></script>
-  <script src="js/push-pwa.js?v=3.9.34"></script>
-  <script src="js/app-launcher.js?v=3.9.24"></script>
-  <script src="js/omnibar.js?v=3.9.38"></script>
-  <script src="js/notifications-automation.js?v=3.9.36"></script>
-  <script src="js/undo-engine.js?v=3.8.0"></script>
-  <script src="js/vetting.js?v=1.0.0"></script>
-  <script src="js/onboarding.js?v=3.3.1"></script>
-  <script src="js/calendar.js?v=3.9.22"></script>
-  <script src="js/file-tools.js?v=1.0.0"></script>
+  <script defer src="js/auth.js?v=3.9.10"></script>
+  <script defer src="js/demo-data.js?v=1.0.0"></script>
+  <script defer src="js/state-sync.js?v=3.9.6"></script>
+  <script defer src="js/dashboard.js?v=3.9.38"></script>
+  <script defer src="js/projects.js?v=3.9.21"></script>
+  <script defer src="js/tasks.js?v=3.3.0"></script>
+  <script defer src="js/sla-engine.js?v=3.3.0"></script>
+  <script defer src="js/email-templates.js?v=3.9.20"></script>
+  <script defer src="js/attio-engine.js?v=3.3.0"></script>
+  <script defer src="js/mcc-data.js?v=3.9.37"></script>
+  <script defer src="js/mcc-lookup.js?v=3.9.37"></script>
+  <script defer src="js/push-pwa.js?v=3.9.34"></script>
+  <script defer src="js/app-launcher.js?v=3.9.24"></script>
+  <script defer src="js/omnibar.js?v=3.9.38"></script>
+  <script defer src="js/notifications-automation.js?v=3.9.36"></script>
+  <script defer src="js/undo-engine.js?v=3.8.0"></script>
+  <script defer src="js/vetting.js?v=1.0.0"></script>
+  <script defer src="js/onboarding.js?v=3.3.1"></script>
+  <script defer src="js/calendar.js?v=3.9.22"></script>
+  <script defer src="js/file-tools.js?v=1.0.0"></script>
 </body>
 </html>

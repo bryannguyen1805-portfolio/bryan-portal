@@ -828,7 +828,7 @@ function renderDashboardDeadlineAlerts() {
   const parts = [];
   if (overdueList.length > 0) parts.push(`<span class="text-rose-600 font-extrabold">${overdueList.length} quá hạn</span>`);
   if (dueTodayList.length > 0) parts.push(`<span class="text-amber-700 font-extrabold">${dueTodayList.length} hạn hôm nay</span>`);
-  if (dueTomorrowList.length > 0) parts.push(`<span class="text-orange-600 font-bold">${dueTomorrowList.length} hạn ngày mai</span>`);
+  if (dueTomorrowList.length > 0) parts.push(`<span class="text-amber-800 font-bold">${dueTomorrowList.length} hạn ngày mai</span>`);
 
   const isCritical = overdueList.length > 0;
 
@@ -931,7 +931,7 @@ function renderDashboardMeetings() {
     container.innerHTML = `
       <div class="p-6 text-center rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1.5">
         <div class="text-xs font-bold text-slate-600 flex items-center justify-center gap-1.5"><i data-lucide="calendar-check-2" class="w-3.5 h-3.5 text-teal-600"></i><span>Hôm nay chưa có lịch họp nào</span></div>
-        <div class="text-[11px] text-slate-400">Không gian yên tĩnh tuyệt vời để tập trung xử lý việc sâu! Bấm <b>+ Thêm lịch</b> nếu cần đặt hẹn.</div>
+        <div class="text-[11px] text-slate-600">Không gian yên tĩnh tuyệt vời để tập trung xử lý việc sâu! Bấm <b>+ Thêm lịch</b> nếu cần đặt hẹn.</div>
       </div>
     `;
     return;
@@ -1258,5 +1258,6 @@ async function submitUserFeedback(e) {
 
 window.addEventListener("DOMContentLoaded", () => {
   applyAppearanceTheme();
+  document.documentElement.setAttribute("data-hydrated", "1");
 });
 
