@@ -101,10 +101,10 @@
     <div>
       <!-- Brand & Header -->
       <div class="sidebar-brand h-16 px-3.5 flex items-center justify-between gap-2 border-b border-slate-800/80 bg-navy-950/60 shrink-0">
-        <div class="flex items-center space-x-2.5 min-w-0">
-        <div class="w-10 h-10 rounded-xl bg-slate-950 border border-slate-700/60 p-1 flex items-center justify-center shadow-lg shadow-sky-500/10 shrink-0 overflow-hidden">
-          <img src="assets/brand/BPortal_Favicon_Dark.svg" alt="BPortal Logo" class="w-full h-full object-contain" />
-        </div>
+        <div class="sidebar-brand-identity flex items-center space-x-2.5 min-w-0">
+          <div class="w-9 h-9 rounded-xl bg-slate-950 border border-slate-700/60 p-1 flex items-center justify-center shadow-lg shadow-sky-500/10 shrink-0 overflow-hidden">
+            <img src="assets/brand/BPortal_Favicon_Dark.svg" alt="BPortal Logo" class="w-full h-full object-contain" />
+          </div>
           <div class="sidebar-label min-w-0 flex-1">
             <div class="flex items-center space-x-1.5">
               <span class="font-black text-white text-sm tracking-tight whitespace-nowrap">BRYAN PORTAL</span>
@@ -112,8 +112,10 @@
             <p class="text-[10px] text-slate-400 font-medium truncate">Business Operation</p>
           </div>
         </div>
-        <button onclick="toggleSidebarCollapse()" class="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition shrink-0" title="Thu gọn / Mở rộng thanh danh mục">
-          <i data-lucide="panel-left-close" class="w-4 h-4" id="sidebar-collapse-icon"></i>
+        <button id="sidebar-collapse-btn" onclick="toggleSidebarCollapse()" aria-label="Đóng thanh bên" class="sidebar-collapse-btn group relative w-9 h-9 rounded-full flex items-center justify-center text-slate-300 hover:text-white bg-white/5 hover:bg-white/15 transition shrink-0">
+          <img src="assets/brand/BPortal_Favicon_Dark.svg" alt="Mở thanh bên" class="sidebar-collapse-logo hidden w-6 h-6 object-contain" />
+          <i data-lucide="panel-left-close" class="sidebar-collapse-lucide w-4 h-4" id="sidebar-collapse-icon"></i>
+          <span id="sidebar-collapse-tooltip" class="sidebar-collapse-tooltip pointer-events-none hidden md:block">Đóng thanh bên</span>
         </button>
       </div>
 

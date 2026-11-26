@@ -6,6 +6,8 @@ const SIDEBAR_COLLAPSE_KEY = "bryan_portal_sidebar_collapsed";
 function applySidebarCollapseState() {
   const sidebar = document.getElementById("app-sidebar");
   const icon = document.getElementById("sidebar-collapse-icon");
+  const btn = document.getElementById("sidebar-collapse-btn");
+  const tooltip = document.getElementById("sidebar-collapse-tooltip");
   if (!sidebar) return;
   const isCollapsed = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === "1";
   sidebar.classList.toggle("sidebar-collapsed", isCollapsed);
@@ -13,6 +15,9 @@ function applySidebarCollapseState() {
     icon.setAttribute("data-lucide", isCollapsed ? "panel-left-open" : "panel-left-close");
     if (typeof lucide !== "undefined") lucide.createIcons();
   }
+  const label = isCollapsed ? "Mở thanh bên" : "Đóng thanh bên";
+  if (btn) btn.setAttribute("aria-label", label);
+  if (tooltip) tooltip.textContent = label;
 }
 
 function toggleSidebarCollapse() {
