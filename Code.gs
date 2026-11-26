@@ -424,7 +424,7 @@ function sendBportalAccountHandoverEmail(targetUser, adminEmail) {
       `Bryan Nguyen (${adminEmail || "tri.nguyen2@vietunion.com.vn"})`
     ].join("\n");
 
-    const mailOpts = { to: toEmail, subject: subject, body: plainBody, htmlBody: htmlBody };
+    const mailOpts = { to: toEmail, name: "Hệ Thống Quản Lý BPortal", subject: subject, body: plainBody, htmlBody: htmlBody };
     if (adminEmail && adminEmail !== toEmail) mailOpts.cc = adminEmail;
     MailApp.sendEmail(mailOpts);
     return true;
@@ -477,6 +477,7 @@ function doGet(e) {
       `;
       MailApp.sendEmail({
         to: userEmail,
+        name: "Hệ Thống Quản Lý BPortal",
         subject: subject,
         body: `Xin chào ${displayName}, mã OTP khôi phục Mã PIN Bryan Portal của bạn là: ${otp} (hiệu lực 10 phút).`,
         htmlBody: htmlBody
@@ -830,7 +831,12 @@ function doPost(e) {
       const subject = String(body.subject || "[BPortal] Nhắc hẹn công việc").trim();
       const textBody = String(body.body || "").trim();
       if (recipient) {
-        MailApp.sendEmail(recipient, subject, textBody);
+        MailApp.sendEmail({
+          to: recipient,
+          name: "Hệ Thống Quản Lý BPortal",
+          subject: subject,
+          body: textBody
+        });
       }
       return resJSON({ success: true, message: "Đã gửi email nhắc hẹn tới " + recipient });
     }
@@ -945,6 +951,7 @@ function sendDailyDigestEmail() {
 
   MailApp.sendEmail({
     to: ALERT_RECIPIENTS,
+    name: "Hệ Thống Quản Lý BPortal",
     subject: "[Bryan Portal] Tổng hợp Lịch họp & Đầu việc ngày " + todayDisplay,
     body: lines.join("\n")
   });
