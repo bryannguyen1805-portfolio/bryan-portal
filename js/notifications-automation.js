@@ -397,9 +397,23 @@ function getActiveAlerts() {
     });
   }
 
-  // 3. Lịch họp hôm nay & ngày mai
+  // 3. Lịch họp hôm nay (chưa kết thúc) & ngày mai
   if (automationSettings.autoMeetingReminder && Array.isArray(state.meetings)) {
-    state.meetings.filter(mt => mt.date === todayStr || mt.date === tomorrowStr).forEach(mt => {
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    state.meetings.filter(mt => {
+      if (mt.date === tomorrowStr) return true;
+      if (mt.date !== todayStr) return false;
+      const timeStr = String(mt.time || "").trim();
+      if (!timeStr) return true;
+      const matches = timeStr.match(/(\d{1,2}):(\d{2})/g);
+      if (!matches || matches.length === 0) return true;
+      const lastTime = matches[matches.length - 1];
+      const [hh, mm] = lastTime.split(":").map(Number);
+      if (Number.isNaN(hh) || Number.isNaN(mm)) return true;
+      const endMinutes = hh * 60 + mm;
+      return endMinutes > nowMinutes;
+    }).forEach(mt => {
       const isToday = mt.date === todayStr;
       const dParts = String(mt.date || '').split('-');
       const shortDate = dParts.length === 3 ? `${dParts[2]}/${dParts[1]}` : mt.date;
@@ -527,6 +541,34 @@ function requestBrowserNotificationPermission() {
   });
 }
 
+const SEEN_ALERTS_KEY = "bryan_portal_seen_alert_ids";
+
+function getSeenAlertIds() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(SEEN_ALERTS_KEY) || "[]");
+    return Array.isArray(raw) ? raw : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function getUnreadAlertsCount(alerts) {
+  const list = Array.isArray(alerts) ? alerts : getActiveAlerts();
+  const seen = new Set(getSeenAlertIds());
+  return list.filter(a => !seen.has(a.id)).length;
+}
+
+function markAllAlertsAsSeen(skipViewRefresh = false) {
+  const alerts = getActiveAlerts();
+  const activeIds = alerts.map(a => a.id);
+  try {
+    localStorage.setItem(SEEN_ALERTS_KEY, JSON.stringify(activeIds));
+  } catch (e) {}
+  if (typeof updateNotificationDot === "function") {
+    updateNotificationDot(skipViewRefresh);
+  }
+}
+
 function toggleTopbarNotifPopover() {
   if (typeof closeAppLauncherPopover === "function") closeAppLauncherPopover();
   const pop = document.getElementById("topbar-notif-popover");
@@ -535,6 +577,7 @@ function toggleTopbarNotifPopover() {
   if (isHidden) {
     renderTopbarNotifPopover();
     pop.classList.remove("hidden");
+    markAllAlertsAsSeen(true);
   } else {
     pop.classList.add("hidden");
   }
@@ -640,7 +683,10 @@ document.addEventListener("click", (e) => {
 
 window.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => runDesktopNotificationCheck(false), 1500);
-  setInterval(() => runDesktopNotificationCheck(false), 60000);
+  setInterval(() => {
+    runDesktopNotificationCheck(false);
+    if (typeof updateNotificationDot === "function") updateNotificationDot();
+  }, 60000);
 });
 
 function renderNotificationsView() {
@@ -648,6 +694,7 @@ function renderNotificationsView() {
   if (!container) return;
 
   const allAlerts = getActiveAlerts();
+  markAllAlertsAsSeen(true);
   const urgentCount = allAlerts.filter(a => a.category === 'URGENT').length;
   const upcomingCount = allAlerts.filter(a => a.category === 'UPCOMING').length;
 

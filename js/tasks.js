@@ -79,11 +79,11 @@ function refreshTasksOverdueFlags() {
   });
 }
 
-function updateNotificationDot() {
+function updateNotificationDot(skipViewRefresh = false) {
   const badge = document.getElementById("badge-notif-count");
   const topBellCount = document.getElementById("topbar-bell-count");
   const alerts = typeof getActiveAlerts === "function" ? getActiveAlerts() : [];
-  const count = alerts.length;
+  const count = typeof getUnreadAlertsCount === "function" ? getUnreadAlertsCount(alerts) : alerts.length;
   if (badge) {
     badge.textContent = count;
     if (count > 0) {
@@ -96,13 +96,15 @@ function updateNotificationDot() {
     topBellCount.textContent = count;
     topBellCount.classList.toggle("hidden", count === 0);
   }
-  if (typeof renderTopbarNotifPopover === "function") {
-    const pop = document.getElementById("topbar-notif-popover");
-    if (pop && !pop.classList.contains("hidden")) renderTopbarNotifPopover();
-  }
-  const notifView = document.getElementById("view-NOTIFICATIONS");
-  if (notifView && !notifView.classList.contains("hidden") && typeof renderNotificationsView === "function") {
-    renderNotificationsView();
+  if (!skipViewRefresh) {
+    if (typeof renderTopbarNotifPopover === "function") {
+      const pop = document.getElementById("topbar-notif-popover");
+      if (pop && !pop.classList.contains("hidden")) renderTopbarNotifPopover();
+    }
+    const notifView = document.getElementById("view-NOTIFICATIONS");
+    if (notifView && !notifView.classList.contains("hidden") && typeof renderNotificationsView === "function") {
+      renderNotificationsView();
+    }
   }
 }
 
