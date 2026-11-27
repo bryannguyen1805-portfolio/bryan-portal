@@ -796,11 +796,13 @@ function renderDashboardDeadlineAlerts() {
   const urgentCount = overdueList.length + dueTodayList.length;
   const soonCount = dueTomorrowList.length;
 
-  // Cập nhật badge ngay trên tiêu đề tab trình duyệt
-  if (urgentCount > 0) {
-    document.title = `(${urgentCount}) BPortal — Điều phối vận hành`;
+  // Chỉ cập nhật badge số lượng trên tiêu đề tab khi đã đăng nhập (tránh Googlebot index "(2)")
+  const isLoggedOut = document.documentElement.hasAttribute("data-needs-login");
+  const baseTitle = "BPortal Business Operation — Điều phối chuỗi đối tác B2B";
+  if (!isLoggedOut && urgentCount > 0) {
+    document.title = `(${urgentCount}) ${baseTitle}`;
   } else {
-    document.title = "BPortal — Điều phối vận hành";
+    document.title = baseTitle;
   }
 
   const topTask = overdueList[0] || dueTodayList[0] || dueTomorrowList[0];
