@@ -9,13 +9,16 @@ function applySidebarCollapseState() {
   const btn = document.getElementById("sidebar-collapse-btn");
   const tooltip = document.getElementById("sidebar-collapse-tooltip");
   if (!sidebar) return;
-  const isCollapsed = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === "1";
-  sidebar.classList.toggle("sidebar-collapsed", isCollapsed);
+  // Default on Desktop: minimalist circular icon rail; user can optionally expand labels
+  const isExpanded = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === "expanded";
+  document.documentElement.classList.toggle("sidebar-pref-expanded", isExpanded);
+  sidebar.classList.toggle("sidebar-expanded", isExpanded);
+  sidebar.classList.toggle("sidebar-collapsed", !isExpanded);
   if (icon) {
-    icon.setAttribute("data-lucide", isCollapsed ? "panel-left-open" : "panel-left-close");
+    icon.setAttribute("data-lucide", isExpanded ? "panel-left-close" : "panel-left-open");
     if (typeof lucide !== "undefined") lucide.createIcons();
   }
-  const label = isCollapsed ? "Mở thanh bên" : "Đóng thanh bên";
+  const label = isExpanded ? "Thu gọn thanh bên" : "Mở rộng thanh bên";
   if (btn) btn.setAttribute("aria-label", label);
   if (tooltip) tooltip.textContent = label;
 }
@@ -25,8 +28,8 @@ function toggleSidebarCollapse() {
     closeMobileSidebar();
     return;
   }
-  const isCollapsed = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === "1";
-  localStorage.setItem(SIDEBAR_COLLAPSE_KEY, isCollapsed ? "0" : "1");
+  const isExpanded = localStorage.getItem(SIDEBAR_COLLAPSE_KEY) === "expanded";
+  localStorage.setItem(SIDEBAR_COLLAPSE_KEY, isExpanded ? "0" : "expanded");
   applySidebarCollapseState();
 }
 

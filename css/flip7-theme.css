@@ -491,11 +491,11 @@ html.theme-dark #auth-login-overlay {
 html.theme-dark aside {
   background: #13161B !important;
   background-image: none !important;
-  border-right-color: #232730 !important;
+  border-right-color: #2E2E2E !important;
 }
 html.theme-dark aside .sidebar-brand {
   background-color: #13161B !important;
-  border-bottom-color: #232730 !important;
+  border-bottom-color: #2E2E2E !important;
 }
 html.theme-dark aside .sidebar-user-card {
   background-color: #191D24 !important;
@@ -531,7 +531,7 @@ html.theme-dark aside .nav-item:not(.bg-teal-600\/90) svg {
   color: #6B7280 !important;
 }
 html.theme-dark aside .nav-item:not(.bg-teal-600\/90) .sidebar-badge {
-  background-color: #1C2028 !important;
+  background-color: #2B2B2F !important;
   color: #D1D5DB !important;
 }
 html.theme-dark aside .nav-item:not(.bg-teal-600\/90):hover {
@@ -544,28 +544,28 @@ html.theme-dark aside .text-slate-500 {
 }
 html.theme-dark header {
   background-color: rgba(15, 17, 21, 0.88) !important;
-  border-bottom: 1px solid #232730 !important;
+  border-bottom: 1px solid #2E2E2E !important;
 }
 html.theme-dark #mobile-bottom-nav {
   background-color: rgba(15, 17, 21, 0.94) !important;
-  border-top-color: #232730 !important;
+  border-top-color: #2E2E2E !important;
 }
 html.theme-dark main .bg-white.rounded-2xl {
   box-shadow: none !important;
 }
 html.theme-dark main #view-DASHBOARD > .grid > .bg-white.rounded-2xl,
 html.theme-dark main #container-task-cards > .bg-white.rounded-2xl {
-  border-left: 1px solid #232730 !important;
+  border-left: 1px solid #2E2E2E !important;
 }
 
 /* Neutral Graphite Surfaces */
 html.theme-dark :is(main, header, #mobile-bottom-nav, #auth-login-overlay, [id^="modal-"], #command-center-modal) :is(.bg-white, .bg-white\/95, .bg-white\/90) {
-  background-color: #161A20 !important;
-  border-color: #232730 !important;
+  background-color: #232326 !important;
+  border-color: #2E2E2E !important;
   color: #E5E7EB !important;
 }
 html.theme-dark :is(main, header, #auth-login-overlay, [id^="modal-"], #command-center-modal) :is(.bg-slate-50, .bg-slate-50\/50, .bg-slate-50\/60, .bg-slate-50\/70, .bg-slate-50\/80, .bg-slate-100, .bg-slate-100\/90, .bg-slate-200, .bg-slate-200\/80) {
-  background-color: #1C2028 !important;
+  background-color: #2B2B2F !important;
   border-color: #282D37 !important;
 }
 
@@ -598,11 +598,11 @@ html.theme-dark :is(main, header, [id^="modal-"]) :is(.hover\:bg-slate-50:hover,
 
 /* Borders & Dividers */
 html.theme-dark :is(main, header, footer, [id^="modal-"]) :is(.border-slate-100, .border-slate-200, .border-slate-200\/70, .border-slate-200\/80, .border-slate-200\/90, .border-slate-300) {
-  border-color: #232730 !important;
+  border-color: #2E2E2E !important;
 }
 html.theme-dark main .border-b.border-slate-100,
 html.theme-dark main .border-b.border-slate-200 {
-  border-bottom-color: #232730 !important;
+  border-bottom-color: #2E2E2E !important;
 }
 html.theme-dark main .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
   border-color: #1F232B !important;
@@ -624,7 +624,7 @@ html.theme-dark :is(main, header, footer, #auth-login-overlay, [id^="modal-"]) :
 html.theme-dark :is(main, [id^="modal-"]) :is(.text-amber-700, .text-amber-800, .text-amber-900, .text-amber-700\/80, .text-indigo-700, .text-indigo-800, .text-indigo-900, .text-purple-700, .text-purple-800, .text-purple-900) {
   color: #CBD5E1 !important;
 }
-html.theme-dark :is(main, [id^="modal-"]) :is(.text-rose-700, .text-rose-800, .text-rose-900, .text-rose-950) {
+html.theme-dark :is(main, [id^="modal-"]) :is(.text-rose-600, .text-rose-700, .text-rose-800, .text-rose-900, .text-rose-950) {
   color: #FCA5A5 !important;
 }
 
@@ -649,9 +649,9 @@ html.theme-dark input[type="radio"] {
 
 /* Hero Banner in Dark Mode — Clean Neutral Graphite Card (Zero heavy green wall) */
 html.theme-dark #view-DASHBOARD > div:first-child {
-  background: #161A20 !important;
+  background: #232326 !important;
   background-image: radial-gradient(circle at 92% 15%, rgba(20, 184, 166, 0.08) 0%, transparent 45%) !important;
-  border-color: #232730 !important;
+  border-color: #2E2E2E !important;
   box-shadow: none !important;
 }
 html.theme-dark #view-DASHBOARD > div:first-child #welcome-title {
@@ -665,7 +665,7 @@ html.theme-dark #view-DASHBOARD > div:first-child #hero-daily-quote {
 }
 html.theme-dark #view-DASHBOARD > div:first-child #hero-date-label,
 html.theme-dark #view-DASHBOARD > div:first-child #banner-summary-text button {
-  background-color: #1C2028 !important;
+  background-color: #2B2B2F !important;
   color: #D1D5DB !important;
   border-color: #282D37 !important;
 }
@@ -675,7 +675,7 @@ html.theme-dark #view-DASHBOARD > div:first-child .bg-teal-500\/20 {
   border-color: rgba(45, 212, 191, 0.22) !important;
 }
 html.theme-dark #view-DASHBOARD > div:first-child #bnews-morning-briefing > div {
-  background-color: #1C2028 !important;
+  background-color: #2B2B2F !important;
   border-color: #282D37 !important;
   color: #E5E7EB !important;
 }
@@ -713,7 +713,7 @@ html.theme-dark #mobile-sidebar-backdrop.fixed {
 }
 html.theme-dark [id^="modal-"].fixed > div,
 html.theme-dark #command-center-modal.fixed > div {
-  background-color: #161A20 !important;
+  background-color: #232326 !important;
   border: 1px solid #2E3440 !important;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65) !important;
 }
@@ -832,4 +832,774 @@ html.theme-dark #auth-submit-btn {
   background-image: none !important;
   color: #0F172A !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* =====================================================================
+   APPLE LIQUID GLASS & SOFT-BENTO + MINIMALIST ICON RAIL (PREVIEW)
+   ===================================================================== */
+
+/* 1. Soft Silver-Mist Canvas (Light) & Deep Obsidian Canvas (Dark) */
+body,
+.flex-1.bg-slate-100,
+main {
+  background-color: #ECEEF2 !important;
+  background-image:
+    radial-gradient(circle at 88% 6%, rgba(44, 160, 163, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 12% 90%, rgba(15, 118, 110, 0.05) 0%, transparent 42%) !important;
+}
+html.theme-dark body,
+html.theme-dark .flex-1.bg-slate-100,
+html.theme-dark main {
+  background-color: #0B0D11 !important;
+  background-image:
+    radial-gradient(circle at 88% 6%, rgba(20, 184, 166, 0.08) 0%, transparent 42%) !important;
+}
+
+/* 2. Minimalist Floating Circular Icon Rail on Desktop (>= 768px) — Zero sidebar box/borders */
+@media (min-width: 768px) {
+  aside#app-sidebar:not(.sidebar-expanded),
+  html:not(.theme-dark) aside#app-sidebar:not(.sidebar-expanded),
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) {
+    width: 68px !important;
+    background: transparent !important;
+    background-image: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-right: none !important;
+    box-shadow: none !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) .sidebar-brand,
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) .sidebar-brand {
+    background-color: transparent !important;
+    border-bottom: none !important;
+    height: 64px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) .sidebar-footer-actions,
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) .sidebar-footer-actions {
+    background: transparent !important;
+    border-top: none !important;
+    flex-direction: column;
+    padding: 8px 0 14px !important;
+    gap: 7px !important;
+    align-items: center;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) .sidebar-brand-identity,
+  aside#app-sidebar:not(.sidebar-expanded) .sidebar-label {
+    display: none !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) .sidebar-collapse-btn {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 9999px !important;
+    background: #0F172A !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.14) !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) .sidebar-collapse-logo {
+    display: block !important;
+    width: 20px !important;
+    height: 20px !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) .sidebar-collapse-lucide {
+    display: none !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) .sidebar-user-card {
+    background: transparent !important;
+    border: none !important;
+    margin: 2px auto 8px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) #sidebar-user-avatar {
+    width: 38px !important;
+    height: 38px !important;
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+    --tw-ring-color: rgba(15, 23, 42, 0.08) !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06) !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) nav {
+    padding: 4px 10px !important;
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+    flex: 0 1 auto !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) nav .nav-item {
+    width: 38px !important;
+    height: 38px !important;
+    padding: 0 !important;
+    border-radius: 9999px !important;
+    justify-content: center !important;
+    position: relative;
+    transition: transform 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) nav .nav-item:not(.bg-teal-600\/90) {
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    color: #334155 !important;
+    border: 1px solid rgba(15, 23, 42, 0.06) !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04) !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) nav .nav-item:not(.bg-teal-600\/90) i,
+  aside#app-sidebar:not(.sidebar-expanded) nav .nav-item:not(.bg-teal-600\/90) svg {
+    color: #334155 !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) nav .nav-item:not(.bg-teal-600\/90):hover {
+    background-color: #FFFFFF !important;
+    color: #0F172A !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.09) !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) nav .nav-item.bg-teal-600\/90 {
+    background: #0F172A !important;
+    color: #FFFFFF !important;
+    border-radius: 9999px !important;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.24) !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) nav .nav-item.bg-teal-600\/90 i,
+  aside#app-sidebar:not(.sidebar-expanded) nav .nav-item.bg-teal-600\/90 svg {
+    color: #FFFFFF !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) .sidebar-badge {
+    display: none !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) .sidebar-footer-actions {
+    background: transparent !important;
+    border-top: none !important;
+    flex-direction: column;
+    padding: 8px 0 !important;
+    gap: 6px !important;
+    align-items: center;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) .sidebar-footer-actions button {
+    width: 38px !important;
+    height: 38px !important;
+    padding: 0 !important;
+    border-radius: 9999px !important;
+    justify-content: center !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    color: #334155 !important;
+    border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  }
+  aside#app-sidebar:not(.sidebar-expanded) .sidebar-footer-actions button:hover {
+    background: #FFFFFF !important;
+    color: #0F172A !important;
+  }
+
+  /* Dark Mode Minimalist Icon Rail — Completely transparent & borderless, floating circles */
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) {
+    background: transparent !important;
+    border-right: none !important;
+    box-shadow: none !important;
+  }
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) .sidebar-brand,
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) .sidebar-footer-actions {
+    border-color: transparent !important;
+  }
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) .sidebar-collapse-btn {
+    background: #292A2D !important;
+    border-color: rgba(255, 255, 255, 0.10) !important;
+  }
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) #sidebar-user-avatar {
+    background: #292A2D !important;
+    color: #F8FAFC !important;
+  }
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) nav .nav-item:not(.bg-teal-600\/90),
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) .sidebar-footer-actions button {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+    color: #94A3B8 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+  }
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) nav .nav-item:not(.bg-teal-600\/90) i,
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) nav .nav-item:not(.bg-teal-600\/90) svg {
+    color: #94A3B8 !important;
+  }
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) nav .nav-item:not(.bg-teal-600\/90):hover,
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) .sidebar-footer-actions button:hover {
+    background-color: rgba(255, 255, 255, 0.14) !important;
+    color: #F8FAFC !important;
+  }
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) nav .nav-item.bg-teal-600\/90 {
+    background: #F8FAFC !important;
+    color: #0F172A !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45) !important;
+  }
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) nav .nav-item.bg-teal-600\/90 i,
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) nav .nav-item.bg-teal-600\/90 svg {
+    color: #0F172A !important;
+  }
+  html.theme-dark aside#app-sidebar:not(.sidebar-expanded) .sidebar-badge {
+    border-color: #0B0D11 !important;
+    background-color: #14B8A6 !important;
+    color: #042F2E !important;
+  }
+}
+
+/* 2B. Expanded Sidebar (Desktop Full Danh Mục) — Unified Apple Liquid Glass */
+html.sidebar-pref-expanded aside#app-sidebar,
+aside#app-sidebar.sidebar-expanded {
+  width: 224px !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  background-image: none !important;
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  border-right: 1px solid rgba(255, 255, 255, 0.90) !important;
+  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.04) !important;
+  color: #1E293B !important;
+}
+aside#app-sidebar.sidebar-expanded .sidebar-brand {
+  background-color: transparent !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
+}
+aside#app-sidebar.sidebar-expanded .sidebar-brand span {
+  color: #0F172A !important;
+}
+aside#app-sidebar.sidebar-expanded .sidebar-brand p {
+  color: #64748B !important;
+}
+aside#app-sidebar.sidebar-expanded #sidebar-collapse-btn {
+  background-color: rgba(15, 23, 42, 0.06) !important;
+  color: #334155 !important;
+}
+aside#app-sidebar.sidebar-expanded #sidebar-collapse-btn:hover {
+  background-color: #0F172A !important;
+  color: #FFFFFF !important;
+}
+aside#app-sidebar.sidebar-expanded .sidebar-user-card {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid rgba(15, 23, 42, 0.07) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03) !important;
+}
+aside#app-sidebar.sidebar-expanded #sidebar-user-avatar {
+  background: #0F172A !important;
+  color: #FFFFFF !important;
+  --tw-ring-color: rgba(15, 23, 42, 0.08) !important;
+}
+aside#app-sidebar.sidebar-expanded #sidebar-user-name {
+  color: #0F172A !important;
+}
+aside#app-sidebar.sidebar-expanded #sidebar-user-email {
+  color: #0F766E !important;
+}
+aside#app-sidebar.sidebar-expanded .sidebar-user-card button {
+  color: #64748B !important;
+}
+aside#app-sidebar.sidebar-expanded .sidebar-user-card button:hover {
+  background-color: rgba(15, 23, 42, 0.06) !important;
+  color: #0F172A !important;
+}
+aside#app-sidebar.sidebar-expanded nav > .sidebar-label {
+  color: #64748B !important;
+}
+aside#app-sidebar.sidebar-expanded nav .nav-item {
+  border-radius: 9999px !important;
+}
+aside#app-sidebar.sidebar-expanded nav .nav-item:not(.bg-teal-600\/90) {
+  color: #334155 !important;
+}
+aside#app-sidebar.sidebar-expanded nav .nav-item:not(.bg-teal-600\/90) i,
+aside#app-sidebar.sidebar-expanded nav .nav-item:not(.bg-teal-600\/90) svg {
+  color: #475569 !important;
+}
+aside#app-sidebar.sidebar-expanded nav .nav-item:not(.bg-teal-600\/90):hover {
+  background-color: rgba(255, 255, 255, 0.90) !important;
+  color: #0F172A !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+}
+aside#app-sidebar.sidebar-expanded nav .nav-item:not(.bg-teal-600\/90) .sidebar-badge {
+  background-color: rgba(15, 23, 42, 0.07) !important;
+  color: #334155 !important;
+  border-radius: 9999px !important;
+}
+aside#app-sidebar.sidebar-expanded nav .nav-item.bg-teal-600\/90 {
+  background: #0F172A !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18) !important;
+}
+aside#app-sidebar.sidebar-expanded nav .nav-item.bg-teal-600\/90 i,
+aside#app-sidebar.sidebar-expanded nav .nav-item.bg-teal-600\/90 svg {
+  color: #FFFFFF !important;
+}
+aside#app-sidebar.sidebar-expanded nav .nav-item.bg-teal-600\/90 .sidebar-badge {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  color: #FFFFFF !important;
+  border-radius: 9999px !important;
+}
+aside#app-sidebar.sidebar-expanded .sidebar-footer-actions {
+  background: transparent !important;
+  border-top: 1px solid rgba(15, 23, 42, 0.06) !important;
+}
+aside#app-sidebar.sidebar-expanded .sidebar-footer-actions button {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  color: #334155 !important;
+  border: 1px solid rgba(15, 23, 42, 0.07) !important;
+  border-radius: 9999px !important;
+}
+aside#app-sidebar.sidebar-expanded .sidebar-footer-actions button:hover {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+}
+
+/* Dark Mode Expanded Sidebar */
+html.theme-dark aside#app-sidebar.sidebar-expanded {
+  background: rgba(17, 20, 26, 0.84) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #E2E8F0 !important;
+}
+html.theme-dark aside#app-sidebar.sidebar-expanded .sidebar-brand,
+html.theme-dark aside#app-sidebar.sidebar-expanded .sidebar-footer-actions {
+  border-color: rgba(255, 255, 255, 0.07) !important;
+}
+html.theme-dark aside#app-sidebar.sidebar-expanded .sidebar-brand span,
+html.theme-dark aside#app-sidebar.sidebar-expanded #sidebar-user-name {
+  color: #F8FAFC !important;
+}
+html.theme-dark aside#app-sidebar.sidebar-expanded .sidebar-brand p,
+html.theme-dark aside#app-sidebar.sidebar-expanded nav > .sidebar-label {
+  color: #94A3B8 !important;
+}
+html.theme-dark aside#app-sidebar.sidebar-expanded .sidebar-user-card,
+html.theme-dark aside#app-sidebar.sidebar-expanded .sidebar-footer-actions button {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.09) !important;
+  color: #E2E8F0 !important;
+}
+html.theme-dark aside#app-sidebar.sidebar-expanded #sidebar-user-email {
+  color: #5EEAD4 !important;
+}
+html.theme-dark aside#app-sidebar.sidebar-expanded nav .nav-item:not(.bg-teal-600\/90) {
+  color: #CBD5E1 !important;
+}
+html.theme-dark aside#app-sidebar.sidebar-expanded nav .nav-item:not(.bg-teal-600\/90) i,
+html.theme-dark aside#app-sidebar.sidebar-expanded nav .nav-item:not(.bg-teal-600\/90) svg {
+  color: #94A3B8 !important;
+}
+html.theme-dark aside#app-sidebar.sidebar-expanded nav .nav-item:not(.bg-teal-600\/90):hover {
+  background-color: rgba(255, 255, 255, 0.10) !important;
+  color: #FFFFFF !important;
+}
+html.theme-dark aside#app-sidebar.sidebar-expanded nav .nav-item:not(.bg-teal-600\/90) .sidebar-badge {
+  background-color: rgba(255, 255, 255, 0.10) !important;
+  color: #E2E8F0 !important;
+}
+html.theme-dark aside#app-sidebar.sidebar-expanded nav .nav-item.bg-teal-600\/90 {
+  background: #F8FAFC !important;
+  color: #0F172A !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.40) !important;
+}
+html.theme-dark aside#app-sidebar.sidebar-expanded nav .nav-item.bg-teal-600\/90 i,
+html.theme-dark aside#app-sidebar.sidebar-expanded nav .nav-item.bg-teal-600\/90 svg {
+  color: #0F172A !important;
+}
+html.theme-dark aside#app-sidebar.sidebar-expanded nav .nav-item.bg-teal-600\/90 .sidebar-badge {
+  background-color: #0F172A !important;
+  color: #FFFFFF !important;
+}
+
+/* 3. Frosted Topbar & Dynamic Island Pill (Desktop >= 768px) */
+header.mobile-safe-topbar {
+  background-color: rgba(236, 238, 242, 0.72) !important;
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
+}
+html.theme-dark header.mobile-safe-topbar {
+  background-color: rgba(11, 13, 17, 0.76) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+#nlp-command-input {
+  border-radius: 9999px !important;
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
+}
+html.theme-dark #nlp-command-input {
+  background-color: rgba(24, 28, 36, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+}
+@media (min-width: 768px) {
+  #topbar-dynamic-island {
+    background: #0F172A !important;
+    border-radius: 9999px !important;
+    padding: 4px 5px !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.16) !important;
+  }
+  #topbar-dynamic-island > button:not(#topbar-new-task-btn):not(#btn-reset-demo) {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #F1F5F9 !important;
+    border-color: transparent !important;
+    border-radius: 9999px !important;
+  }
+  #topbar-dynamic-island > button:not(#topbar-new-task-btn):not(#btn-reset-demo):hover {
+    background: rgba(255, 255, 255, 0.16) !important;
+    color: #FFFFFF !important;
+  }
+  #topbar-dynamic-island > #topbar-new-task-btn {
+    background: #FFFFFF !important;
+    background-image: none !important;
+    color: #0F172A !important;
+    border-radius: 9999px !important;
+    padding: 7px 14px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18) !important;
+  }
+  #topbar-dynamic-island > #topbar-new-task-btn:hover {
+    background: #F1F5F9 !important;
+  }
+  html.theme-dark #topbar-dynamic-island {
+    background: #171B22 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+  }
+}
+
+/* 4. Apple Soft-Bento Cards & Teal Liquid Glass Hero */
+main .bg-white.rounded-2xl {
+  border-radius: 22px !important;
+  background-color: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 6px 22px rgba(15, 23, 42, 0.045), 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+}
+html.theme-dark main .bg-white.rounded-2xl {
+  background-color: rgba(22, 26, 33, 0.90) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+#view-DASHBOARD > div:first-child {
+  background: linear-gradient(135deg, #0D4A48 0%, #167975 48%, #2CA0A3 100%) !important;
+  border-radius: 26px !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 18px 40px rgba(15, 76, 74, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.30) !important;
+}
+html.theme-dark #view-DASHBOARD > div:first-child {
+  background: linear-gradient(135deg, #0E2326 0%, #12363A 55%, #164B4D 100%) !important;
+  border: 1px solid rgba(94, 234, 212, 0.18) !important;
+}
+button.bg-teal-600,
+button.bg-teal-700,
+button.bg-amber-500 {
+  border-radius: 9999px !important;
+}
+#view-DASHBOARD .text-2xl,
+#view-DASHBOARD .text-3xl {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+#app-footer > div {
+  background-color: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+html.theme-dark #app-footer > div {
+  background-color: rgba(17, 20, 26, 0.80) !important;
+}
+
+/* =====================================================================
+   5. UNIFIED LIQUID GLASS & SOFT-BENTO SYSTEM
+   Light Mode: #ECEEF2 (Soft Silver) + #FFFFFF (Glass Card) + #2CA0A3 (Teal Glass) + #0F172A (Dynamic Island)
+   Dark Mode:  #18181B (Soft Obsidian) + #232326 (Elevated Card) + #2B2B2F (Soft Sub-surface) + Restrained #B9FF66
+   ===================================================================== */
+:root {
+  --f7-teal: #197477;
+  --f7-teal-light: #2CA0A3;
+  --f7-teal-dark: #12585A;
+  --f7-teal-deep: #0B3635;
+}
+
+/* --- LIGHT MODE (Exact Soft Gray #E5E5E5 Canvas + #F5F5F5 Borderless Bento Cards + Teal Glass Hero) --- */
+html:not(.theme-dark) body,
+html:not(.theme-dark) .flex-1.bg-slate-100,
+html:not(.theme-dark) main {
+  background-color: #E5E5E5 !important;
+  background-image: none !important;
+}
+html:not(.theme-dark) header.mobile-safe-topbar {
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: none !important;
+}
+html:not(.theme-dark) aside#app-sidebar:not(.sidebar-expanded) nav .nav-item:not(.bg-teal-600\/90),
+html:not(.theme-dark) aside#app-sidebar:not(.sidebar-expanded) .sidebar-footer-actions button,
+html:not(.theme-dark) aside#app-sidebar:not(.sidebar-expanded) #sidebar-user-avatar {
+  background-color: #F5F5F5 !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+html:not(.theme-dark) aside#app-sidebar:not(.sidebar-expanded) .sidebar-badge {
+  background-color: #197477 !important;
+  color: #FFFFFF !important;
+  border-color: #E5E5E5 !important;
+}
+html:not(.theme-dark) main .bg-white.rounded-2xl {
+  background-color: #F5F5F5 !important;
+  border: none !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03) !important;
+}
+html:not(.theme-dark) main :is(.bg-slate-50, .bg-slate-50\/50, .bg-slate-50\/60, .bg-slate-50\/70, .bg-slate-50\/80, .bg-slate-100, .bg-slate-100\/90) {
+  background-color: #EAEAEA !important;
+  border-color: transparent !important;
+}
+html:not(.theme-dark) main :is(.text-slate-500, .text-slate-400) {
+  color: #525B68 !important;
+}
+html:not(.theme-dark) #view-DASHBOARD > div:first-child {
+  background: linear-gradient(135deg, #166568 0%, #248B8E 52%, #2CA0A3 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 18px 40px rgba(15, 76, 74, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+}
+html:not(.theme-dark) #view-DASHBOARD > div:first-child #welcome-title {
+  color: #FFFFFF !important;
+}
+html:not(.theme-dark) #view-DASHBOARD > div:first-child #welcome-title span {
+  color: #CCFBF1 !important;
+}
+html:not(.theme-dark) #view-DASHBOARD > div:first-child #hero-daily-quote {
+  color: rgba(240, 253, 250, 0.90) !important;
+}
+html:not(.theme-dark) #view-DASHBOARD > div:first-child #hero-date-label,
+html:not(.theme-dark) #view-DASHBOARD > div:first-child #banner-summary-text button,
+html:not(.theme-dark) #view-DASHBOARD > div:first-child .bg-teal-500\/20 {
+  background-color: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  color: #FFFFFF !important;
+}
+html:not(.theme-dark) #view-DASHBOARD > div:first-child #banner-summary-text button:hover {
+  background-color: rgba(255, 255, 255, 0.26) !important;
+}
+html:not(.theme-dark) button.bg-teal-600,
+html:not(.theme-dark) button.bg-teal-700,
+html:not(.theme-dark) button.bg-amber-500,
+html:not(.theme-dark) button.bg-emerald-600 {
+  background: #197477 !important;
+  background-image: none !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(44, 160, 163, 0.22) !important;
+}
+html:not(.theme-dark) button.bg-teal-600:hover,
+html:not(.theme-dark) button.bg-teal-700:hover,
+html:not(.theme-dark) button.bg-amber-500:hover,
+html:not(.theme-dark) button.bg-emerald-600:hover {
+  background: #12585A !important;
+}
+html:not(.theme-dark) #dash-progress-ring-circle,
+html:not(.theme-dark) #radial-progress-circle {
+  color: #197477 !important;
+}
+html:not(.theme-dark) main :is(.bg-blue-50, .bg-blue-100, .bg-sky-50, .bg-indigo-50, .bg-indigo-100, .bg-purple-50, .bg-purple-100, .bg-emerald-50, .bg-emerald-100, .bg-teal-50, .bg-teal-100) {
+  background-color: rgba(44, 160, 163, 0.11) !important;
+  border-color: rgba(44, 160, 163, 0.24) !important;
+  color: #12585A !important;
+}
+html:not(.theme-dark) main :is(.bg-amber-50, .bg-amber-100, .bg-orange-100) {
+  background-color: rgba(209, 209, 209, 0.42) !important;
+  border-color: rgba(15, 23, 42, 0.10) !important;
+  color: #1E293B !important;
+}
+html:not(.theme-dark) main :is(.text-amber-500, .text-amber-600, .text-amber-700, .text-amber-800, .text-blue-600, .text-blue-700, .text-purple-700, .text-indigo-700) {
+  color: #197477 !important;
+}
+html:not(.theme-dark) main :is(.bg-rose-50, .bg-rose-100) {
+  background-color: rgba(220, 38, 38, 0.07) !important;
+  border-color: rgba(220, 38, 38, 0.18) !important;
+}
+html:not(.theme-dark) main :is(.text-rose-600, .text-rose-700) {
+  color: #BE123C !important;
+}
+html:not(.theme-dark) #cal-grid-cells span.bg-teal-600 {
+  background-color: #197477 !important;
+  color: #FFFFFF !important;
+}
+html:not(.theme-dark) header .text-amber-500 {
+  color: #197477 !important;
+}
+html:not(.theme-dark) #btn-reset-demo {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  color: #FFFFFF !important;
+  border-radius: 9999px !important;
+}
+html:not(.theme-dark) main #kpi-blocker-card.border-rose-300 {
+  border-left: 3px solid #197477 !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* --- DARK MODE (Soft Gentle Gray: #202124 Canvas -> #292A2D Cards -> #323337 Sub-blocks) --- */
+html.theme-dark body,
+html.theme-dark .flex-1.bg-slate-100,
+html.theme-dark main {
+  background-color: #202124 !important;
+  background-image: none !important;
+  color: #F4F4F5 !important;
+}
+html.theme-dark aside#app-sidebar.sidebar-expanded {
+  background: #1B1C1F !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+html.theme-dark header.mobile-safe-topbar {
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: none !important;
+}
+html.theme-dark #nlp-command-input {
+  background-color: #292A2D !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #F4F4F5 !important;
+}
+html.theme-dark #topbar-dynamic-island {
+  background: #121315 !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+}
+html.theme-dark main .bg-white.rounded-2xl {
+  background-color: #2A2B2E !important;
+  border: none !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14) !important;
+}
+html.theme-dark #view-DASHBOARD > div:first-child {
+  background: #2A2B2E !important;
+  border: none !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16) !important;
+}
+html.theme-dark #view-DASHBOARD > div:first-child #welcome-title {
+  color: #FFFFFF !important;
+}
+html.theme-dark #view-DASHBOARD > div:first-child #welcome-title span {
+  color: #B9FF66 !important;
+}
+html.theme-dark #view-DASHBOARD > div:first-child #hero-daily-quote {
+  color: #C4C7CC !important;
+}
+html.theme-dark #view-DASHBOARD > div:first-child #hero-date-label,
+html.theme-dark #view-DASHBOARD > div:first-child #banner-summary-text button,
+html.theme-dark #view-DASHBOARD > div:first-child .bg-teal-500\/20 {
+  background-color: #323337 !important;
+  border-color: rgba(255, 255, 255, 0.07) !important;
+  color: #F4F4F5 !important;
+}
+html.theme-dark #view-DASHBOARD > div:first-child #banner-summary-text button:hover {
+  background-color: #3B3D42 !important;
+}
+html.theme-dark #view-DASHBOARD > div:first-child #bnews-morning-briefing > div {
+  background-color: #323337 !important;
+  border-color: rgba(255, 255, 255, 0.07) !important;
+  color: #F4F4F5 !important;
+}
+html.theme-dark :is(main, header, footer, [id^="modal-"], #command-center-modal) :is(.bg-slate-50, .bg-slate-50\/50, .bg-slate-50\/60, .bg-slate-50\/70, .bg-slate-50\/80, .bg-slate-100, .bg-slate-100\/90, .bg-slate-200, .bg-slate-200\/80, .bg-blue-50, .bg-blue-100, .bg-sky-50, .bg-indigo-50, .bg-indigo-100, .bg-purple-50, .bg-purple-100, .bg-amber-50, .bg-amber-100, .bg-orange-100, .bg-emerald-50, .bg-emerald-100, .bg-teal-50, .bg-teal-100) {
+  background-color: #323337 !important;
+  border-color: transparent !important;
+  color: #D4D4D8 !important;
+}
+html.theme-dark svg circle:is(.text-slate-100, .text-slate-200) {
+  color: #3B3D42 !important;
+}
+html.theme-dark main :is(.bg-rose-50, .bg-rose-100) {
+  background-color: rgba(240, 73, 73, 0.12) !important;
+  border-color: transparent !important;
+}
+html.theme-dark :is(main, header, footer, [id^="modal-"], #command-center-modal) :is(.text-slate-900, .text-slate-800) {
+  color: #F4F4F5 !important;
+}
+html.theme-dark :is(main, header, footer, #mobile-bottom-nav, [id^="modal-"], #command-center-modal) :is(.text-slate-700, .text-slate-600, .text-slate-500, .text-slate-400) {
+  color: #A1A1AA !important;
+}
+html.theme-dark #mobile-bottom-nav {
+  background-color: rgba(20, 20, 22, 0.94) !important;
+  border-top-color: rgba(255, 255, 255, 0.06) !important;
+}
+html.theme-dark #mobile-bottom-nav .mnav-item.bg-teal-50 {
+  background-color: #B9FF66 !important;
+  color: #09090B !important;
+}
+html.theme-dark #mobile-bottom-nav .mnav-item.bg-teal-50 * {
+  color: #09090B !important;
+}
+html.theme-dark :is(main, header, footer, [id^="modal-"]) :is(.text-amber-500, .text-amber-600, .text-amber-700, .text-amber-800, .text-blue-600, .text-blue-700, .text-purple-700, .text-indigo-700, .text-teal-600, .text-teal-700, .text-teal-800, .text-emerald-600, .text-emerald-700) {
+  color: #D4D4D8 !important;
+}
+html.theme-dark :is(main, [id^="modal-"]) :is(.text-rose-600, .text-rose-700, .text-rose-800, .text-rose-900, .text-rose-950) {
+  color: #FF8A8A !important;
+}
+
+/* Tiết chế #B9FF66: CHỈ 1 nút CTA chính trên Topbar + Tab đang chọn + Sidebar active (nút phụ giữ xám mềm #323236) */
+html.theme-dark #topbar-dynamic-island > #topbar-new-task-btn,
+html.theme-dark #tab-cockpit-focus.bg-teal-600 {
+  background: #B9FF66 !important;
+  background-image: none !important;
+  color: #09090B !important;
+  box-shadow: none !important;
+}
+html.theme-dark #topbar-dynamic-island > #topbar-new-task-btn:hover {
+  background: #A6F050 !important;
+}
+html.theme-dark button.bg-teal-600:not(#tab-cockpit-focus),
+html.theme-dark button.bg-teal-700,
+html.theme-dark button.bg-amber-500,
+html.theme-dark button.bg-emerald-600 {
+  background: #323236 !important;
+  background-image: none !important;
+  color: #F4F4F5 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+}
+html.theme-dark button.bg-teal-600:not(#tab-cockpit-focus):hover,
+html.theme-dark button.bg-teal-700:hover,
+html.theme-dark button.bg-amber-500:hover,
+html.theme-dark button.bg-emerald-600:hover {
+  background: #3E3E44 !important;
+}
+html.theme-dark aside#app-sidebar:not(.sidebar-expanded) nav .nav-item.bg-teal-600\/90,
+html.theme-dark aside#app-sidebar.sidebar-expanded nav .nav-item.bg-teal-600\/90 {
+  background: #B9FF66 !important;
+  color: #09090B !important;
+  box-shadow: none !important;
+}
+html.theme-dark aside#app-sidebar:not(.sidebar-expanded) nav .nav-item.bg-teal-600\/90 i,
+html.theme-dark aside#app-sidebar:not(.sidebar-expanded) nav .nav-item.bg-teal-600\/90 svg,
+html.theme-dark aside#app-sidebar.sidebar-expanded nav .nav-item.bg-teal-600\/90 i,
+html.theme-dark aside#app-sidebar.sidebar-expanded nav .nav-item.bg-teal-600\/90 svg {
+  color: #09090B !important;
+}
+html.theme-dark aside#app-sidebar:not(.sidebar-expanded) .sidebar-badge,
+html.theme-dark aside#app-sidebar.sidebar-expanded nav .nav-item.bg-teal-600\/90 .sidebar-badge {
+  background-color: #2B2B2F !important;
+  color: #F4F4F5 !important;
+  border-color: #141416 !important;
+}
+html.theme-dark #dash-progress-ring-circle,
+html.theme-dark #radial-progress-circle {
+  color: #B9FF66 !important;
+}
+html.theme-dark header .text-amber-500 {
+  color: #B9FF66 !important;
+}
+html.theme-dark header #topbar-dynamic-island #btn-reset-demo {
+  background-color: #232326 !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+  color: #F4F4F5 !important;
+  border-radius: 9999px !important;
+}
+html.theme-dark main #kpi-blocker-card.border-rose-300 {
+  border-left: 3px solid #F04949 !important;
+}
+html.theme-dark #app-footer > div {
+  background-color: #141416 !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+html.theme-dark main a.bg-slate-900,
+html.theme-dark main button.bg-slate-900,
+html:not(.theme-dark) main a.bg-slate-900,
+html:not(.theme-dark) main button.bg-slate-900 {
+  background-color: #18181B !important;
+  color: #FFFFFF !important;
+}
+html:not(.theme-dark) #cal-grid-cells > div {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+html.theme-dark #cal-grid-cells > div {
+  border-color: rgba(255, 255, 255, 0.06) !important;
 }

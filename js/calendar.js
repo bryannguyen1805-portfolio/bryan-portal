@@ -53,9 +53,9 @@ function setCalendarFilter(f) {
     const btn = document.getElementById(`cal-filter-${key}`);
     if (btn) {
       if (key === f) {
-        btn.className = "px-3 py-1.5 rounded-xl font-bold bg-teal-600 text-white transition flex items-center space-x-1.5";
+        btn.className = "px-3 py-1.5 rounded-full font-bold bg-teal-600 text-white transition flex items-center space-x-1.5 shrink-0 whitespace-nowrap";
       } else {
-        btn.className = "px-3 py-1.5 rounded-xl font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5";
+        btn.className = "px-3 py-1.5 rounded-full font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center space-x-1.5 shrink-0 whitespace-nowrap";
       }
     }
   });
@@ -192,10 +192,24 @@ function renderCalendarGrid() {
   if (startOffset < 0) startOffset = 6;
 
   let cellsHtml = "";
+  const prevMonthDate = new Date(calYear, calMonth, 0);
+  const prevMonthDays = prevMonthDate.getDate();
+  const prevYear = prevMonthDate.getFullYear();
+  const prevMonth = prevMonthDate.getMonth();
 
-  // Ô trống đầu tháng
+  // Các ngày cuối tháng trước (hiển thị nhạt hơn để phân biệt)
   for (let i = 0; i < startOffset; i++) {
-    cellsHtml += `<div class="min-h-[58px] md:min-h-[104px] bg-slate-50/60 p-1 md:p-2"></div>`;
+    const prevDay = prevMonthDays - startOffset + 1 + i;
+    const pmm = String(prevMonth + 1).padStart(2, "0");
+    const pdd = String(prevDay).padStart(2, "0");
+    const prevIso = `${prevYear}-${pmm}-${pdd}`;
+    cellsHtml += `
+      <div onclick="selectedCalendarDate='${prevIso}'; changeCalendarMonth(-1);" class="min-h-[58px] md:min-h-[104px] bg-slate-50/70 p-1 md:p-2 cursor-pointer transition hover:bg-slate-100 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-1">
+          <span class="w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-[11px] md:text-xs font-normal text-slate-500">${prevDay}</span>
+        </div>
+      </div>
+    `;
   }
 
   // Các ngày trong tháng
@@ -240,10 +254,10 @@ function renderCalendarGrid() {
       }">
         <div>
           <div class="flex items-center justify-between mb-1">
-            <span class="w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-[11px] md:text-xs font-bold ${
-              isToday ? 'bg-teal-600 text-white' : (isSelected ? 'text-teal-800 font-black' : 'text-slate-700')
+            <span class="w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-[11px] md:text-xs font-extrabold ${
+              isToday ? 'bg-teal-600 text-white' : (isSelected ? 'text-teal-800 font-black' : 'text-slate-900')
             }">${d}</span>
-            ${dayEvents.length > 0 ? `<span class="text-[9px] font-bold text-slate-400">${dayEvents.length}</span>` : ''}
+            ${dayEvents.length > 0 ? `<span class="text-[9px] font-bold text-slate-500">${dayEvents.length}</span>` : ''}
           </div>
           <div class="md:hidden flex flex-wrap items-center gap-0.5 pt-0.5">
             ${dotsHtml}
@@ -252,6 +266,25 @@ function renderCalendarGrid() {
             ${pillsHtml}
             ${moreHtml}
           </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Các ngày đầu tháng sau (lấp đầy tuần cuối, hiển thị nhạt hơn)
+  const totalRendered = startOffset + daysInMonth;
+  const trailingCount = (7 - (totalRendered % 7)) % 7;
+  const nextMonthDate = new Date(calYear, calMonth + 1, 1);
+  const nextYear = nextMonthDate.getFullYear();
+  const nextMonth = nextMonthDate.getMonth();
+  for (let nd = 1; nd <= trailingCount; nd++) {
+    const nmm = String(nextMonth + 1).padStart(2, "0");
+    const ndd = String(nd).padStart(2, "0");
+    const nextIso = `${nextYear}-${nmm}-${ndd}`;
+    cellsHtml += `
+      <div onclick="selectedCalendarDate='${nextIso}'; changeCalendarMonth(1);" class="min-h-[58px] md:min-h-[104px] bg-slate-50/70 p-1 md:p-2 cursor-pointer transition hover:bg-slate-100 flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-1">
+          <span class="w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-[11px] md:text-xs font-normal text-slate-500">${nd}</span>
         </div>
       </div>
     `;
@@ -316,7 +349,7 @@ function renderCalendarDayDetails() {
           <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${ev.isOverdue ? 'bg-rose-100 text-rose-700' : 'bg-slate-200 text-slate-700'}">
             ${ev.isOverdue ? 'TRỄ HẠN ĐẦU VIỆC' : 'HẠN CHÓT ĐẦU VIỆC'}
           </span>
-          <input type="checkbox" ${ev.isDone ? 'checked' : ''} onchange="toggleTaskDone('${ev.id}'); renderCalendarView();" class="w-4 h-4 accent-teal-600 rounded cursor-pointer">
+          <input type="checkbox" aria-label="Đánh dấu hoàn thành ${ev.title}" ${ev.isDone ? 'checked' : ''} onchange="toggleTaskDone('${ev.id}'); renderCalendarView();" class="w-4 h-4 accent-teal-600 rounded cursor-pointer">
         </div>
         <div class="text-xs font-bold ${ev.isDone ? 'line-through text-slate-400' : 'text-slate-900'}">${ev.title}</div>
         <div class="text-[11px] text-slate-500">${ev.sub}</div>
