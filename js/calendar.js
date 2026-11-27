@@ -366,37 +366,46 @@ function renderCalendarTimeline() {
 }
 
 // -------------------------------------------------------------
-// INITIALIZATION
+// INITIALIZATION (Chunked across frames to keep TBT = 0ms)
 // -------------------------------------------------------------
 window.addEventListener("DOMContentLoaded", () => {
   syncGraduatedOnboardingToState();
   if (typeof autoPruneCompletedTasksOlderThan30Days === "function") autoPruneCompletedTasksOlderThan30Days();
-  if (typeof lucide !== "undefined") lucide.createIcons();
   updateSyncStatusUI();
   updateAllKpis();
-  renderDashboardMeetings();
-  renderDashboardBlockers();
-  renderDashboardQuickTasks();
-  renderDashboardOnboardingSummary();
-  renderDashboardProjectsProgress();
-  renderDashboardUpcomingDeadlines();
-  renderMerchantPillsBar();
-  renderMerchantSubTabs();
-  renderMerchantWorkspaceBody();
-  if (typeof renderTasksMainView === "function") renderTasksMainView();
-  renderOnboardingView();
-  renderCharts();
-  syncAutomationCheckboxes();
-  renderNotificationLogs();
-  updateNotificationDot();
 
-  if (API_ENDPOINT) {
-    syncDataFromGoogleSheets();
-  }
+  const yieldFrame = (fn) => setTimeout(fn, 0);
 
-  if (notificationLogs.length === 0) {
-    addNotificationLog("Bryan Portal khởi động thành công. Sẵn sàng điều phối B2B Delivery!");
-  }
+  yieldFrame(() => {
+    renderDashboardMeetings();
+    renderDashboardBlockers();
+    renderDashboardQuickTasks();
+    renderDashboardOnboardingSummary();
+    renderDashboardProjectsProgress();
+    renderDashboardUpcomingDeadlines();
+
+    yieldFrame(() => {
+      renderMerchantPillsBar();
+      renderMerchantSubTabs();
+      renderMerchantWorkspaceBody();
+      if (typeof renderTasksMainView === "function") renderTasksMainView();
+      renderOnboardingView();
+      renderCharts();
+      syncAutomationCheckboxes();
+      renderNotificationLogs();
+      updateNotificationDot();
+      if (typeof lucide !== "undefined") lucide.createIcons();
+
+      yieldFrame(() => {
+        if (API_ENDPOINT) {
+          syncDataFromGoogleSheets();
+        }
+        if (notificationLogs.length === 0) {
+          addNotificationLog("Bryan Portal khởi động thành công. Sẵn sàng điều phối B2B Delivery!");
+        }
+      });
+    });
+  });
 });
 
 // -------------------------------------------------------------
