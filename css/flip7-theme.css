@@ -454,6 +454,31 @@ i[data-lucide] {
   }
 }
 
+/* Laptop Windows / màn hình chiều cao thấp (1366x768, 1920x1080 @ 125%-150% DPI):
+   Thu gọn nhịp dọc sidebar để không bị cắt "Tiện ích File" & footer Hệ thống / Feedback */
+@media (max-height: 780px) {
+  #app-sidebar .sidebar-brand {
+    height: 54px !important;
+  }
+  #app-sidebar .sidebar-user-card {
+    margin-top: 8px !important;
+    margin-bottom: 6px !important;
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+  }
+  #app-sidebar nav > .sidebar-label {
+    padding-top: 6px !important;
+    padding-bottom: 2px !important;
+  }
+  #app-sidebar nav .nav-item {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+  #app-sidebar .sidebar-footer-actions {
+    padding: 8px 10px !important;
+  }
+}
+
 /* Dark Appearance Mode — True Neutral Graphite (#0F1115) + Restrained Teal Accent
    Zero green-tinted canvas/cards, zero neon glare, soft off-white ink */
 html.theme-dark body,
