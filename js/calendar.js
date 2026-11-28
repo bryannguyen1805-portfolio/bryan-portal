@@ -175,11 +175,11 @@ function renderCalendarGrid() {
     const wd = Number(el.getAttribute("data-cal-weekday"));
     const isTodayCol = isViewingCurrentMonth && wd === todayInfo.weekdayIdx;
     if (isTodayCol) {
-      el.className = "py-1 mx-1 rounded-lg bg-teal-50 text-teal-700 font-black";
+      el.className = "py-1 mx-0.5 sm:mx-1 rounded-lg whitespace-nowrap bg-teal-50 text-teal-700 font-black";
     } else if (wd === 0) {
-      el.className = "py-1 mx-1 rounded-lg text-rose-600";
+      el.className = "py-1 mx-0.5 sm:mx-1 rounded-lg whitespace-nowrap text-rose-600";
     } else {
-      el.className = "py-1 mx-1 rounded-lg";
+      el.className = "py-1 mx-0.5 sm:mx-1 rounded-lg whitespace-nowrap";
     }
   });
 
@@ -250,7 +250,7 @@ function renderCalendarGrid() {
 
     cellsHtml += `
       <div onclick="selectCalendarDay('${dateStr}')" class="min-h-[58px] md:min-h-[104px] p-1 md:p-2 cursor-pointer transition hover:bg-teal-50/30 flex flex-col justify-between ${
-        isSelected ? 'bg-teal-50/50 ring-2 ring-inset ring-teal-500' : 'bg-white'
+        isSelected ? 'bg-teal-50/40 ring-1 ring-inset ring-teal-500/40' : 'bg-white'
       }">
         <div>
           <div class="flex items-center justify-between mb-1">

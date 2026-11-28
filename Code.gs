@@ -1242,7 +1242,7 @@ function sendDailyDeadlineFcmPush() {
   };
 
   taskRows.forEach(t => {
-    if (String(t.stage || "") === "STAGE_DONE") return;
+    if (String(t.stage || "").trim().toUpperCase() === "STAGE_DONE" || t.completed_at) return;
     const due = String(t.due_date || "").slice(0, 10);
     if (!due) return;
     const diffDays = Math.round((new Date(due + "T00:00:00").getTime() - todayMs) / 86400000);
@@ -1356,7 +1356,7 @@ function checkAndSendUpcomingFcmPush() {
 
   // 2. NHIỆM VỤ / TASKS: Quá hạn, hạn hôm nay, hạn ngày mai (mỗi task 1 lần/ngày)
   taskRows.forEach(t => {
-    if (String(t.stage || "") === "STAGE_DONE") return;
+    if (String(t.stage || "").trim().toUpperCase() === "STAGE_DONE" || t.completed_at) return;
     const due = String(t.due_date || "").slice(0, 10);
     if (!due) return;
     const diffDays = Math.round((new Date(due + "T00:00:00").getTime() - todayMs) / 86400000);

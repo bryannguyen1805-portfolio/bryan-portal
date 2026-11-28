@@ -1148,12 +1148,21 @@ function toggleTaskDone(taskId) {
   if (task) {
     task.stage = task.stage === 'STAGE_DONE' ? 'STAGE_DOING' : 'STAGE_DONE';
     task.completed_at = task.stage === 'STAGE_DONE' ? new Date().toISOString() : null;
-    saveStateStorage();
-    showToast(`✓ Đã cập nhật trạng thái đầu việc!`);
-    updateAllKpis();
-    renderDashboardQuickTasks();
-    renderMerchantWorkspaceBody();
-    if (typeof renderTasksMainView === "function") renderTasksMainView();
+    if (typeof syncAllAfterTaskChange === "function") {
+      syncAllAfterTaskChange(
+        task.stage === 'STAGE_DONE'
+          ? `Hoàn thành đầu việc: "${task.title}"`
+          : `Mở lại đầu việc: "${task.title}"`
+      );
+    } else {
+      saveStateStorage();
+      updateAllKpis();
+      renderDashboardQuickTasks();
+      renderMerchantWorkspaceBody();
+      if (typeof renderTasksMainView === "function") renderTasksMainView();
+    }
+    if (typeof flushFullCloudSyncNow === "function") flushFullCloudSyncNow();
+    showToast(task.stage === 'STAGE_DONE' ? `✓ Đã hoàn thành: "${task.title}"` : `✓ Đã mở lại đầu việc!`);
   }
 }
 
